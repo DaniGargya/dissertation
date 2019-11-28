@@ -33,3 +33,48 @@ total EO market represents less than €23 million, of which Copernicus represen
 10 per cent of revenue.
 
 European Global Navigation Satellite SystemCopernicus synergies in support of the SDGs
+Table 2. Significant Contribution Tier SDGs, high-level assessment of contribution of
+European Union space programmes 
+
+interesting examples
+Case study 5. Improving food security through satellite technology
+Accurate and timely information on agricultural production helps farming communities to make
+informed decisions to achieve sustained growth in agriculture activity. This information plays an
+important role in enabling early warning of harvest shortfalls, increasing crop production and ensuring agricultural sustainability.
+An example of the use of EO data in agricultural monitoring is “remote sensing- based information and insurance for crops in emerging countries” (RIICE): a public-private partnership aiming to
+reduce the vulnerability of smallholder rice farmers in low-income countries. The objective of this
+programme is to make use of remote sensing technologies to map and observe rice growth in
+selected areas. Sentinel-1A’s national-scale data are used in this project for monitoring rice crops in
+seven countries.
+For more information: https://www.asean-agrifood.org/projects/riice/
+
+Case study13. Copernicus enhances efficiency of solar forecasting
+One of the main drawbacks of grid-connected solar farms is the intermittency of the energy produced. Difficulties with forecasting this kind of power generation have been used as an argument by
+opponents of renewable energy for a long time.
+Reuniwatt, a French SME, uses Copernicus to monitor the productivity of solar panels. Its main product is Soleka, which forecasts solar power production for electricity grid managers and photovoltaic
+electricity producers, enabling them to determine the approximate amount of solar energy they will
+have at their disposal at a given moment in time. Reuniwatt affirms that, thanks to Copernicus, it is
+possible to improve the quality of forecasts by 30 per cent while reducing costs by up to 50 per
+cent for one-day forecasts and up to 15 per cent for six-hour and 30-min forecasts, thanks to time
+saved in data processing.
+For more information: http://reuniwatt.com/en/
+
+Case study 20. Satellites help to design more habitable cities
+In cities, temperatures can be several degrees higher than in surrounding rural areas, especially at
+night. Prolonged periods of high temperatures increase the demand for energy and water, trigger
+health problems and increase air pollution and the greenhouse effect.
+Copernicus medium and high-resolution multispectral satellites with thermal-infrared sensors provide information about thermal patterns, thereby helping to improve urban climate and weather
+prediction models. An improved understanding of complex urban heat islands makes it possible to
+develop more efficient alert systems, helping decision- and policy-makers to adopt effective mitigation strategies and improve urban planning.
+For more information: http://www.copernicus.eu/sites/default/files/documents/Copernicus_Briefs/
+Copernicus_Brief_Issue16_Urban_Heat_Islands_Sep2013.pdf
+
+Case study 22. Use of Copernicus for urban housing density analysis
+Rapid urban population growth can hinder the execution of any well-thought-out urban plan. To
+ensure the well-being and productivity of citizens, there is a need to set up the required infrastructure and services, such as water supply, housing and sanitation facilities. It is therefore crucial to have
+a timely understanding of, and to monitor changes in, urban density, to help policy-makers react promptly to any sudden change in urban dynamics and make the best decision regarding the allocation of resources. This is especially true in developing countries, where urbanization is on the increase.
+The Centre for Remote Sensing and Geographic Information Services (CERSGIS) used EO Sentinel-2 imagery to map the urban housing density in Accra (Ghana). By observing similar spectral
+reflections exhibited by pixels in the images, they identified three urban density levels in built-up
+areas: high, medium and low density.
+For more information: http://cersgis.org/
+
