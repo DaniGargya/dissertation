@@ -32,11 +32,13 @@
 - machine learning
 - multi disciplinarity
 - positive deviance
+- not looking in past but analysing sth for future?
 - topic within environment/ecology?
   - check UN report USOOS
   - check Gregorius research
   - check previous GEE papers
   - check challenge led research
+    - https://www.ukri.org/research/global-challenges-research-fund/
   - check dissertation Izzy approach
   
 ## What do I like to do and what am I good at?
@@ -49,6 +51,7 @@
   - Understanding how digital technologies can lead to the transfer of agricultural innovation
     - https://www.ed.ac.uk/e4-dtp/how-to-apply/our-projects?item=955
   - food security and resilience (SDG doc, Goal 2 Zero Hunger)
+  - collectearth (dataset by GEE?)
   
     
 - SDGs
@@ -58,6 +61,16 @@
   - 11) Sustainable cities and communites
     - universal access to green spaces (11.7)
     - housing density analysis
+  - 13) climate action
+    - Integrate climate change measures into national policies, strategies and planning
+    - Promote mechanisms for raising capacity for effective climate change-related planning and management in least developed countries and small island developing States, including focusing on women, youth and local and marginalized communities
+  - 14) Life below water
+  - 15) Life on land
+    - ecosystem services
+    - forest management
+  - 17) Partnership for the goals
+  
+
     
   
 
