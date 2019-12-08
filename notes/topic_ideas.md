@@ -48,8 +48,18 @@
       - use space to find good examples of biodiverse and productive agricultural pracctices?
   - Understanding how digital technologies can lead to the transfer of agricultural innovation
     - https://www.ed.ac.uk/e4-dtp/how-to-apply/our-projects?item=955
+  - food security and resilience (SDG doc, Goal 2 Zero Hunger)
+  
     
 - SDGs
+  - 2) zero hunger
+  - 7) affordable and clean energy
+  - 9) Industry, Innovation and Infrastructure
+  - 11) Sustainable cities and communites
+    - universal access to green spaces (11.7)
+    - housing density analysis
+    
+  
 
 - Energy
   - potential renewables
