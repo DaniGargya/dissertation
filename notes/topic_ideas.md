@@ -52,6 +52,8 @@
     - https://www.ed.ac.uk/e4-dtp/how-to-apply/our-projects?item=955
   - food security and resilience (SDG doc, Goal 2 Zero Hunger)
   - collectearth (dataset by GEE?)
+  - Mapping coffee plantations with Landsat imagery: an example from El Salvador
+    - https://www.tandfonline.com/doi/abs/10.1080/01431161.2011.591442?src=recsys&journalCode=tres20
   
     
 - SDGs
