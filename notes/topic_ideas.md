@@ -79,6 +79,11 @@
   - energy efficiency
   - Spatial transition analysis: Spatially explicit and evidence-based targets for sustainable energy transition at the local and regional scale
     - https://www.sciencedirect.com/science/article/pii/S0169204617301809
+  - Seeing Energy from Space: 5 Tools Using Remote Sensing to Improve Life on Earth
+    - https://blog.resourcewatch.org/2019/02/01/seeing-energy-from-space-5-tools-using-remote-sensing-to-improve-life-on-earth/
+  - Lighting the World: the first application of an open source, spatial electrification tool (OnSSET) on Sub-Saharan Africa
+    - https://iopscience.iop.org/article/10.1088/1748-9326/aa7b29
+  - **Using Open Source Spatial Electrification Tool (OnSSET) to assess optimal mix of technologies (on grid, off grid and mini grid syxtems) in India.**
 
 - Circular economy
 
