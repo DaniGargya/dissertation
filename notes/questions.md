@@ -10,3 +10,6 @@ Content
 
 General
 - how to order articles read/ notes taken
+
+20/01/20
+- if/how to frame/word/mention discussion human dev vs biodiversity?
