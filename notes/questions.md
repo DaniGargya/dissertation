@@ -11,6 +11,7 @@ Intro
   - BD discussion declining/increasing incude; metrics and scales
   - BD theory about disturbance
     - link to accessiblity!
+  - turnover vs homogenization
     
 - key intro topics
   - now or later?
@@ -19,6 +20,8 @@ Intro
   - how many?
   
 - conservation efforts for what?
+  - focus on which biomes and taxa?
+  
 - knowledge gap
 
 Research questions
@@ -28,11 +31,15 @@ Research questions
 
 
 Methods
+- seem to simple and straightforward and too broad, do I need to focus on sth more particular?
 - random effects
 - how to account for differences in taxa, biomes, geographic regions
+- focus on one? focus on one taxa only?
 - spatial, temporal, biological
 - over what time period Jaccard trend (from each year or only one baseline) -> compare spatial- temporal?
 - PCA?
+- state space models?
+- rarefaction?
 
 
 ### General
