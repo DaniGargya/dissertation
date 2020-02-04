@@ -86,3 +86,5 @@ treemap(bio_ter,
         type="index"
 )
 # add numbers, change title
+
+# sample size
