@@ -7,11 +7,40 @@ library(tidyverse) # contains dplyr, ggplot, ...
 library(maps) # for mapping the flamingo data using coordinates
 library(ggthemes) # for data visualisation
 library(treemap) # to create treemaps (taxa boxes)
+library(wesanderson) # colour palette
+library(treemapify) # for area graph
+library(ggplot2)
+
+# needed?
+library(broom)
+library(ggalt)
+library(ggrepel)
+library(rgbif)
+library(CoordinateCleaner)
+library(gridExtra)
 
 # load data ----
 #biotime_all <- read.csv("data/BioTIMEQuery02_04_2018.csv")
 
 biotime_all <- read.csv("data/BioTIMEMetadata_02_04_2018.csv")
+
+# setting a clean theme ----
+theme_clean <- function(){
+  theme_bw() +
+    theme(axis.text.x = element_text(size = 14),
+          axis.text.y = element_text(size = 14),
+          axis.title.x = element_text(size = 14, face = "plain"),             
+          axis.title.y = element_text(size = 14, face = "plain"),             
+          panel.grid.major.x = element_blank(),                                          
+          panel.grid.minor.x = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          panel.grid.major.y = element_blank(),  
+          plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
+          plot.title = element_text(size = 15, vjust = 1, hjust = 0.5),
+          legend.text = element_text(size = 12, face = "italic"),          
+          legend.title = element_blank(),                              
+          legend.position = c(0.5, 0.8))
+}
 
 # data manipulation ----
 bio_ter <- biotime_all %>% 
@@ -48,10 +77,9 @@ bio_05 %>%
   group_by(BIOME_MAP) %>% 
   summarise(Studies=length(unique(STUDY_ID)))
 
-
 # visualising exploration of data ----
 
-# spatial distribution of biodiversity time-series
+# spatial distribution of biodiversity time-series ----
 (map_studies <- ggplot(bio_ter,
                       aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA)) +
     borders("world", colour = "gray60", fill = "gray88", size = 0.3) +
@@ -62,29 +90,68 @@ bio_05 %>%
           plot.title = element_text(size=15, hjust=0.5)) +
     labs(title="Spatial distribution studies"))
 
-# temporal distribution of biodiversity time-series
-duration_s <- bio_ter %>% 
-  group_by(TAXA, duration) %>% 
-  arrange(
-    TAXA,
-    duration,
-    desc(duration)
-  )
+ggsave(map_studies, filename = "outputs/map_studies.png",
+       height = 5, width = 8)
 
-(plot_temp <- ggplot (duration_s, aes (x=x, y=y, group = TAXA, colour = TAXA)) +
-    geom_segment(aes (x=START_YEAR, xend=END_YEAR, y= STUDY_ID, yend= STUDY_ID)))
+# temporal distribution of biodiversity time-series ----
+# making id variable as factor
+bio_ter$STUDY_ID <- as.factor(as.character(bio_ter$STUDY_ID))
+
+# create a sorting variable
+bio_ter$sort <- bio_ter$TAXA
+bio_ter$sort <- factor(bio_ter$sort, levels = c("Terrestrial plants",
+                                                "Birds",
+                                                "Mammals",
+                                                "Terrestrial invertebrates",
+                                                "Reptiles",
+                                                "Amphibians",
+                                                "All"),
+                       labels = c(1,2,3,4,5,6,7))
 
 
-#ggplot(data, aes(x=x, y=y)) +
-  #geom_segment( aes(x=x, xend=x, y=0, yend=y), color="grey") +
+bio_ter$sort <- paste0(bio_ter$sort, bio_ter$START_YEAR)
+bio_ter$sort <- as.numeric(as.character(bio_ter$sort))
 
-# Taxonomic distribution of biodiversity time-series
-# treemap
-treemap(bio_ter,
-        index="TAXA",
-        vSize="STUDY_ID",
-        type="index"
-)
-# add numbers, change title
+(timeline_s <- ggplot() +
+    geom_linerange(data = bio_ter, aes(ymin = START_YEAR, ymax = END_YEAR, 
+                                                  colour = TAXA,
+                                                  x = fct_reorder(STUDY_ID, desc(sort))),
+                   size = 1) +
+    scale_colour_manual(values = wes_palette("BottleRocket1")) +
+    labs(x = NULL, y = NULL) +
+    theme_bw() +
+    coord_flip() +
+    guides(colour = F) +
+    theme(panel.grid.minor = element_blank(),
+          panel.grid.major.y = element_blank(),
+          panel.grid.major.x = element_line(),
+          axis.ticks = element_blank(),
+          legend.position = "bottom", 
+          panel.border = element_blank(),
+          legend.title = element_blank(),
+          axis.title.y = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks.y = element_blank(),
+          plot.title = element_text(size = 20, vjust = 1, hjust = 0),
+          axis.text = element_text(size = 16), 
+          axis.title = element_text(size = 20)))
 
-# sample size
+ggsave(timeline_s, filename = "outputs/timeline_studies.png",
+       height = 5, width = 8)
+
+
+
+# Taxonomic distribution of biodiversity time-series ----
+# calculating sample size for each taxa
+taxa_sum <- bio_ter %>%  group_by(TAXA) %>% tally
+
+(bio_ter_area <- ggplot(taxa_sum, aes(area = n, fill = TAXA, label = n,
+                                   subgroup = TAXA)) +
+    geom_treemap() +
+    geom_treemap_subgroup_border(colour = "white", size = 1) +
+    geom_treemap_text(colour = "white", place = "center", reflow = T) +
+    scale_colour_manual(values = wes_palette("BottleRocket1")) +
+    scale_fill_manual(values = wes_palette("BottleRocket1")))
+
+ggsave(bio_ter_area, filename = "outputs/taxa_studies.png",
+       height = 5, width = 8)
