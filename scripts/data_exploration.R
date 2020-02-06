@@ -1,4 +1,4 @@
-# Script to explore the data for dissertation project
+# Script to explore the data for dissertation project (META_DATA)
 # Dani Gargya, daniela@gargya.de
 # Feb 2020
 
@@ -20,8 +20,6 @@ library(CoordinateCleaner)
 library(gridExtra)
 
 # load data ----
-#biotime_all <- read.csv("data/BioTIMEQuery02_04_2018.csv")
-
 biotime_all <- read.csv("data/BioTIMEMetadata_02_04_2018.csv")
 
 # setting a clean theme ----
