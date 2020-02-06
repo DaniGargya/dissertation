@@ -1,6 +1,6 @@
-# Script to play around with the data for dissertation project
-# Dani Gargya, daniela@gargya.de, Nov/2019
-# Jan 2020
+# Script to explore the data for dissertation project
+# Dani Gargya, daniela@gargya.de
+# Feb 2020
 
 # load libraries ----
 library(tidyverse) # contains dplyr, ggplot, ...
@@ -47,8 +47,10 @@ bio_ter <- biotime_all %>%
   filter(REALM == "Terrestrial") %>% # only terrestial species
   mutate(duration = END_YEAR - START_YEAR) # duration of each study
 
-#bio_05 <- bio_ter %>% 
-  #filter(START_YEAR > 2004)
+# time filtering
+bio_05 <- bio_ter %>% 
+  filter(START_YEAR > 2004)
+# 27 from 2005, 49 from 2000
 
 # explore data ----
 head(biotime_all)
@@ -155,3 +157,12 @@ taxa_sum <- bio_ter %>%  group_by(TAXA) %>% tally
 
 ggsave(bio_ter_area, filename = "outputs/taxa_studies.png",
        height = 5, width = 8)
+
+# Sample sizes in categories ----
+# studies: multiple taxa 2, amphibians 2, terrestrial birds 35, terrestrial mammals 22, reptiles 3, terrestrial invertebrates 21, terrestrial plants 96
+table_sample_size <- bio_ter %>%  
+  group_by(TAXA) %>% 
+  tally %>% 
+  rename(Timeseries = n, Taxa = TAXA)
+
+write.table(table_sample_size, "outputs/table_taxa.txt")

@@ -1,0 +1,8 @@
+"Taxa" "Timeseries"
+"1" NA 2
+"2" "Amphibians" 2
+"3" "Birds" 35
+"4" "Mammals" 22
+"5" "Reptiles" 3
+"6" "Terrestrial invertebrates" 21
+"7" "Terrestrial plants" 96
