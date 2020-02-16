@@ -14,6 +14,7 @@ library(viridis)
 library("RColorBrewer")
 library(treemapify) # for area graph
 library(ggplot2)
+library(ggpubr)
 
 # needed?
 library(broom)
@@ -104,7 +105,7 @@ colours1 <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", 
     labs(title = ("\n\n a) Spatial distribution of time-series\n")) +
     theme(legend.position= "bottom", 
           legend.title = element_blank(),
-          legend.text = element_text(size = 10),
+          legend.text = element_text(size = 14),
           legend.justification = "top",
           plot.title = element_text(size = 14, hjust = 0.5, face = "bold")))
 
@@ -189,10 +190,10 @@ table_sample_size <- bio_ter %>%
 write.table(table_sample_size, "outputs/table_taxa.txt")
 
 # panel ----
-bio_panel <- grid.arrange(map_studies, timeline_studies, taxa_studies, nrow = 3)
+panel_b <- ggarrange(timeline_studies, taxa_studies, ncol = 2, align = c("h"))
 
-panel_below <- grid.arrange(timeline_studies, taxa_studies, ncol = 2)
-panel_full <- grid.arrange(map_studies, panel_below, nrow = 2)
+
+panel_full <- grid.arrange(map_studies, panel_b, nrow = 2)
 
 ggsave(panel_full, filename ="outputs/panel_studies.png",
-       height = 5, width = 8)
+       height = 10, width = 8)
