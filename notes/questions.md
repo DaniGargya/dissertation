@@ -26,6 +26,8 @@
   - include study reproducibility?
 - transformations - what to include?
 - state assumptions that road network has not changed much since 1990?
+- partitioning of studies?
+- rarefaction?
 
 - what is the structure of BioTIME?? several observations in each study?
   - important for random effects as well
