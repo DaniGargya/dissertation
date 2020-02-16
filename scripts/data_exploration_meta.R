@@ -2,6 +2,8 @@
 # Dani Gargya, daniela@gargya.de
 # Feb 2020
 
+#plot margin
+
 # load libraries ----
 library(tidyverse) # contains dplyr, ggplot, ...
 library(maps) # for mapping the flamingo data using coordinates
@@ -46,7 +48,9 @@ theme_clean <- function(){
 bio_ter <- biotime_all %>% 
   filter(REALM == "Terrestrial") %>% # only terrestial species
   mutate(duration = END_YEAR - START_YEAR)  # duration of each study
-  
+
+# changing All to Multiple taxa
+bio_ter$TAXA <- gsub("All", "Multiple taxa", bio_ter$TAXA)
 
 # time filtering
 bio_05 <- bio_ter %>% 
@@ -80,12 +84,8 @@ bio_05 %>%
   group_by(BIOME_MAP) %>% 
   summarise(Studies=length(unique(STUDY_ID)))
 
-# visualising exploration of data ----
-
 # spatial distribution of biodiversity time-series ----
 colours1 <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D")
-
-bio_ter$TAXA <- gsub("All", "Multiple taxa", bio_ter$TAXA)
 
 (map_studies <- ggplot(bio_ter,
                       aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA)) +
@@ -94,8 +94,19 @@ bio_ter$TAXA <- gsub("All", "Multiple taxa", bio_ter$TAXA)
     theme_map() +
     geom_point(size = 2) +
     scale_colour_brewer(palette = "Dark2") +
-    theme(legend.position= c(0.05, 0.2), legend.background = element_blank(),
-          plot.title = element_text(size=15, hjust=0.5)))
+    scale_fill_manual(labels = c("Terrestrial plants",
+                                 "Birds",
+                                 "Mammals",
+                                 "Terrestrial invertebrates",
+                                 "Reptiles",
+                                 "Amphibians",
+                                 "Multiple Taxa")) +
+    labs(title = ("\n\n a) Spatial distribution of time-series\n")) +
+    theme(legend.position= "bottom", 
+          legend.title = element_blank(),
+          legend.text = element_text(size = 10),
+          legend.justification = "top",
+          plot.title = element_text(size = 14, hjust = 0.5, face = "bold")))
 
 ggsave(map_studies, filename = "outputs/map_studies.png",
        height = 5, width = 8)
@@ -112,58 +123,63 @@ bio_ter$sort <- factor(bio_ter$sort, levels = c("Terrestrial plants",
                                                 "Terrestrial invertebrates",
                                                 "Reptiles",
                                                 "Amphibians",
-                                                "All"),
+                                                "Multiple Taxa"),
                        labels = c(1,2,3,4,5,6,7))
 
 
 bio_ter$sort <- paste0(bio_ter$sort, bio_ter$START_YEAR)
 bio_ter$sort <- as.numeric(as.character(bio_ter$sort))
 
-(timeline_s <- ggplot() +
+(timeline_studies <- ggplot() +
     geom_linerange(data = bio_ter, aes(ymin = START_YEAR, ymax = END_YEAR, 
                                                   colour = TAXA,
                                                   x = fct_reorder(STUDY_ID, desc(sort))),
                    size = 1) +
-    scale_colour_manual(values = wes_palette("BottleRocket1")) +
-    labs(x = NULL, y = NULL) +
-    theme_bw() +
+    scale_colour_brewer(palette = "Dark2") +
+    labs(x = NULL, y = NULL,
+         title = ("\n\n b) Temporal distribution of time-series\n")) +
+    theme_clean() +
     coord_flip() +
     guides(colour = F) +
+    theme_clean() +
     theme(panel.grid.minor = element_blank(),
-          panel.grid.major.y = element_blank(),
-          panel.grid.major.x = element_line(),
-          axis.ticks = element_blank(),
-          legend.position = "bottom", 
-          panel.border = element_blank(),
-          legend.title = element_blank(),
-          axis.title.y = element_blank(),
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank(),
-          plot.title = element_text(size = 20, vjust = 1, hjust = 0),
-          axis.text = element_text(size = 16), 
-          axis.title = element_text(size = 20)))
+      panel.grid.major.y = element_blank(),
+      panel.grid.major.x = element_line(),
+      axis.ticks = element_blank(),
+      legend.position = "bottom", 
+      panel.border = element_blank(),
+      legend.title = element_blank(),
+      axis.title.y = element_blank(),
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank(),
+      plot.title = element_text(size = 14, hjust = 0.5, face = "bold"),
+      axis.text = element_text(size = 16), 
+      axis.title = element_text(size = 20)))
 
 ggsave(timeline_s, filename = "outputs/timeline_studies.png",
        height = 5, width = 8)
 
 
 
-# Taxonomic distribution of biodiversity time-series ----
+# taxonomic distribution of biodiversity time-series ----
 # calculating sample size for each taxa
 taxa_sum <- bio_ter %>%  group_by(TAXA) %>% tally
 
-(bio_ter_area <- ggplot(taxa_sum, aes(area = n, fill = TAXA, label = n,
+(taxa_studies <- ggplot(taxa_sum, aes(area = n, fill = TAXA, label = n,
                                    subgroup = TAXA)) +
     geom_treemap() +
     geom_treemap_subgroup_border(colour = "white", size = 1) +
     geom_treemap_text(colour = "white", place = "center", reflow = T) +
-    scale_colour_manual(values = wes_palette("BottleRocket1")) +
-    scale_fill_manual(values = wes_palette("BottleRocket1")))
+    scale_colour_brewer(palette = "Dark2") +
+    scale_fill_brewer(palette = "Dark2") +
+    labs(title = ("\n\n c) Taxonomic distribution of time-series\n")) +
+    theme(plot.title = element_text(size = 14, hjust = 0.5, face = "bold")) +
+    guides(fill= FALSE))
 
 ggsave(bio_ter_area, filename = "outputs/taxa_studies.png",
        height = 5, width = 8)
 
-# Sample sizes in categories ----
+# sample sizes in categories ----
 # studies: multiple taxa 2, amphibians 2, terrestrial birds 35, terrestrial mammals 22, reptiles 3, terrestrial invertebrates 21, terrestrial plants 96
 table_sample_size <- bio_ter %>%  
   group_by(TAXA) %>% 
@@ -171,3 +187,12 @@ table_sample_size <- bio_ter %>%
   rename(Timeseries = n, Taxa = TAXA)
 
 write.table(table_sample_size, "outputs/table_taxa.txt")
+
+# panel ----
+bio_panel <- grid.arrange(map_studies, timeline_studies, taxa_studies, nrow = 3)
+
+panel_below <- grid.arrange(timeline_studies, taxa_studies, ncol = 2)
+panel_full <- grid.arrange(map_studies, panel_below, nrow = 2)
+
+ggsave(panel_full, filename ="outputs/panel_studies.png",
+       height = 5, width = 8)
