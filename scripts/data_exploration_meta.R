@@ -2,8 +2,6 @@
 # Dani Gargya, daniela@gargya.de
 # Feb 2020
 
-#plot margin
-
 # load libraries ----
 library(tidyverse) # contains dplyr, ggplot, ...
 library(maps) # for mapping the flamingo data using coordinates
