@@ -1,16 +1,20 @@
 # Questions
 
 ### Preregistration
-- RQ 3 taxa? what am I actually testing? how do I get mobility in there? or part of discussion?
-- Do I need to keep analysis for pop trends throughout whole document?
-- leave latitude in?
-- prediciton/hypotheses about latitude?
-- prediciton RQ3 taxa: specify what I predict?
-- how to convert arc-seconds into km² grid cells?
+- RQ 3 taxa? what am I actually testing?
+  - related to TT or ST?
+  - prediciton RQ3 taxa: specify what I predict?
+
 - criteria for my data?
+  - duration vs data points
+  - leep min time-series duration of 5 years? If yes, then only 2 taxa
+  - report number of smaples or records?
+  - sd super high, still report?
+
+
+
+
 - Measured variables: 
-  - how to define Spatial turnover?
-  - include interaction term A and taxa?
   - metadata?
 - Indices?
 - statistical analysis
@@ -23,16 +27,12 @@
   - how to calculate spatial turnover?
   - RQ3: model and distribution?
   - what aditional analysis to include?
-  - include study reproducibility?
 - transformations - what to include?
-- state assumptions that road network has not changed much since 1990?
 - partitioning of studies?
 - rarefaction?
 
-- what is the structure of BioTIME?? several observations in each study?
-  - important for random effects as well
-  - sample size?
 
+- how to convert arc-seconds into km² grid cells?
 
 ### Content
 
