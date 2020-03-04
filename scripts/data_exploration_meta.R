@@ -87,12 +87,13 @@ bio_05 %>%
 colours1 <- c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#66A61E", "#E6AB02", "#A6761D")
 
 (map_studies <- ggplot(bio_ter,
-                      aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA)) +
+                      aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA, size = NUMBER_OF_SAMPLES), alpha = I(0.7)) +
     borders("world", colour = "gray88", fill = "gray88", size = 0.3) +
     coord_cartesian(xlim = NULL, ylim = NULL, expand = TRUE) +
     theme_map() +
-    geom_point(size = 2) +
+    geom_point(range = c(3,10)) +
     scale_colour_brewer(palette = "Dark2") +
+    #scale_size(range=c(3, 10)) +
     scale_fill_manual(labels = c("Terrestrial plants",
                                  "Birds",
                                  "Mammals",
@@ -195,3 +196,29 @@ panel_full <- grid.arrange(map_studies, panel_b, nrow = 2)
 
 ggsave(panel_full, filename ="outputs/panel_studies.png",
        height = 10, width = 8)
+
+
+#### draw a basic world map, add "y" or "n" for display of tropics and polar latitudes
+
+drawWorld<-function(lats) {
+  world_map<-map_data("world")
+  
+  g1<-ggplot()+coord_fixed()+xlab("")+ylab("")
+  g1<-g1+geom_polygon(data=world_map, aes(x=long, y=lat, group=group), colour="gray60", fill="gray60")
+  g1<-g1+theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(), 
+               panel.background=element_rect(fill="white", colour="white"), axis.line=element_line(colour="white"),
+               legend.position="none",axis.ticks=element_blank(), axis.text.x=element_blank(), axis.text.y=element_blank())
+  
+  if(lats=="y") {
+    g1<-g1+geom_hline(yintercept=23.5, colour="red")+geom_hline(yintercept =-23.5, colour="red")
+    g1<-g1+geom_hline(yintercept=66.5, colour="darkblue")+geom_hline(yintercept =-66.5, colour="darkblue")
+  }
+  else { return(g1) }
+  return(g1)
+}
+
+taxaCol<-c('#ffffff','#ffffbf','#5e4fa2','#f46d43','#3288bd','#abdda4','#a8c614','#d53e4f','#66c2a5','#e6f598','#fee08b','#9e0142','#fdae61')
+
+points<-drawWorld("n")+geom_point(data=bio_ter, aes(x=CENT_LONG, y=CENT_LAT, colour=TAXA, size=TOTAL), alpha=I(0.7))
+points<-points+scale_colour_manual(values=taxaCol)+scale_size(range=c(3, 10))
+points
