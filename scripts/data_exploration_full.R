@@ -4,7 +4,6 @@
 
 ### Questions
 # at least 2 survey points in time # how to do that??
-# why difference between study_id_plot and plot not bigger?
 # how to get to plot and observation?
 # keep 5 years min duration? omits many entries so that it does not meet min 20 studies anymore
 # duration vs data points
@@ -46,15 +45,18 @@ bio <- biotime_meta %>%
   left_join(biotime_full, by = "STUDY_ID") %>% 
   group_by(STUDY_ID) %>% 
   unite(STUDY_ID_PLOT, STUDY_ID, PLOT, sep = "_", remove=F) %>% 
-  filter(!STUDY_ID == 298)  # had 147201 entries??
+  filter(!STUDY_ID == 298)  %>%  # has 147201 entries??
+  select(STUDY_ID, STUDY_ID_PLOT, PLOT, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, CENT_LONG, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS, SPECIES, LATITUDE, LONGITUDE)
 
+# write and save sample
+sample <- bio[1:10,]
+write.csv(sample, "outputs/sample_csv.csv")
 
 # data exploration ----
 unique(bio$STUDY_ID_PLOT) # 8527 without min duration; 4929 with min duration; 152130 with study 298
-unique(bio$PLOT) # 6888, but maybe some named the same and thats why?
+unique(bio$PLOT) # does not really make sense to look at it
 unique(bio$STUDY_ID) # 173 without min duration; 106 with min duration
 str(bio)
-
 
 # spatial scale ----
 # plots per study
@@ -63,55 +65,45 @@ plot_study <- bio %>%
   summarise(plots =length(unique(STUDY_ID_PLOT)))
 
 # average/std dev plots per study
-mean(plot_study$plots) # 52.9
-sqrt(var(plot_study$plots)) # +/- 152.19
+mean(plot_study$plots) # 54.49
+sd(plot_study$plots) # +/- 155.03
 
 
-# observations per plot # does not work
+# observations per plot
 observation_plot <- bio %>% 
   group_by(STUDY_ID_PLOT) %>% 
   distinct(STUDY_ID_PLOT, NUMBER_OF_SAMPLES, TOTAL)
 
 # average/std dev observations per plot
 mean(observation_plot$NUMBER_OF_SAMPLES) # 15240
-sqrt(var(observation_plot$NUMBER_OF_SAMPLES)) # +/- 39845.36
-
+sd(observation_plot$NUMBER_OF_SAMPLES) # 39845
 
 # temporal scale ----
-# duration per study ID
+# duration/data points per study ID
 years_study <- bio %>% 
   group_by(STUDY_ID) %>% 
-  mutate(duration = END_YEAR - START_YEAR) %>% 
-  distinct(STUDY_ID, duration)
+  distinct(STUDY_ID, duration, DATA_POINTS)
 
 # average/std dev years per study ID
-mean(years_study$duration) # 17.21
-sqrt(var(years_study$duration)) # +/- 15.61
+mean(years_study$duration) # 17.55
+sd(years_study$duration) # +/- 15.79
 
-datap_study <- bio %>%
-  group_by(STUDY_ID) %>% 
-  distinct(STUDY_ID, DATA_POINTS)
-
-# average/std dev years per study ID
+# average/std dev data points per study ID
 mean(datap_study$DATA_POINTS) # 11.08
-sqrt(var(datap_study$DATA_POINTS)) # 12.46
+sd(datap_study$DATA_POINTS) # 12.46
 
 
 # taxa scale ----
-# study ID per taxa
-study_taxa <- bio %>% 
+# sample sizes taxa
+samples_taxa <- bio %>% 
   group_by(TAXA) %>% 
-  summarise(studies=length(unique(STUDY_ID)))
+  summarise(studies=length(unique(STUDY_ID)), # study per taxa
+            plots = length(unique(STUDY_ID_PLOT)), # plots per taxa
+            observations = length(NUMBER_OF_SAMPLES)) # observations per taxa
+  
+write.table(samples_taxa, "outputs/samples_taxa.txt")
 
-# plots per taxa
-plots_taxa <- bio %>% 
-  group_by(TAXA) %>% 
-  summarise(plots=length(unique(STUDY_ID_PLOT)))
-
-# observations per taxa
-oberservation_taxa <- bio %>% 
-  group_by(TAXA) %>% 
-  distinct(NUMBER_OF_SAMPLES)
 
 # visualisation ----
+
 

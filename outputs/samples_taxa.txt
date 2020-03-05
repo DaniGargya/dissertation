@@ -1,0 +1,5 @@
+"TAXA" "studies" "plots" "observations"
+"1" "Birds" 35 1422 1299941
+"2" "Mammals" 22 1256 385663
+"3" "Terrestrial invertebrates" 21 1484 192008
+"4" "Terrestrial plants" 95 5265 896168
