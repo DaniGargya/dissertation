@@ -1,6 +1,5 @@
 # Questions
 add Isla to repo
-
 change to assemblage at all places?
 
 ### Preregistration
@@ -29,10 +28,12 @@ change to assemblage at all places?
   - sd super high, still report?
 
 - statistical models
-  - nestedness of data
-  
+  - nestedness of data: Study ID within biome or is that accounted for by grid cell?
+
+### General
 - nestedness vs turnover?
-  
+- how to exclude other drivers?
+- what if there is no lat/long per plot?
 
 
 
