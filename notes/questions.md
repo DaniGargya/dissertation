@@ -1,25 +1,46 @@
 # Questions
+add Isla to repo
+
+change to assemblage at all places?
 
 ### Preregistration
 - RQ 3 taxa? what am I actually testing?
   - related to TT or ST?
   - prediciton RQ3 taxa: specify what I predict?
+  
+- Models
+  - put equations?
+  - model for taxa question?
+  
+- transformations
+  - what to include?
+  - partitioning of studies?
+  - rarefaction?
+
+### Data
+- data merging
+  - not sure I did it correctly
+  - study-ID 298 has 147 201 entries??
 
 - criteria for my data?
   - duration vs data points
-  - leep min time-series duration of 5 years? If yes, then only 2 taxa
-  - report number of smaples or records?
+  - keep min time-series duration of 5 years? If yes, then only 2 taxa
+  - report number of samples or records?
   - sd super high, still report?
+
+- statistical models
+  - nestedness of data
+  
+- nestedness vs turnover?
+  
+
 
 
 
 
 - Measured variables: 
-  - metadata?
 - Indices?
 - statistical analysis
-  - random effect: biome vs broad grid cell
-  - study-ID? nestedness of data?
   - distribution of models?
     - difference beta distribution and priors?
     - beta ERROR distribution?
