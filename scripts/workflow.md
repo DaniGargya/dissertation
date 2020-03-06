@@ -1,6 +1,6 @@
 # Workflow
 
-## Data selection/sources
+## Data selection/sources ### till 13th March
 - data inclusion criteria for BioTIME data set, merge data sets correctly
 - standardize cell sizes of all datasets
   - partitioning BioTIME time-series? 
@@ -8,14 +8,13 @@
 - extract/import mean accessiblity score from GEE matching the location of time-series with standardized cell size
 - import population density data
 
-## Data processing
+## Data processing ### till 13th March
 - transformations: grid cell, coding scheme categorical value population density, bound accessiblity score between 0 and 1
 - center other values of BioTIME?
 
-## Data analysis
+## Data analysis ### till 13th March
 - calculate turnover trends using Jaccard
   - temporal: comparing last year to first year
-    - 
   - spatial: using same value as TT, but relating it across space?
   
 - create models
@@ -25,13 +24,13 @@
   - TT ~ A + A:HPD
   - ST ~ A + A:HPD
 
-## Sensitivity analysis
+## Sensitivity analysis ### till 20th March
 - better temporally matched data
 - sensitivity to cell sizes
 - effect of latitude?
 - number of studies that fall into protected areas
 
-## Data visualisation
+## Data visualisation ### till 20th March
 - graph RQ TT
 - PCA RQ ST
 - 
