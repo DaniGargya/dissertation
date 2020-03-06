@@ -1,5 +1,4 @@
 # Questions
-add Isla to repo
 change to assemblage at all places?
 
 ### Preregistration
@@ -9,7 +8,8 @@ change to assemblage at all places?
   
 - Models
   - put equations?
-  - model for taxa question?
+  - model/ditribution for taxa question?
+  - random effect: STUDY ID/Plot?
   
 - transformations
   - what to include?
