@@ -8,7 +8,7 @@
 # info: study 327 has 171843 number of samples in chile
 
 # Load data ----
-# biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
+biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
 biotime_meta <- read.csv("data/BioTIMEMetadata_02_04_2018.csv")
 bio <- read.csv("data/bio.csv")
 
@@ -70,7 +70,7 @@ bio <- biotime_meta %>%
   select(STUDY_ID, STUDY_ID_PLOT, PLOT, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, CENT_LONG, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS, SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
 
 # saving data subset
-write.csv(bio, "data/bio.csv")
+#write.csv(bio, "data/bio.csv")
 
 # meta filtered
 bio_meta <- biotime_meta %>% 
@@ -87,8 +87,8 @@ bio_meta <- biotime_meta %>%
   
 
 # write and save sample
-sample <- bio[1:10,]
-write.csv(sample, "outputs/sample_csv.csv")
+#sample <- bio[1:10,]
+#write.csv(sample, "outputs/sample_csv.csv")
 
 # data exploration ----
 unique(bio$STUDY_ID_PLOT) # 7473
@@ -145,7 +145,7 @@ write.table(samples_taxa, "outputs/samples_taxa.txt")
 # visualisation ----
 # spatial distribution of biodiversity time-series ----
 bio_short <- bio %>% 
-  distinct(STUDY_ID_PLOT, CENT_LAT, CENT_LONG, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, HAS_PLOT, NUMBER_LAT_LONG)
+  distinct(STUDY_ID_PLOT, STUDY_ID, CENT_LAT, CENT_LONG, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, HAS_PLOT, NUMBER_LAT_LONG)
 
 (map_studies2 <- ggplot(bio_short,
                        aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA, size = NUMBER_OF_SAMPLES), alpha = I(0.7)) +
@@ -245,12 +245,12 @@ ggsave(panel_full2, filename ="outputs/panel_studies2.png",
 # checking for need rarefaction ----
 # histograms area ----
 # histogram km2 area plots
-(area_hist <- ggplot(bio, aes(x = AREA_SQ_KM)) +
+(area_hist3 <- ggplot(bio, aes(x = AREA_SQ_KM)) +
    geom_histogram()+
    theme_clean())
 
 # histogram km2 area study ID
-(area_hist <- ggplot(bio_meta, aes(x = AREA_SQ_KM)) +
+(area_hist2 <- ggplot(bio_meta, aes(x = AREA_SQ_KM)) +
     geom_histogram() +
     theme_clean())
 
@@ -258,6 +258,11 @@ ggsave(panel_full2, filename ="outputs/panel_studies2.png",
 (area_hist <- ggplot(bio_short, aes(x = AREA_SQ_KM)) +
     geom_histogram()+
     theme_clean())
+ggsave(area_hist, filename = "outputs/area_hist.png", height =7, width = 10)
+
+png("outputs/area_hist_base.png")
+area_hist_base <- hist(bio_short$AREA_SQ_KM)
+dev.off()
 
 area <- bio_short %>% 
   group_by(AREA_SQ_KM) %>% 
@@ -281,28 +286,35 @@ colSums(area_under96)
 hist(bio_short$AREA_SQ_KM,
      breaks="FD")
 
-hist(bio_short$AREA_SQ_KM, breaks = 20)
+histogram_area <- hist(bio_short$AREA_SQ_KM, breaks = 10)
+
+
 histinfo <- hist(bio_short$AREA_SQ_KM)
 histinfo
 
-(area_hist2 <- ggplot(area_over96, aes(x = AREA_SQ_KM)) +
+(area_hist4 <- ggplot(area_over96, aes(x = AREA_SQ_KM)) +
     geom_histogram()+
     theme_clean())
 
-(area_hist2 <- ggplot(area_under96, aes(x = AREA_SQ_KM)) +
+(area_hist5 <- ggplot(area_under96, aes(x = AREA_SQ_KM)) +
     geom_histogram()+
     theme_clean())
 
 # log axis
 log_area <- log(bio_short$AREA_SQ_KM)
-hist(log_area)
+
+png("outputs/hist_log_area.png")
+hist_log_area <- hist(log_area)
+dev.off()
+
+
 (hist_area_log <- hist(log_area, breaks = "FD"))
 
 bio_log <- bio_short %>% 
   mutate(log_area = log(AREA_SQ_KM))
 
 
-(area_hist <- ggplot(bio_log, aes(x = log_area)) +
+(area_hist_log <- ggplot(bio_log, aes(x = log_area)) +
     geom_histogram()+
     theme_clean())
 
