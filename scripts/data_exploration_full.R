@@ -8,8 +8,9 @@
 # info: study 327 has 171843 number of samples in chile
 
 # Load data ----
-biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
+# biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
 biotime_meta <- read.csv("data/BioTIMEMetadata_02_04_2018.csv")
+bio <- read.csv("data/bio.csv")
 
 # Load libraries ----
 library(tidyverse) # contains dplyr, ggplot, ...
@@ -66,7 +67,24 @@ bio <- biotime_meta %>%
   group_by(STUDY_ID) %>% 
   unite(STUDY_ID_PLOT, STUDY_ID, PLOT, sep = "_", remove=F) %>% 
   filter(!STUDY_ID == 298)  %>%  # has 147201 entries?? set upper limit
-  select(STUDY_ID, STUDY_ID_PLOT, PLOT, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, CENT_LONG, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS, SPECIES, LATITUDE, LONGITUDE)
+  select(STUDY_ID, STUDY_ID_PLOT, PLOT, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, CENT_LONG, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS, SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
+
+# saving data subset
+write.csv(bio, "data/bio.csv")
+
+# meta filtered
+bio_meta <- biotime_meta %>% 
+  # data inclusion criteria
+  filter(REALM == "Terrestrial") %>% # only terrestial species
+  group_by(STUDY_ID) %>% 
+  mutate(duration = END_YEAR - START_YEAR) %>% 
+  filter(!duration < 5) %>% # minimum duration of 5 years
+  #filter(!DATA_POINTS < 5) %>% 
+  group_by(TAXA) %>% 
+  mutate(studies_taxa=length(unique(STUDY_ID))) %>% 
+  filter(!studies_taxa < 15) %>% 
+  filter(!STUDY_ID == 298)
+  
 
 # write and save sample
 sample <- bio[1:10,]
@@ -127,8 +145,7 @@ write.table(samples_taxa, "outputs/samples_taxa.txt")
 # visualisation ----
 # spatial distribution of biodiversity time-series ----
 bio_short <- bio %>% 
-  distinct(STUDY_ID_PLOT, CENT_LAT, CENT_LONG, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES)
-
+  distinct(STUDY_ID_PLOT, CENT_LAT, CENT_LONG, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, HAS_PLOT, NUMBER_LAT_LONG)
 
 (map_studies2 <- ggplot(bio_short,
                        aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA, size = NUMBER_OF_SAMPLES), alpha = I(0.7)) +
@@ -224,3 +241,91 @@ panel_full2 <- grid.arrange(map_studies2, panel_b2, nrow = 2)
 
 ggsave(panel_full2, filename ="outputs/panel_studies2.png",
        height = 10, width = 8)
+
+# checking for need rarefaction ----
+# histograms area ----
+# histogram km2 area plots
+(area_hist <- ggplot(bio, aes(x = AREA_SQ_KM)) +
+   geom_histogram()+
+   theme_clean())
+
+# histogram km2 area study ID
+(area_hist <- ggplot(bio_meta, aes(x = AREA_SQ_KM)) +
+    geom_histogram() +
+    theme_clean())
+
+# histogram km2 area studyID_plot
+(area_hist <- ggplot(bio_short, aes(x = AREA_SQ_KM)) +
+    geom_histogram()+
+    theme_clean())
+
+area <- bio_short %>% 
+  group_by(AREA_SQ_KM) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT)))
+
+area_over96 <- bio_short %>% 
+  group_by(AREA_SQ_KM) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT))) %>% 
+  filter(AREA_SQ_KM > 9.663440e+01)
+colSums(area_over96)
+
+area_under96 <- bio_short %>% 
+  group_by(AREA_SQ_KM) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT))) %>% 
+  filter(AREA_SQ_KM <= 9.663440e+01)
+colSums(area_under96)
+
+hist(bio_short$AREA_SQ_KM,
+     breaks="FD")
+
+hist(bio_short$AREA_SQ_KM, breaks = 20)
+histinfo <- hist(bio_short$AREA_SQ_KM)
+histinfo
+
+(area_hist2 <- ggplot(area_over96, aes(x = AREA_SQ_KM)) +
+    geom_histogram()+
+    theme_clean())
+
+(area_hist2 <- ggplot(area_under96, aes(x = AREA_SQ_KM)) +
+    geom_histogram()+
+    theme_clean())
+
+# log axis
+log_area <- log(bio_short$AREA_SQ_KM)
+hist(log_area)
+(hist_area_log <- hist(log_area, breaks = "FD"))
+
+bio_log <- bio_short %>% 
+  mutate(log_area = log(AREA_SQ_KM))
+
+
+(area_hist <- ggplot(bio_log, aes(x = log_area)) +
+    geom_histogram()+
+    theme_clean())
+
+# number of studies with permanent plots ----
+# study ID level
+(fixed_plot_box_studies <- ggplot(bio_meta, aes(x = HAS_PLOT, y = STUDY_ID)) +
+   geom_boxplot()+
+   theme_clean())
+
+# Study_ID_plot level
+#(fixed_plot_box_studies_plot <- ggplot(bio_short, aes(x = HAS_PLOT, y = STUDY_ID_PLOT)) +
+   # geom_boxplot())
+
+has_plot <- bio_short %>% 
+  group_by(HAS_PLOT) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT)))
+
+(fixed_plot_box_studies_plot <- ggplot(has_plot, aes(x = HAS_PLOT, y = time_series)) +
+    geom_boxplot())
+
+# number lat long ----
+number_ll <- bio_short %>% 
+  group_by(NUMBER_LAT_LONG) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT)))
