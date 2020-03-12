@@ -67,7 +67,7 @@ bio <- biotime_meta %>%
   group_by(STUDY_ID) %>% 
   unite(STUDY_ID_PLOT, STUDY_ID, PLOT, sep = "_", remove=F) %>% 
   filter(!STUDY_ID == 298)  %>%  # has 147201 entries?? set upper limit
-  select(STUDY_ID, STUDY_ID_PLOT, PLOT, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, CENT_LONG, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS, SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
+  select(STUDY_ID, STUDY_ID_PLOT, PLOT, SAMPLE_DESC, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, LATITUDE, CENT_LONG, LONGITUDE, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
 
 # saving data subset
 #write.csv(bio, "data/bio.csv")
@@ -145,7 +145,9 @@ write.table(samples_taxa, "outputs/samples_taxa.txt")
 # visualisation ----
 # spatial distribution of biodiversity time-series ----
 bio_short <- bio %>% 
-  distinct(STUDY_ID_PLOT, STUDY_ID, CENT_LAT, CENT_LONG, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, HAS_PLOT, NUMBER_LAT_LONG)
+  distinct(STUDY_ID_PLOT, .keep_all = TRUE)
+  
+#distinct(STUDY_ID_PLOT, STUDY_ID, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
 
 (map_studies2 <- ggplot(bio_short,
                        aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA, size = NUMBER_OF_SAMPLES), alpha = I(0.7)) +
@@ -244,100 +246,85 @@ ggsave(panel_full2, filename ="outputs/panel_studies2.png",
 
 # checking for need rarefaction ----
 # histograms area ----
-# histogram km2 area plots
-(area_hist3 <- ggplot(bio, aes(x = AREA_SQ_KM)) +
-   geom_histogram()+
-   theme_clean())
-
-# histogram km2 area study ID
-(area_hist2 <- ggplot(bio_meta, aes(x = AREA_SQ_KM)) +
-    geom_histogram() +
-    theme_clean())
-
-# histogram km2 area studyID_plot
-(area_hist <- ggplot(bio_short, aes(x = AREA_SQ_KM)) +
-    geom_histogram()+
-    theme_clean())
-ggsave(area_hist, filename = "outputs/area_hist.png", height =7, width = 10)
-
+# histogram area studyID_plot
 png("outputs/area_hist_base.png")
-area_hist_base <- hist(bio_short$AREA_SQ_KM)
+area_hist_base <- hist(bio_short$AREA_SQ_KM, breaks = 100)
 dev.off()
-
-area <- bio_short %>% 
-  group_by(AREA_SQ_KM) %>% 
-  summarise(studies = length(unique(STUDY_ID)),
-            time_series = length(unique(STUDY_ID_PLOT)))
-
-area_over96 <- bio_short %>% 
-  group_by(AREA_SQ_KM) %>% 
-  summarise(studies = length(unique(STUDY_ID)),
-            time_series = length(unique(STUDY_ID_PLOT))) %>% 
-  filter(AREA_SQ_KM > 9.663440e+01)
-colSums(area_over96)
-
-area_under96 <- bio_short %>% 
-  group_by(AREA_SQ_KM) %>% 
-  summarise(studies = length(unique(STUDY_ID)),
-            time_series = length(unique(STUDY_ID_PLOT))) %>% 
-  filter(AREA_SQ_KM <= 9.663440e+01)
-colSums(area_under96)
-
-hist(bio_short$AREA_SQ_KM,
-     breaks="FD")
-
-histogram_area <- hist(bio_short$AREA_SQ_KM, breaks = 10)
-
-
-histinfo <- hist(bio_short$AREA_SQ_KM)
-histinfo
-
-(area_hist4 <- ggplot(area_over96, aes(x = AREA_SQ_KM)) +
-    geom_histogram()+
-    theme_clean())
-
-(area_hist5 <- ggplot(area_under96, aes(x = AREA_SQ_KM)) +
-    geom_histogram()+
-    theme_clean())
 
 # log axis
 log_area <- log(bio_short$AREA_SQ_KM)
 
 png("outputs/hist_log_area.png")
-hist_log_area <- hist(log_area)
+hist_log_area <- hist(log_area, breaks =100)
 dev.off()
 
+# histogram km2 area plots
+#(area_hist3 <- ggplot(bio, aes(x = AREA_SQ_KM)) +
+   #geom_histogram()+
+   #theme_clean())
 
-(hist_area_log <- hist(log_area, breaks = "FD"))
+# histogram km2 area study ID
+#(area_hist2 <- ggplot(bio_meta, aes(x = AREA_SQ_KM)) +
+    #geom_histogram() +
+    #theme_clean())
 
-bio_log <- bio_short %>% 
-  mutate(log_area = log(AREA_SQ_KM))
+# histogram km2 area studyID_plot
+#(area_hist <- ggplot(bio_short, aes(x = AREA_SQ_KM)) +
+    #geom_histogram()+
+    #theme_clean())
+#ggsave(area_hist, filename = "outputs/area_hist.png", height =7, width = 10)
 
 
-(area_hist_log <- ggplot(bio_log, aes(x = log_area)) +
-    geom_histogram()+
-    theme_clean())
-
-# number of studies with permanent plots ----
-# study ID level
-(fixed_plot_box_studies <- ggplot(bio_meta, aes(x = HAS_PLOT, y = STUDY_ID)) +
-   geom_boxplot()+
-   theme_clean())
-
-# Study_ID_plot level
-#(fixed_plot_box_studies_plot <- ggplot(bio_short, aes(x = HAS_PLOT, y = STUDY_ID_PLOT)) +
-   # geom_boxplot())
-
-has_plot <- bio_short %>% 
-  group_by(HAS_PLOT) %>% 
+# table studies/time series per area
+area <- bio_short %>% 
+  group_by(AREA_SQ_KM) %>% 
   summarise(studies = length(unique(STUDY_ID)),
             time_series = length(unique(STUDY_ID_PLOT)))
 
-(fixed_plot_box_studies_plot <- ggplot(has_plot, aes(x = HAS_PLOT, y = time_series)) +
-    geom_boxplot())
+# table areas over 1km ----
+area_over1 <- bio_short %>% 
+  group_by(AREA_SQ_KM) %>% 
+  filter(AREA_SQ_KM > 1.000000e+00) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT)))
+colSums(area_over1)
+
+
+#area_under96 <- bio_short %>% 
+  #group_by(AREA_SQ_KM) %>% 
+  #filter(AREA_SQ_KM <= 9.663440e+01) %>% 
+  #summarise(studies = length(unique(STUDY_ID)),
+            #time_series = length(unique(STUDY_ID_PLOT)))
+#colSums(area_under96)
+
+
+#(area_hist5 <- ggplot(area_under96, aes(x = AREA_SQ_KM)) +
+    #geom_histogram()+
+    #theme_clean())
+
+# number of studies with permanent plots ----
+has_plot <- bio_short %>% 
+  filter(AREA_SQ_KM > 1.000000e+00) %>% 
+  group_by(HAS_PLOT) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT)))
+colSums(has_plot)
 
 # number lat long ----
 number_ll <- bio_short %>% 
+  filter(AREA_SQ_KM > 1.000000e+00) %>% # studies above 1km2
+  filter(HAS_PLOT == "Y") %>% # permanent plots
   group_by(NUMBER_LAT_LONG) %>% 
+  summarise(studies = length(unique(STUDY_ID)),
+            time_series = length(unique(STUDY_ID_PLOT)))
+colSums(number_ll)
+# last row does not make sense: more lat/long than time-series
+
+# cent_lat = latitude ----
+no_latitude <- bio_short %>% 
+  filter(AREA_SQ_KM > 1.000000e+00) %>% 
+  filter(HAS_PLOT == "Y") %>% 
+  mutate(test = CENT_LAT == LATITUDE) %>% 
+  group_by(test) %>% 
   summarise(studies = length(unique(STUDY_ID)),
             time_series = length(unique(STUDY_ID_PLOT)))
