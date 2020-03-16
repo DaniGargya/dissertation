@@ -2,25 +2,43 @@
 # Dani Gargya, daniela@gargya.de
 # March 2020
 
+####### workflow: ----
+# calculate jaccard dissimilarity (with/without rarefaction?)
+  # filter max and min year only
+  # summarise all abundances
+  # create site species matrix per plot
+  # calculate jaccard dissimilarity
+# extract accessibility score/ HPD (what scale?)
+# run model
+  #create broad grid cell random effect
+
 
 # calculating jaccard turnover ----
 # Load packages ----
 library(tidyverse) # (Contains loads of useful functions)
 library(ggplot2) # (Package for making nice graphs)
 library(vegan)
+library(rgdal) # to read in and save spatial data
+library(raster) # to allow creation, reading, manip of raster data
 
 # load data ----
-avatar_data <- read.csv("data/avatar_fauna.csv")
-
+# avatar_data <- read.csv("data/avatar_fauna.csv")
 
 # bio <- read.csv("data/bio.csv")
+
+hpd <- raster("data/gpw_v4_population_density_rev11_2015_30_sec.tif")
+
+
+# data manipulation ----
 bio_turnover <- bio %>% 
   select(SAMPLE_DESC, STUDY_ID_PLOT, STUDY_ID, PLOT, YEAR, GENUS_SPECIES, ID_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
-  group_by(STUDY_ID_PLOT) %>% 
+  group_by(SAMPLE_DESC) %>% 
   filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
-  group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
-  summarise(Abundance = sum(sum.allrawdata.ABUNDANCE))
-  
+  filter(STUDY_ID %in% c(10, 18))
+  #group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
+  #summarise(Abundance = sum(sum.allrawdata.ABUNDANCE))
+
+
 bio_t_matrix <- bio_turnover %>% 
   group_by(STUDY_ID_PLOT) %>% 
   spread(GENUS_SPECIES, Abundance)
@@ -34,7 +52,7 @@ bio_t_matrix <- bio_turnover %>%
 # from biotime website ----
 # example with study ID 10
 bio_10 <- bio %>%
-  filter(STUDY_ID == 10) #%>% 
+  filter(STUDY_ID %in% c(10, 18)) #%>% 
   #rename(Year = YEAR,
          #SampleID = SAMPLE_DESC,
          #Species = GENUS_SPECIES,
@@ -87,10 +105,10 @@ rarefysamples<-function(Year, SampleID, Species, Abundance, resamps) {
 
 # run rarefaction code ----
 TSrf<-list()
-IDs<-unique(bio_10$STUDY_ID)
+IDs<-unique(bio_turnover$STUDY_ID)
 
 for(i in 1:length(IDs)){
-  data<-bio_10[bio_10$STUDY_ID==IDs[i],]
+  data<-bio_turnover[bio_turnover$STUDY_ID==IDs[i],]
   TSrf[[i]]<-rarefysamples(data$YEAR, data$SAMPLE_DESC, data$GENUS_SPECIES, data$sum.allrawdata.ABUNDANCE, 1) 
 }
 names(TSrf)<-IDs
@@ -185,3 +203,12 @@ jPlot<-ggplot(beta, aes(x=Year, y=Jaccard))+geom_line(size=1, colour="gray30")+
   geom_abline(intercept=fitJ$coef[1], slope=fitJ$coef[2], colour="gray10", size=1, linetype=3)+
   themeNoGridAxes()+ylab("Jaccard Similarity")+xlab("Year")+ylim(0, 1)
 jPlot
+
+
+
+# data transformation HPD
+hpd
+plot(hpd)
+str(hpd)
+hpd_scale <- hpd %>%
+  mutate(scalepop=(pop-min(pop))/(max(pop)-min(pop)))
