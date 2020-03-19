@@ -47,7 +47,7 @@ theme_clean <- function(){
 
 ### data inclusion criteria
 # terrestrial realm
-# minimum time-series points 5 years
+# minimum study points 5 years
 # at least 2 survey points in time # how to do that?? # isn't that automatic?
 # at least 15 studies per taxa
 # no more than 5000 plots per study
@@ -62,12 +62,22 @@ bio <- biotime_meta %>%
   group_by(TAXA) %>% 
   mutate(studies_taxa=length(unique(STUDY_ID))) %>% 
   filter(!studies_taxa < 15) %>%  # minimum 20 studies per taxa
+  ungroup() %>% 
   # merge datasets
   left_join(biotime_full, by = "STUDY_ID") %>% 
   group_by(STUDY_ID) %>% 
   unite(STUDY_ID_PLOT, STUDY_ID, PLOT, sep = "_", remove=F) %>% 
   filter(!STUDY_ID == 298)  %>%  # has 147201 entries?? set upper limit
-  select(STUDY_ID, STUDY_ID_PLOT, PLOT, SAMPLE_DESC, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, LATITUDE, CENT_LONG, LONGITUDE, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
+  group_by(STUDY_ID_PLOT) %>% 
+  filter(HAS_PLOT == "Y") %>% 
+  filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
+  mutate(number_plots = length(unique(YEAR))) %>% 
+  filter(number_plots == 2) %>% 
+  dplyr::select(STUDY_ID, STUDY_ID_PLOT, PLOT, SAMPLE_DESC, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, CENT_LONG, LATITUDE, LONGITUDE, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG) %>% 
+  ungroup()
+
+bio_short <- bio %>% 
+  distinct(STUDY_ID_PLOT, .keep_all = TRUE)
 
 # saving data subset
 #write.csv(bio, "data/bio.csv")
@@ -144,8 +154,7 @@ write.table(samples_taxa, "outputs/samples_taxa.txt")
 
 # visualisation ----
 # spatial distribution of biodiversity time-series ----
-bio_short <- bio %>% 
-  distinct(STUDY_ID_PLOT, .keep_all = TRUE)
+
   
 #distinct(STUDY_ID_PLOT, STUDY_ID, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
 
@@ -323,8 +332,13 @@ colSums(number_ll)
 # cent_lat = latitude ----
 no_latitude <- bio_short %>% 
   filter(AREA_SQ_KM > 1.000000e+00) %>% 
-  filter(HAS_PLOT == "Y") %>% 
+  #filter(HAS_PLOT == "Y") %>% 
   mutate(test = CENT_LAT == LATITUDE) %>% 
   group_by(test) %>% 
   summarise(studies = length(unique(STUDY_ID)),
             time_series = length(unique(STUDY_ID_PLOT)))
+
+no <- bio_short %>% 
+  mutate(test = CENT_LAT == LATITUDE) %>% 
+  filter(test == TRUE) %>% 
+  filter(AREA_SQ_KM > 1.000000e+00)
