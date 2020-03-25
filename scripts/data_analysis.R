@@ -18,11 +18,11 @@
 library(tidyverse) # (Contains loads of useful functions)
 library(ggplot2) # (Package for making nice graphs)
 library(vegan)
+library(betapart)
 library(rgdal) # to read in and save spatial data
 library(raster) # to allow creation, reading, manip of raster data
 
 # load data ----
-# avatar_data <- read.csv("data/avatar_fauna.csv")
 # bio <- read.csv("data/bio.csv")
 hpd <- raster("data/gpw_v4_population_density_rev11_2015_30_sec.tif")
 wp <- raster("data/ppp_2015_1km_Aggregated.tif")
@@ -35,7 +35,7 @@ bio_turnover <- bio %>%
   #filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   #mutate(number_plots = length(unique(YEAR))) %>% 
   #filter(number_plots == 2) %>% 
-  filter(STUDY_ID_PLOT %in% c("10_1" , "10_2")) %>% 
+  filter(STUDY_ID_PLOT %in% c("10_1", "10_2", "10_9")) %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
@@ -46,8 +46,12 @@ bio_t_matrix <- bio_turnover %>%
   spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
   dplyr::select(- STUDY_ID_PLOT, -YEAR)
 
+# betapart requires presence/absence matrix for Jaccard calculations of turnover/nestedness
+bio_t_matrix_binary <- with(bio_t_matrix, ifelse(bio_t_matrix > 0, 1, 0)) 
+
 # calculating jaccard
 jaccard1 <- vegdist(bio_t_matrix, method = "jaccard")
+
 
 # function to calculate jaccard ----
 # select each unique STUDY_ID_PLOT
@@ -64,7 +68,7 @@ bio_t_list <- split(bio_turnover, unique(bio_turnover$STUDY_ID_PLOT))
 
 # function spreading
 #spread.matrix <- function(x, y){
-  #tidyr::spread(x,y, fill = 0)
+#tidyr::spread(x,y, fill = 0)
 #}
 
 #spread.matrix(x = bio_turnover$GENUS_SPECIES, y = bio_turnover$Abundance)
@@ -72,28 +76,89 @@ bio_t_list <- split(bio_turnover, unique(bio_turnover$STUDY_ID_PLOT))
 
 
 # create empty list
-jaccard_list <- list()
-IDs <- unique(bio_turnover$STUDY_ID_PLOT)
+jaccard_list <- data.frame(STUDY_ID_PLOT = unique(bio_turnover$STUDY_ID_PLOT), jaccard = NA)
+
 
 # for loop
 #for (i in 1:length(bio_t_list)) {
-  #matrix <- tidyr::spread(bio_t_list[[i]]$GENUS_SPECIES, bio_t_list[[i]]$Abundance, fill = 0)
-  #matrix_s <- select(matrix, - STUDY_ID_PLOT, -YEAR)
-  #jaccard <- vegdist(matrix_s, method = "jaccard")
-  #dat <- data.frame(STUDY_ID_PLOT, jaccard)
-  #jaccard_list[[i]] <- dat
+#matrix <- tidyr::spread(bio_t_list[[i]]$GENUS_SPECIES, bio_t_list[[i]]$Abundance, fill = 0)
+#matrix_s <- select(matrix, - STUDY_ID_PLOT, -YEAR)
+#jaccard <- vegdist(matrix_s, method = "jaccard")
+#dat <- data.frame(STUDY_ID_PLOT, jaccard)
+#jaccard_list[[i]] <- dat
 #}
 
 for (i in 1:length(bio_t_list)) {
   bio_t_list[[i]] <- bio_t_list[[i]] %>% 
     spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
     dplyr::select(-STUDY_ID_PLOT, -YEAR) %>% 
-    vegdist(method = "jaccard") -> jaccard
-    name <- paste(i, "study_ID",  sep = "_" )
-    jaccard_list[[name]] <- jaccard
-  }
+    vegdist(method = "jaccard", binary = TRUE) -> jaccard
+  
+  jaccard_list[i, "jaccard"] <- jaccard
+}
 
-view(jaccard_list)
+# s change workshop code ----
+# calculating between year similarities (NOT DISTANCE!) with Jaccard
+Jacsim <- as.matrix(1-vegdist(bio_t_matrix, method='jaccard', binary=TRUE))
+
+J_components <- beta.pair(bio_t_matrix_binary, index.family='jaccard')
+Jbeta <- as.matrix(J_components$beta.jac)
+Jtu <- as.matrix(J_components$beta.jtu)    
+
+n <- length(unique(bio_turnover$YEAR))
+
+# initialise matrices for calculating turnover
+simbaseline <- data.frame(array(NA, dim=c(length(unique(bio_turnover$YEAR)), 4)))
+names(simbaseline)<-c('YEAR', 'Jaccard_base', 'Jbeta_base', 'Jtu_base')
+
+simnext <- data.frame(array(NA, dim=c(length(unique(bio_turnover$YEAR)), 4)))
+names(simnext)<-c('YEAR', 'Jaccard_base', 'Jbeta_base', 'Jtu_base')
+
+simhind <- data.frame(array(NA, dim=c(length(unique(bio_turnover$YEAR)), 4)))
+names(simhind)<-c('YEAR', 'Jaccard_base', 'Jbeta_base', 'Jtu_base')
+
+
+counter2 <- 1
+
+# baseline
+simbaseline[counter2:(counter2+n-2),] <- cbind(
+  unique(bio_turnover$YEAR)[2:n],
+  Jacsim[2:n],
+  Jbeta[2:n],
+  Jtu[2:n])
+
+# How consecutive is calculated.
+simnext[counter2:(counter2+n-2),] <- cbind(
+  unique(bio_turnover$YEAR)[2:n],
+  Jacsim[row(Jacsim)-col(Jacsim)==1],
+  Jbeta[row(Jbeta)-col(Jbeta)==1],
+  Jtu[row(Jtu)-col(Jtu)==1])
+
+# How hindcasting is calculated.  
+simhind[counter2:(counter2+n-2),] <- cbind(
+  unique(bio_turnover$YEAR)[1:(n-1)],
+  Jacsim[row(Jacsim)%in%1:(max(row(Jacsim))-1) & col(Jacsim)==max(col(Jacsim))], 
+  Jtu[row(Jtu)%in%1:(max(row(Jtu))-1) & col(Jtu)==max(col(Jtu))])
+
+# combine univariate and turnover metrics
+biochange_metrics <- simbaseline[-length(unique(bio_turnover$YEAR)),]
+biochange_metrics <- full_join(biochange_metrics, simnext[-length(unique(bio_turnover$YEAR)),], by=c('YEAR'))
+biochange_metrics <- full_join(biochange_metrics, simhind[-length(unique(bio_turnover$YEAR)),], by=c('YEAR'))
+
+
+##	initialise df to store all biochange metrics 
+rarefied_metrics <- data.frame()
+
+
+# add to dataframe for all studies
+rarefied_metrics <- bind_rows(rarefied_metrics, biochange_metrics)
+
+rarefied_metrics <- as_tibble(rarefied_metrics) 
+# combine with the new metadata
+rarefied_metrics <- inner_join(bio_short, rarefied_metrics, by='STUDY_ID_PLOT') 
+return(rarefied_metrics)
+
+
 # data transformation hpd ----
 # explore data
 hpd
