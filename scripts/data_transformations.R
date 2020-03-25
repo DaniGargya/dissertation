@@ -13,7 +13,6 @@
   #create broad grid cell random effect
 
 
-# calculating jaccard turnover ----
 # Load packages ----
 library(tidyverse) # (Contains loads of useful functions)
 library(ggplot2) # (Package for making nice graphs)
@@ -28,6 +27,7 @@ hpd <- raster("data/gpw_v4_population_density_rev11_2015_30_sec.tif")
 wp <- raster("data/ppp_2015_1km_Aggregated.tif")
 
 
+# calculating jaccard dis ----
 # data manipulation ----
 bio_turnover <- bio %>% 
   dplyr::select(STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
@@ -35,59 +35,34 @@ bio_turnover <- bio %>%
   #filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   #mutate(number_plots = length(unique(YEAR))) %>% 
   #filter(number_plots == 2) %>% 
-  filter(STUDY_ID_PLOT %in% c("10_1", "10_2", "10_9")) %>% 
+  filter(STUDY_ID_PLOT %in% c("10_1")) %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
 
+# calculation for 1 ----
 # spreading into matrix
 bio_t_matrix <- bio_turnover %>% 
-  #group_by(STUDY_ID_PLOT) %>% 
   spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
   dplyr::select(- STUDY_ID_PLOT, -YEAR)
-
-# betapart requires presence/absence matrix for Jaccard calculations of turnover/nestedness
-bio_t_matrix_binary <- with(bio_t_matrix, ifelse(bio_t_matrix > 0, 1, 0)) 
 
 # calculating jaccard
 jaccard1 <- vegdist(bio_t_matrix, method = "jaccard")
 
+# betapart requires presence/absence matrix for Jaccard calculations of turnover/nestedness
+bio_t_matrix_binary <- with(bio_t_matrix, ifelse(bio_t_matrix > 0, 1, 0)) 
 
-# function to calculate jaccard ----
-# select each unique STUDY_ID_PLOT
-# spread data into matrix
-# calculate jaccard
-# bring number back to right ID
 
-# create different dataframes
+
+# calculation for all ----
+# create list for each plot ----
 bio_t_list <- split(bio_turnover, unique(bio_turnover$STUDY_ID_PLOT))
-#str(bio_t_list)
-#bio_t_list2 <- lapply(unique(bio_turnover$STUDY_ID_PLOT), function(x) bio_turnover[bio_turnover$STUDY_ID_PLOT == x,])
 
-
-
-# function spreading
-#spread.matrix <- function(x, y){
-#tidyr::spread(x,y, fill = 0)
-#}
-
-#spread.matrix(x = bio_turnover$GENUS_SPECIES, y = bio_turnover$Abundance)
-#matrix <- spread.matrix(x = bio_t_list[[i]]$GENUS_SPECIES, y = bio_t_list[[i]]$Abundance)
-
-
-# create empty list
+# create empty dataframe ----
 jaccard_list <- data.frame(STUDY_ID_PLOT = unique(bio_turnover$STUDY_ID_PLOT), jaccard = NA)
 
 
-# for loop
-#for (i in 1:length(bio_t_list)) {
-#matrix <- tidyr::spread(bio_t_list[[i]]$GENUS_SPECIES, bio_t_list[[i]]$Abundance, fill = 0)
-#matrix_s <- select(matrix, - STUDY_ID_PLOT, -YEAR)
-#jaccard <- vegdist(matrix_s, method = "jaccard")
-#dat <- data.frame(STUDY_ID_PLOT, jaccard)
-#jaccard_list[[i]] <- dat
-#}
-
+# for loop with vegdist ----
 for (i in 1:length(bio_t_list)) {
   bio_t_list[[i]] <- bio_t_list[[i]] %>% 
     spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
@@ -97,6 +72,20 @@ for (i in 1:length(bio_t_list)) {
   jaccard_list[i, "jaccard"] <- jaccard
 }
 
+# for loop with betapart ----
+for (i in 1:length(bio_t_list)) {
+  bio_t_list[[i]] <- bio_t_list[[i]] %>% 
+    spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
+    dplyr::select(-STUDY_ID_PLOT, -YEAR) -> comm
+  
+    comm_binary <- with(comm, ifelse(comm > 0, 1, 0)) 
+    
+    j_components <- beta.pair(comm_binary, index.family = "jaccard")
+    
+    jtu <- as.matrix (j_components$beta.jtu)
+  
+  jaccard_list[i, "jaccard"] <- jtu
+}
 # s change workshop code ----
 # calculating between year similarities (NOT DISTANCE!) with Jaccard
 Jacsim <- as.matrix(1-vegdist(bio_t_matrix, method='jaccard', binary=TRUE))
@@ -193,6 +182,7 @@ hpd_df <- as.data.frame(hpd)
 
 
 # wp dataset ----
+wp
 # remove NA
 plot(wp >= 0, wp<= 5000)
 plot(wp, col=colorRampPalette(c("blue", "limegreen", "yellow", "darkorange", "red"))(5),
