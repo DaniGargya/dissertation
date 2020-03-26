@@ -23,13 +23,19 @@ library(raster) # to allow creation, reading, manip of raster data
 library(labdsv)
 
 # load data ----
+# biodiversity data
 # bio <- read.csv("data/bio.csv")
+
+# human population density data
 hpd <- raster("data/gpw_v4_population_density_rev11_2015_30_sec.tif")
 wp <- raster("data/ppp_2015_1km_Aggregated.tif")
 
+# accessibility data
+acc1 <- raster("data/A-0000000000-0000000000.tif")
+acc2 <- raster("data/A-0000000000-0000032768.tif")
 
-# calculating jaccard dis ----
-# data manipulation ----
+
+# calculating jaccard data manipulation ----
 bio_turnover <- bio %>% 
   dplyr::select(STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
   #group_by(STUDY_ID_PLOT) %>% 
@@ -54,14 +60,12 @@ jaccard1 <- vegdist(bio_t_matrix, method = "jaccard")
 bio_t_matrix_binary <- with(bio_t_matrix, ifelse(bio_t_matrix > 0, 1, 0)) 
 
 
-
 # calculation for all ----
 # create list for each plot ----
 bio_t_list <- split(bio_turnover, unique(bio_turnover$STUDY_ID_PLOT))
 
 # create empty dataframe ----
 jaccard_list <- data.frame(STUDY_ID_PLOT = unique(bio_turnover$STUDY_ID_PLOT), jaccard = NA)
-
 
 # for loop with vegdist ----
 for (i in 1:length(bio_t_list)) {
@@ -153,28 +157,48 @@ return(rarefied_metrics)
 # explore data
 hpd
 plot(hpd)
+
 hpd_center <- crop(hpd, extent(-100, 100, -90, 90))
 values <- getValues(hpd, 100, 100)
 head(values)
 
-plot(hpd_center,
-     breaks = c(1, 5, 25, 250, 1000), 
-     #col=colorRampPalette(c("blue", "limegreen", "yellow", "darkorange", "red"))(50), # using same colours as in the GEE for the legend
-     #legend.args = list(text = 'Annual mean LST (°C)', side = 4, # adding a legend title
-                        #font = 1, line = 2.5, cex = 0.75),
-     axes=FALSE, # removing the axis
-     main = 'Mean land surface temperature in the UK 2017')
+#hpd_df <- as.data.frame(hpd) # data too big
 
+# create lat/long matrix
+SP <- bio_short %>% 
+  dplyr::select(LATITUDE, LONGITUDE, STUDY_ID_PLOT) %>% 
+  distinct(LATITUDE, .keep_all = TRUE)
 
-# scale between 0 and 1
-hpd_df <- as.data.frame(hpd)
-#hpd_scale <- hpd %>%
-  #mutate(scalepop=(pop-min(pop))/(max(pop)-min(pop)))
+# turn lat/long values into right CRS format
+points <- cbind(SP$LONGITUDE, SP$LATITUDE)
+sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
+tp_hpd <- spTransform(sppoints, crs(hpd))
 
+# extract long/lat from raster
+e_hpd <- extract(hpd, tp_hpd)
+
+# bind extracted values to dataframe
+bio_hpd <- cbind(SP, e_hpd)
+
+# omit NAs
+bio_hpd_short <- na.omit(bio_hpd)
+
+# scale workd population extracted
+bio_hpd_scale <- bio_hpd_short %>%
+  mutate(scalehpd=(e_hpd-min(e_hpd))/(max(e_hpd)-min(e_hpd)))
+
+# check histogram of values
+hist(bio_hpd_scale$scalehpd)
+hist(log(bio_hpd_scale$scalehpd))
 
 # wp dataset ----
+# data exploration
+# remove NAs?
+
 wp
-# remove NA
+plot(wp)
+
+# plot differently
 plot(wp >= 0, wp<= 5000)
 plot(wp, col=colorRampPalette(c("blue", "limegreen", "yellow", "darkorange", "red"))(5),
      breaks = c(1, 5, 25, 250, 1000))
@@ -182,36 +206,43 @@ head(wp)
 minValue(wp)
 maxValue(wp)
 wp <- setMinMax(wp)
-plot(wp)
 hist(wp)
 
-
+# create lat/long matrix
 SP <- bio_short %>% 
   dplyr::select(LATITUDE, LONGITUDE, STUDY_ID_PLOT) %>% 
   distinct(LATITUDE, .keep_all = TRUE)
 
+# turn lat/long values into right CRS format
 points <- cbind(SP$LONGITUDE, SP$LATITUDE)
 sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
 tp_wp <- spTransform(sppoints, crs(wp))
 
+# extract long/lat from raster
 e_wp <- extract(wp, tp_wp)
 
-bio_ll <- distinct(bio_short$LATITUDE, .keep_all = TRUE)
-
+# bind extracted values to dataframe
 bio_wp <- cbind(SP, e_wp)
+
+# omit NAs
 bio_wp_short <- na.omit(bio_wp)
 
+# scale workd population extracted
 bio_wp_scale <- bio_wp_short %>%
   mutate(scalewp=(e_wp-min(e_wp))/(max(e_wp)-min(e_wp)))
 
+# check histogram of values
 hist(bio_wp_scale$scalewp)
 hist(log(bio_wp_scale$scalewp))
 
+# comparing values hpd and wp ----
+hpd_wp <- left_join(bio_hpd_scale, bio_wp_scale, by = "STUDY_ID_PLOT")
+
+hpd_wp <- bio_hpd_scale %>% 
+  left_join(bio_wp_scale, by = "STUDY_ID_PLOT") %>% 
+  dplyr::select(STUDY_ID_PLOT, scalehpd, scalewp)
 
 # accessibility ----
-acc1 <- raster("data/A-0000000000-0000000000.tif")
-acc2 <- raster("data/A-0000000000-0000032768.tif")
-
 plot(acc1)
 plot(acc2)
 acc1
