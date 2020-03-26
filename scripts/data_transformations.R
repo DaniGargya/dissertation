@@ -185,6 +185,29 @@ wp <- setMinMax(wp)
 plot(wp)
 hist(wp)
 
+
+SP <- bio_short %>% 
+  dplyr::select(LATITUDE, LONGITUDE, STUDY_ID_PLOT) %>% 
+  distinct(LATITUDE, .keep_all = TRUE)
+
+points <- cbind(SP$LONGITUDE, SP$LATITUDE)
+sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
+tp_wp <- spTransform(sppoints, crs(wp))
+
+e_wp <- extract(wp, tp_wp)
+
+bio_ll <- distinct(bio_short$LATITUDE, .keep_all = TRUE)
+
+bio_wp <- cbind(SP, e_wp)
+bio_wp_short <- na.omit(bio_wp)
+
+bio_wp_scale <- bio_wp_short %>%
+  mutate(scalewp=(e_wp-min(e_wp))/(max(e_wp)-min(e_wp)))
+
+hist(bio_wp_scale$scalewp)
+hist(log(bio_wp_scale$scalewp))
+
+
 # accessibility ----
 acc1 <- raster("data/A-0000000000-0000000000.tif")
 acc2 <- raster("data/A-0000000000-0000032768.tif")
