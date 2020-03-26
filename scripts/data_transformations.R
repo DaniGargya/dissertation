@@ -13,13 +13,14 @@
   #create broad grid cell random effect
 
 
-# Load packages ----
+# Load libraries ----
 library(tidyverse) # (Contains loads of useful functions)
 library(ggplot2) # (Package for making nice graphs)
 library(vegan)
 library(betapart)
 library(rgdal) # to read in and save spatial data
 library(raster) # to allow creation, reading, manip of raster data
+library(labdsv)
 
 # load data ----
 # bio <- read.csv("data/bio.csv")
@@ -64,12 +65,12 @@ jaccard_list <- data.frame(STUDY_ID_PLOT = unique(bio_turnover$STUDY_ID_PLOT), j
 
 # for loop with vegdist ----
 for (i in 1:length(bio_t_list)) {
-  bio_t_list[[i]] <- bio_t_list[[i]] %>% 
-    spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
-    dplyr::select(-STUDY_ID_PLOT, -YEAR) %>% 
-    vegdist(method = "jaccard", binary = TRUE) -> jaccard
-  
-  jaccard_list[i, "jaccard"] <- jaccard
+  jaccard_df[[i]] <- bio_t_list[[i]] %>% 
+  spread(GENUS_SPECIES, Abundance) %>% 
+  dplyr::select(-STUDY_ID_PLOT, -YEAR) %>% 
+  vegdist(method = "jaccard", binary = TRUE)
+     
+  jaccard_list[i, "jaccard"] <- jaccard_df
 }
 
 # for loop with betapart ----
