@@ -166,16 +166,6 @@ plot(hpd_center,
      main = 'Mean land surface temperature in the UK 2017')
 
 
-# extract values at specific lat/longs
-SP <- bio_short %>% 
-  dplyr::select(LATITUDE, LONGITUDE)
-
-SP <- SP %>% 
-  distinct(LATITUDE, .keep_all = TRUE)
-
-e <- extract(hpd, SP)
-e
-
 # scale between 0 and 1
 hpd_df <- as.data.frame(hpd)
 #hpd_scale <- hpd %>%
@@ -203,3 +193,30 @@ plot(acc1)
 plot(acc2)
 acc1
 acc2
+
+acc <- merge(acc1, acc2)
+plot(acc)
+
+acc_df <- as.data.frame(acc)
+
+
+# extract values at specific lat/longs
+SP <- bio_short %>% 
+  dplyr::select(LATITUDE, LONGITUDE, STUDY_ID_PLOT) %>% 
+  distinct(LATITUDE, .keep_all = TRUE)
+
+points <- cbind(SP$LONGITUDE, SP$LATITUDE)
+sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
+tp <- spTransform(sppoints, crs(acc))
+
+e <- extract(acc, tp)
+
+bio_ll <- distinct(bio_short$LATITUDE, .keep_all = TRUE)
+
+bio_acc <- cbind(SP, e)
+bio_acc_short <- na.omit(bio_acc)
+
+bio_acc_scale <- bio_acc_short %>%
+  mutate(scaleacc=(e-min(e))/(max(e)-min(e)))
+
+hist(log(bio_acc_scale$scaleacc))
