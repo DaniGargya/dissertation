@@ -50,6 +50,8 @@ bio_turnover <- bio %>%
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
 
+write.csv(bio_turnover, "data/bio_turnover.csv")
+
 # calculation for 1 ----
 # spreading into matrix
 bio_t_matrix <- bio_turnover %>% 
