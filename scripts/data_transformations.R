@@ -21,6 +21,7 @@ library(betapart)
 library(rgdal) # to read in and save spatial data
 library(raster) # to allow creation, reading, manip of raster data
 library(labdsv)
+library(dggridR)
 
 # load data ----
 # biodiversity data
@@ -28,9 +29,11 @@ library(labdsv)
 
 # human population density data
 hpd <- raster("data/gpw_v4_population_density_rev11_2015_30_sec.tif")
+# https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-rev11
 wp <- raster("data/ppp_2015_1km_Aggregated.tif")
+# https://www.worldpop.org/geodata/summary?id=24772
 
-# accessibility data
+# accessibility data (GEE)
 acc1 <- raster("data/A-0000000000-0000000000.tif")
 acc2 <- raster("data/A-0000000000-0000032768.tif")
 
@@ -42,7 +45,7 @@ bio_turnover <- bio %>%
   #filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   #mutate(number_plots = length(unique(YEAR))) %>% 
   #filter(number_plots == 2) %>% 
-  filter(STUDY_ID_PLOT %in% c("10_1")) %>% 
+  filter(STUDY_ID_PLOT %in% c("10_1", "10_2")) %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
@@ -69,8 +72,8 @@ jaccard_list <- data.frame(STUDY_ID_PLOT = unique(bio_turnover$STUDY_ID_PLOT), j
 
 # for loop with vegdist ----
 for (i in 1:length(bio_t_list)) {
-  jaccard_df[[i]] <- bio_t_list[[i]] %>% 
-  spread(GENUS_SPECIES, Abundance) %>% 
+  jaccard_df <- bio_t_list[[i]] %>% 
+  spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
   dplyr::select(-STUDY_ID_PLOT, -YEAR) %>% 
   vegdist(method = "jaccard", binary = TRUE)
      
@@ -79,7 +82,7 @@ for (i in 1:length(bio_t_list)) {
 
 # for loop with betapart ----
 for (i in 1:length(bio_t_list)) {
-  bio_t_list[[i]] <- bio_t_list[[i]] %>% 
+  beta_df <- bio_t_list[[i]] %>% 
     spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
     dplyr::select(-STUDY_ID_PLOT, -YEAR) -> comm
   
@@ -89,8 +92,9 @@ for (i in 1:length(bio_t_list)) {
     
     jtu <- as.matrix (j_components$beta.jtu)
   
-  jaccard_list[i, "jaccard"] <- jtu
+  jaccard_list[i, "jaccard"] <- jtu[1,2]
 }
+
 # s change workshop code ----
 # calculating between year similarities (NOT DISTANCE!) with Jaccard
 Jacsim <- as.matrix(1-vegdist(bio_t_matrix, method='jaccard', binary=TRUE))
@@ -168,6 +172,7 @@ head(values)
 SP <- bio_short %>% 
   dplyr::select(LATITUDE, LONGITUDE, STUDY_ID_PLOT) %>% 
   distinct(LATITUDE, .keep_all = TRUE)
+# 1023 unqiue locations
 
 # turn lat/long values into right CRS format
 points <- cbind(SP$LONGITUDE, SP$LATITUDE)
@@ -251,7 +256,7 @@ acc2
 acc <- merge(acc1, acc2)
 plot(acc)
 
-acc_df <- as.data.frame(acc)
+#acc_df <- as.data.frame(acc)
 
 
 # extract values at specific lat/longs
@@ -265,8 +270,6 @@ tp <- spTransform(sppoints, crs(acc))
 
 e <- extract(acc, tp)
 
-bio_ll <- distinct(bio_short$LATITUDE, .keep_all = TRUE)
-
 bio_acc <- cbind(SP, e)
 bio_acc_short <- na.omit(bio_acc)
 
@@ -274,3 +277,10 @@ bio_acc_scale <- bio_acc_short %>%
   mutate(scaleacc=(e-min(e))/(max(e)-min(e)))
 
 hist(log(bio_acc_scale$scaleacc))
+
+# combining hpd and accessibility ----
+hpd_acc <- left_join(bio_hpd_scale, bio_acc_scale, by = "STUDY_ID_PLOT")
+
+hpd_acc <- bio_hpd_scale %>% 
+  left_join(bio_acc_scale, by = "STUDY_ID_PLOT") %>% 
+  dplyr::select(STUDY_ID_PLOT, scalehpd, scaleacc)
