@@ -1,11 +1,33 @@
 # Questions
 
+### Jaccard
+- how to go around that it does matrix for all of them together?
+- numbers change if I have more than 1 plot?
+
+### Area/ unique lat/long
+- for the studies < 1km² can I use the CENT_LAT/LONG data, assuming that all the plots were within the 1km² of the CENT_LAT/LONG given? That would also mean they would all have the same accessibility score.
+
+- do I need to exclude the studies with area > 1km² which only have 1 CENT_LAT/LONG value and then do the sensitivity analysis with them later?
+
+- unique(lat) gives out only 1023 different locations, what to do with the rest?
+
+### Accessibility/ HPD
+- what to do with NAs
+- match long/lat, extract, then scale -> do I need to change order?
+- only normal distribution of loged
+
+## HPD
+- does not show up when I plot it - why?
+- different results wp and hpd
+- many with 0
+
+## Accessibility
+- only log
+
 ### Data
-- what is "plot"? STUDY_ID vs sample_desc
 - check data inclusion/exclusion criteria
   - duration vs data points
 - partitioning of studies?
-- summarise all abundances from one year?
 - calculate jaccard?
 - dggridr?
 
