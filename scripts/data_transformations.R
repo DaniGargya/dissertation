@@ -284,3 +284,52 @@ hpd_acc <- left_join(bio_hpd_scale, bio_acc_scale, by = "STUDY_ID_PLOT")
 hpd_acc <- bio_hpd_scale %>% 
   left_join(bio_acc_scale, by = "STUDY_ID_PLOT") %>% 
   dplyr::select(STUDY_ID_PLOT, scalehpd, scaleacc)
+
+
+# create global grid cell ----
+#Construct a global grid with cells approximately 1000 miles across
+dggs <- dgconstruct(spacing=1000, metric=FALSE, resround='down')
+
+#Get the corresponding grid cells for each earthquake epicenter (lat-long pair)
+bio_short$cell <- dgGEO_to_SEQNUM(dggs,bio_short$LONGITUDE, bio_short$LATITUDE)$seqnum
+
+#Converting SEQNUM to GEO gives the center coordinates of the cells
+cellcenters   <- dgSEQNUM_to_GEO(dggs,bio_short$cell)
+
+#Get the number of earthquakes in each cell
+biocounts   <- bio_short %>% group_by(cell) %>% summarise(count=n())
+
+#Get the grid cell boundaries for cells which had quakes
+grid   <- dgcellstogrid(dggs,biocounts$cell,frame=TRUE,wrapcells=TRUE)
+
+#Update the grid cells' properties to include the number of earthquakes
+#in each cell
+grid <- merge(grid, biocounts,by.x="cell",by.y="cell")
+
+#Make adjustments so the output is more visually interesting
+grid$count    <- log(grid$count)
+cutoff        <- quantile(grid$count,0.9)
+grid          <- grid %>% mutate(count=ifelse(count>cutoff,cutoff,count))
+
+#Get polygons for each country of the world
+countries <- map_data("world")
+
+#Plot everything on a flat map
+(p<- ggplot() + 
+  geom_polygon(data=countries, aes(x=long, y=lat, group=group), fill=NA, color="black")   +
+  geom_polygon(data=grid,      aes(x=long, y=lat, group=group, fill=count), alpha=0.4)    +
+  geom_path   (data=grid,      aes(x=long, y=lat, group=group), alpha=0.4, color="white") +
+  geom_point  (aes(x=cellcenters$lon_deg, y=cellcenters$lat_deg)) +
+  scale_fill_gradient(low="blue", high="red"))
+
+#Replot on a spherical projection
+p+coord_map("ortho", orientation = c(-38.49831, -179.9223, 0))+
+  xlab('')+ylab('')+
+  theme(axis.ticks.x=element_blank())+
+  theme(axis.ticks.y=element_blank())+
+  theme(axis.text.x=element_blank())+
+  theme(axis.text.y=element_blank())+
+  ggtitle('Your data could look like this')
+
+ggsave(p, filename = "outputs/map_cells.png",
+       height = 5, width = 8)
