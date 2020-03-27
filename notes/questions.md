@@ -3,6 +3,8 @@
 ### Jaccard
 - how to go around that it does matrix for all of them together?
 - numbers change if I have more than 1 plot?
+- only uses absent/present?
+- vegan package - use binary?
 
 ### Area/ unique lat/long
 - for the studies < 1km² can I use the CENT_LAT/LONG data, assuming that all the plots were within the 1km² of the CENT_LAT/LONG given? That would also mean they would all have the same accessibility score.
@@ -23,6 +25,9 @@
 
 ## Accessibility
 - only log
+
+### dggridr
+- number of cells
 
 ### Data
 - check data inclusion/exclusion criteria
