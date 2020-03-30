@@ -45,7 +45,7 @@ bio_turnover <- bio %>%
   #filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   #mutate(number_plots = length(unique(YEAR))) %>% 
   #filter(number_plots == 2) %>% 
-  filter(STUDY_ID_PLOT %in% c("10_1", "10_2")) %>% 
+  filter(STUDY_ID_PLOT %in% c("10_1", "10_2", "10_9")) %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
@@ -73,19 +73,30 @@ bio_t_list <- split(bio_turnover, unique(bio_turnover$STUDY_ID_PLOT))
 jaccard_list <- data.frame(STUDY_ID_PLOT = unique(bio_turnover$STUDY_ID_PLOT), jaccard = NA)
 
 # for loop with vegdist ----
-for (i in 1:length(bio_t_list)) {
+for (i in seq_along(bio_t_list)) {
   jaccard_df <- bio_t_list[[i]] %>% 
   spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
   dplyr::select(-STUDY_ID_PLOT, -YEAR) %>% 
   vegdist(method = "jaccard", binary = TRUE)
      
-  jaccard_list[i, "jaccard"] <- jaccard_df
+  #jaccard_list[i, "jaccard"] <- jaccard_df
 }
 
+jacc <- bio_turnover %>% 
+  spread(GENUS_SPECIES, Abundance, fill =0) %>% 
+  dplyr::select(-YEAR, -STUDY_ID_PLOT)
+  
+comm_binary <- with(jacc, ifelse(jacc >0,1,0))
+
+j_components <- beta.pair(comm_binary, index.family = "jaccard")
+
+jtu <- as.matrix (j_components$beta.jtu)
+
+
 # for loop with betapart ----
-for (i in 1:length(bio_t_list)) {
+for (i in seq_along(bio_t_list)) {
   beta_df <- bio_t_list[[i]] %>% 
-    spread(GENUS_SPECIES, Abundance, fill = 0) %>% 
+    spread(GENUS_SPECIES, Abundance, fill = 0)
     dplyr::select(-STUDY_ID_PLOT, -YEAR) -> comm
   
     comm_binary <- with(comm, ifelse(comm > 0, 1, 0)) 
@@ -94,7 +105,7 @@ for (i in 1:length(bio_t_list)) {
     
     jtu <- as.matrix (j_components$beta.jtu)
   
-  jaccard_list[i, "jaccard"] <- jtu[1,2]
+  #jaccard_list[i, "jaccard"] <- jtu[1,2]
 }
 
 # s change workshop code ----
