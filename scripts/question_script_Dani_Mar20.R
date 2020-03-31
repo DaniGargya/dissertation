@@ -7,6 +7,13 @@ library(tidyverse)
 library(vegan)
 library(betapart)
 
+# workflow ----
+  # create species matrix per STUDY_ID_PLOT
+  # create binary matrix per STUDY_ID_PLOT
+  # calculate jaccard using betapart
+  # extract jtu values (turnover component)
+  # create dataframe with STUDY_ID_PLOT and matching jtu value
+
 # load data ----
 # this is a reduced dataset with my inclusion criteria
 # additionally I have summed the abundances for the first and last year each in every plot
