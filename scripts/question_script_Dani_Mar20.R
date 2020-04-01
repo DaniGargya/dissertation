@@ -23,7 +23,18 @@ bio_turnover <- read.csv("data/bio_turnover.csv")
 # without loop ----
 comm <- bio_turnover %>% 
   dplyr::select(-X) %>% 
-  spread(GENUS_SPECIES, Abundance, fill =0) %>% 
+  group_by(STUDY_ID_PLOT) %>% 
+  nest() 
+
+
+test <- comm %>% 
+  mutate(test2 = pivot_wider(GENUS_SPECIES, Abundance, values_fill =0))
+  
+ 
+
+comm[]
+comm[2][[1]]
+  
   dplyr::select(-YEAR, -STUDY_ID_PLOT)
 
 comm_binary <- with(comm, ifelse(comm >0,1,0))
