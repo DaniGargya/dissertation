@@ -348,7 +348,7 @@ points <- cbind(SP$LONGITUDE, SP$LATITUDE)
 sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
 tp <- spTransform(sppoints, crs(aa))
 
-e <- extract(aa, tp)
+e <- extract(aa, tp, buffer = 2000, fun = mean)
 
 bio_aa <- cbind(SP, e)
 bio_aa_short <- na.omit(bio_aa)
@@ -438,4 +438,3 @@ data1 <- bio_full_acc %>%
          gridcell = bio_short$cell)
 
 # center duration ----
-abuntot$yearcenter <- abuntot$year - mean(abundance$year)
