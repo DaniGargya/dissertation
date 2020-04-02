@@ -23,6 +23,13 @@ library(raster) # to allow creation, reading, manip of raster data
 library(labdsv)
 library(dggridR)
 
+library(sp)
+library(rgdal)
+library(raster)
+library(ggplot2)
+library(viridis)
+library(rasterVis)
+
 # load data ----
 # biodiversity data
 # bio <- read.csv("data/bio.csv")
@@ -37,20 +44,24 @@ wp <- raster("data/ppp_2015_1km_Aggregated.tif")
 acc1 <- raster("data/A-0000000000-0000000000.tif")
 acc2 <- raster("data/A-0000000000-0000032768.tif")
 
+aa <- raster("data/2015_accessibility_to_cities_v1.0/2015_accessibility_to_cities_v1.0.tif")
+# https://malariaatlas.org/explorer/#/
+
 
 # calculating jaccard data manipulation ----
-bio_turnover <- bio %>% 
+bio_turnover3 <- bio %>% 
   dplyr::select(STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
   #group_by(STUDY_ID_PLOT) %>% 
   #filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   #mutate(number_plots = length(unique(YEAR))) %>% 
   #filter(number_plots == 2) %>% 
-  filter(STUDY_ID_PLOT %in% c("10_1", "10_2", "10_9")) %>% 
+  #filter(STUDY_ID_PLOT %in% c("10_1", "10_2", "10_9")) %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
 
-write.csv(bio_turnover, "data/bio_turnover.csv")
+write.csv(bio_turnover2, "data/bio_turnover2.csv")
+
 
 # calculation for 1 ----
 # spreading into matrix
@@ -209,6 +220,14 @@ bio_hpd_scale <- bio_hpd_short %>%
 hist(bio_hpd_scale$scalehpd)
 hist(log(bio_hpd_scale$scalehpd))
 
+# join hpd to all studies
+bio_full_hpd <- bio_hpd %>% 
+  left_join(bio_hpd_scale, by = "STUDY_ID_PLOT") %>% 
+  dplyr::select(-LATITUDE.y, -LONGITUDE.y, -e_hpd.y) %>% 
+  rename(LATITUDE = LATITUDE.x) %>% 
+  right_join(bio_short, by = "LATITUDE")
+
+
 # wp dataset ----
 # data exploration
 # remove NAs?
@@ -220,10 +239,29 @@ plot(wp)
 plot(wp >= 0, wp<= 5000)
 plot(wp, col=colorRampPalette(c("blue", "limegreen", "yellow", "darkorange", "red"))(5),
      breaks = c(1, 5, 25, 250, 1000))
-head(wp)
-minValue(wp)
-maxValue(wp)
-wp <- setMinMax(wp)
+
+wp[wp > 1200] <- NA
+plot(wp)
+# mapview?
+
+#image(wp, col= viridis_pal(option="D")(5))
+#gplot(wp) +
+  #geom_raster(aes(x = x, y = y, fill = value)) +
+  # value is the specific value (of reflectance) each pixel is associated with
+  #scale_fill_viridis_c() +
+  #coord_quickmap() +
+  #ggtitle("West of Loch tay, raster plot") +
+  #xlab("Longitude") +
+  #ylab("Latitude") +
+  #theme_classic() +   					    # removes defalut grey background
+  #theme(plot.title = element_text(hjust = 0.5),             # centres plot title
+   #     text = element_text(size=20),		       	    # font size
+    #    axis.text.x = element_text(angle = 90, hjust = 1))  # rotates x axis text
+
+wwp <- setMinMax(wp)
+minValue(wwp)
+maxValue(wwp)
+
 hist(wp)
 
 # create lat/long matrix
@@ -269,10 +307,12 @@ acc2
 acc <- merge(acc1, acc2)
 plot(acc)
 
-#acc_df <- as.data.frame(acc)
-
+#hist(acc)
 
 # extract values at specific lat/longs
+bio_short <- bio %>% 
+  distinct(STUDY_ID_PLOT, .keep_all = TRUE)
+
 SP <- bio_short %>% 
   dplyr::select(LATITUDE, LONGITUDE, STUDY_ID_PLOT) %>% 
   distinct(LATITUDE, .keep_all = TRUE)
@@ -298,10 +338,44 @@ hpd_acc <- bio_hpd_scale %>%
   left_join(bio_acc_scale, by = "STUDY_ID_PLOT") %>% 
   dplyr::select(STUDY_ID_PLOT, scalehpd, scaleacc)
 
+# using dataset from website malariaatlas ----
+plot(aa)
+aa
+
+hist(aa)
+
+points <- cbind(SP$LONGITUDE, SP$LATITUDE)
+sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
+tp <- spTransform(sppoints, crs(aa))
+
+e <- extract(aa, tp)
+
+bio_aa <- cbind(SP, e)
+bio_aa_short <- na.omit(bio_aa)
+
+bio_aa_scale <- bio_aa_short %>%
+  mutate(scaleacc=(e-min(e))/(max(e)-min(e)))
+
+hist(log(bio_aa_scale$scaleacc))
+
+bio_full_acc <- bio_aa %>% 
+  left_join(bio_aa_scale, by = "STUDY_ID_PLOT") %>% 
+  dplyr::select(-LATITUDE.y, -LONGITUDE.y, -e.y) %>% 
+  rename(LATITUDE = LATITUDE.x) %>% 
+  right_join(bio_short, by = "LATITUDE")
+
+# check how many NAs
+bio_full_acc_s <- bio_full_acc %>% 
+  dplyr::select(scaleacc, STUDY_ID_PLOT.y) %>% 
+  drop_na()
+
+bio_full_hpd_s <- bio_full_hpd %>% 
+  dplyr::select(scalehpd, STUDY_ID_PLOT.y) %>% 
+  drop_na()
 
 # create global grid cell ----
 #Construct a global grid with cells approximately 1000 miles across
-dggs <- dgconstruct(spacing=1000, metric=FALSE, resround='down')
+dggs <- dgconstruct(res=12, metric=FALSE, resround='down')
 
 #Get the corresponding grid cells for each earthquake epicenter (lat-long pair)
 bio_short$cell <- dgGEO_to_SEQNUM(dggs,bio_short$LONGITUDE, bio_short$LATITUDE)$seqnum
@@ -346,3 +420,22 @@ p+coord_map("ortho", orientation = c(-38.49831, -179.9223, 0))+
 
 ggsave(p, filename = "outputs/map_cells.png",
        height = 5, width = 8)
+
+# global grid with 100km² ----
+#Construct a global grid with cells approximately 1000 miles across
+dggs <- dgconstruct(res = 12, metric=FALSE, resround='down')
+
+
+#Get the corresponding grid cells for each earthquake epicenter (lat-long pair)
+bio_short$cell <- dgGEO_to_SEQNUM(dggs,bio_short$LONGITUDE,bio_short$LATITUDE)$seqnum
+
+#Get the number of earthquakes in each equally-sized cell
+biocounts   <- bio_short %>% group_by(cell) %>% summarise(count=n())
+
+# joining dataset with all important variables ----
+data1 <- bio_full_acc %>% 
+  mutate(hpdscale = bio_full_hpd$scalehpd,
+         gridcell = bio_short$cell)
+
+# center duration ----
+abuntot$yearcenter <- abuntot$year - mean(abundance$year)

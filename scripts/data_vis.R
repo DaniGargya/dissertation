@@ -24,8 +24,8 @@ library(gridExtra)
 library(dggridR)
 library(devtools)
 
-find_rtools()
-pkgbuild::has_rtools
+#find_rtools()
+#pkgbuild::has_rtools
 
 #install_url('https://cran.r-project.org/src/contrib/Archive/dggridR/dggridR_2.0.3.tar.gz')
 
@@ -38,8 +38,8 @@ install_github('r-barnes/dggridR', vignette=TRUE)
 devtools::install_github("karthik/wesanderson")
 
 # generating random numbers ----
-accessibility <- runif(8373, 0, 1.0)
-jaccard <- runif(8373, 0, 1.0)
+accessibility <- runif(5788, 0, 1.0)
+jaccard <- runif(5788, 0, 1.0)
 
 # adding fake data to dataframe ----
 bio_short_fake <- bio_short %>% 
