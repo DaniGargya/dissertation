@@ -24,26 +24,26 @@ bio_turnover <- read.csv("data/bio_turnover.csv")
 bio_turnover <- bio_turnover %>% dplyr::select(-X)
 
 # with loop ----
-
-beta_Jaccard <- data.frame(matrix(ncol = 4, nrow = length(unique(bio_turnover$STUDY_ID_PLOT)))) 
-names(beta_Jaccard) <- c("STUDY_ID_PLOT", "Jbeta", "Jtu", "Jne") 
+beta_Jaccard <- data.frame(matrix(ncol = 5, nrow = length(unique(bio_turnover$STUDY_ID_PLOT)))) 
+names(beta_Jaccard) <- c("STUDY_ID_PLOT", "richness_change", "Jbeta", "Jtu", "Jne") 
 i = 1
 
 # for loop with betapart ----
 for (i in 1:length(unique(bio_turnover$STUDY_ID_PLOT))) {
   StudyIDPlot <- as.character(unique(bio_turnover$STUDY_ID_PLOT)[i])
-  sub_bio_turnover <- filter(bio_turnover, 
+  sub_bio_abundance <- filter(bio_turnover, 
                              STUDY_ID_PLOT == StudyIDPlot)
-  sub_bio_turnover_wider <- pivot_wider(sub_bio_turnover, names_from = GENUS_SPECIES, 
+  sub_bio_abundance_wider <- pivot_wider(sub_bio_abundance, names_from = GENUS_SPECIES, 
                                    values_from = Abundance, 
                                    values_fill = list(Abundance = 0))
-  sub_bio_turnover_matrix <- dplyr::select(sub_bio_turnover_wider, -STUDY_ID_PLOT, -YEAR) 
-  sub_bio_abundance_matrix <- with(sub_bio_turnover_matrix, ifelse(sub_bio_turnover_matrix > 0,1,0))
-  J_components <- beta.pair(sub_bio_abundance_matrix, index.family='jaccard')	# distance
+  sub_bio_abundance_matrix <- dplyr::select(sub_bio_abundance_wider, -STUDY_ID_PLOT, -YEAR) 
+  sub_bio_presence_matrix <- with(sub_bio_abundance_matrix, ifelse(sub_bio_abundance_matrix > 0,1,0))
+  J_components <- beta.pair(sub_bio_presence_matrix, index.family='jaccard')	# distance
+  richness_change <- rowSums(sub_bio_presence_matrix)[2] - rowSums(sub_bio_presence_matrix)[1]
   Jbeta <- J_components$beta.jac
   Jtu <- J_components$beta.jtu
   Jne <- J_components$beta.jne
-  beta_Jaccard[i,] <- c(StudyIDPlot, Jbeta, Jtu, Jne)
+  beta_Jaccard[i,] <- c(StudyIDPlot, richness_change, Jbeta, Jtu, Jne)
 
   i = i+1
 }
