@@ -354,14 +354,16 @@ summary(j_a)
 plot(j_a)
 
 # visualisation
-(j_a <- ggplot(data1, aes(x = AREA_SQ_KM, y = Jtu)) +
+(j_a <- ggplot(data1, aes(x = log(AREA_SQ_KM), y = Jtu)) +
     geom_point(colour = "#483D8B", alpha = 0.3, size = 2) +
     geom_smooth(method = glm, colour = "#483D8B", fill = "#483D8B", alpha = 0.3, size = 2) +
     theme_classic() +
-    labs(x = "\nArea (km²) ", y = "Jaccard\n"))
+    labs(x = "\nlog Area (km²) ", y = "Jaccard\n"))
          
 ggsave(filename = "outputs/jacc_area.png", device = "png", width = 8, height = 6)
 
 # bayesian
-j_a_b <- MCMCglmm(Jtu ~ AREA_SQ_KM,  data = data1)
+j_a_b <- MCMCglmm(Jtu ~ log(AREA_SQ_KM),  data = data1)
 summary(j_a_b)
+
+
