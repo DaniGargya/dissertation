@@ -32,14 +32,14 @@ sumamry(data1)
 # phi is the precision parameter of zero-one inflated beta distribution
 
 
-mo_tu <- brm(bf(jtu ~ scaleacc*scalehpd + centerduration + area?
-                  (scaleacc|taxa + 1|gridcell + 1|STUDY_ID), coi ~ 1, zoi ~ 1),
+mo_tu <- brm(bf(Jtu ~ scaleacc*scalehpd + duration_plot_center +
+                  (scaleacc|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
              family = zero_one_inflated_beta(), 
              data = data1,
-             prior = prior2b, iter = 6000,
+             iter = 6000,
              warmup = 2000,
              inits = '0',
-             control = list(adapt_delta = 0.85),
+             #control = list(adapt_delta = 0.85),
              cores = 2, chains = 2)
 
 # Check model and save output ----
