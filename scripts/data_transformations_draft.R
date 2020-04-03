@@ -373,6 +373,12 @@ bio_full_hpd_s <- bio_full_hpd %>%
   dplyr::select(scalehpd, STUDY_ID_PLOT.y) %>% 
   drop_na()
 
+# trying to reproject
+library(sf)
+
+st_is_longlat(aa)
+
+
 # create global grid cell ----
 #Construct a global grid with cells approximately 1000 miles across
 dggs <- dgconstruct(res=12, metric=FALSE, resround='down')

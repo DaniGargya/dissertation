@@ -76,7 +76,7 @@ bio <- biotime_meta %>%
   dplyr::select(STUDY_ID, STUDY_ID_PLOT, PLOT, SAMPLE_DESC, NUMBER_OF_SAMPLES, TOTAL, START_YEAR, END_YEAR, duration, DATA_POINTS, TAXA, CENT_LAT, CENT_LONG, LATITUDE, LONGITUDE, NUMBER_OF_SPECIES, studies_taxa, YEAR, ID_SPECIES, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG) %>% 
   ungroup()
 
-bio_short <- bio %>% 
+bio_short2 <- bio %>% 
   distinct(STUDY_ID_PLOT, .keep_all = TRUE)
 
 # saving data subset
@@ -158,8 +158,8 @@ write.table(samples_taxa, "outputs/samples_taxa.txt")
   
 #distinct(STUDY_ID_PLOT, STUDY_ID, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, NUMBER_LAT_LONG)
 
-(map_studies2 <- ggplot(bio_short,
-                       aes(x = CENT_LONG, y = CENT_LAT, colour = TAXA, size = NUMBER_OF_SAMPLES), alpha = I(0.7)) +
+(map_studies2 <- ggplot(bio_short2,
+                       aes(x = LONGITUDE, y = LATITUDE, colour = TAXA, size = NUMBER_OF_SAMPLES), alpha = I(0.7)) +
    borders("world", colour = "gray88", fill = "gray88", size = 0.3) +
    coord_cartesian(xlim = NULL, ylim = NULL, expand = TRUE) +
    theme_map() +
@@ -183,22 +183,22 @@ ggsave(map_studies2, filename = "outputs/map_studies2.png",
 
 # temporal distribution of biodiversity time-series ----
 # making id variable as factor
-bio_short$STUDY_ID_PLOT <- as.factor(as.character(bio_short$STUDY_ID_PLOT))
+bio_short2$STUDY_ID_PLOT <- as.factor(as.character(bio_short2$STUDY_ID_PLOT))
 
 # create a sorting variable
-bio_short$sort <- bio_short$TAXA
-bio_short$sort <- factor(bio_short$sort, levels = c("Terrestrial plants",
+bio_short2$sort <- bio_short2$TAXA
+bio_short2$sort <- factor(bio_short2$sort, levels = c("Terrestrial plants",
                                                 "Birds",
                                                 "Mammals",
                                                 "Terrestrial invertebrates"),
                        labels = c(1,2,3,4))
 
 
-bio_short$sort <- paste0(bio_short$sort, bio_short$START_YEAR)
-bio_short$sort <- as.numeric(as.character(bio_short$sort))
+bio_short2$sort <- paste0(bio_short2$sort, bio_short2$START_YEAR)
+bio_short2$sort <- as.numeric(as.character(bio_short2$sort))
 
 (timeline_studies2 <- ggplot() +
-    geom_linerange(data = bio_short, aes(ymin = START_YEAR, ymax = END_YEAR, 
+    geom_linerange(data = bio_short2, aes(ymin = START_YEAR, ymax = END_YEAR, 
                                        colour = TAXA,
                                        x = fct_reorder(STUDY_ID_PLOT, desc(sort))),
                    size = 1) +
@@ -228,7 +228,7 @@ ggsave(timeline_studies2, filename = "outputs/timeline_studies2.png",
 
 # taxonomic distribution of biodiversity time-series ----
 # calculating sample size for each taxa
-taxa_sum <- bio_short %>%  group_by(TAXA) %>% tally
+taxa_sum <- bio_short2 %>%  group_by(TAXA) %>% tally
 
 (taxa_studies2 <- ggplot(taxa_sum, aes(area = n, fill = TAXA, label = n,
                                       subgroup = TAXA)) +
@@ -342,3 +342,26 @@ no <- bio_short %>%
   mutate(test = CENT_LAT == LATITUDE) %>% 
   filter(test == TRUE) %>% 
   filter(AREA_SQ_KM > 1.000000e+00)
+
+# jaccard ~ area
+# checking distribution
+hist(data1$Jtu)
+hist(data1$AREA_SQ_KM)
+
+# model
+j_a <- lm(Jtu ~ AREA_SQ_KM, data = data1)
+summary(j_a)
+plot(j_a)
+
+# visualisation
+(j_a <- ggplot(data1, aes(x = AREA_SQ_KM, y = Jtu)) +
+    geom_point(colour = "#483D8B", alpha = 0.3, size = 2) +
+    geom_smooth(method = glm, colour = "#483D8B", fill = "#483D8B", alpha = 0.3, size = 2) +
+    theme_classic() +
+    labs(x = "\nArea (km²) ", y = "Jaccard\n"))
+         
+ggsave(filename = "outputs/jacc_area.png", device = "png", width = 8, height = 6)
+
+# bayesian
+j_a_b <- MCMCglmm(Jtu ~ AREA_SQ_KM,  data = data1)
+summary(j_a_b)
