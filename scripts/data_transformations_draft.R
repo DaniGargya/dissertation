@@ -370,7 +370,6 @@ bio_full_acc_s <- bio_full_acc %>%
   drop_na()
 
 bio_full_hpd_s <- bio_full_hpd %>% 
-  dplyr::select(scalehpd, STUDY_ID_PLOT.y) %>% 
   drop_na()
 
 # trying to reproject
@@ -444,3 +443,39 @@ data1 <- bio_full_acc %>%
          gridcell = bio_short$cell)
 
 # center duration ----
+
+bio_509 <- bio %>% 
+  filter(STUDY_ID == "10")
+
+bio_m_509 <- biotime_meta %>% 
+  filter(STUDY_ID == "10")
+
+# extracting values online
+SP1 <- SP %>% 
+  dplyr::select(-STUDY_ID_PLOT) %>% 
+  rename( latitude = "LATITUDE",
+          longitude = "LONGITUDE")
+#write.csv(SP1, "outputs/SP1.csv")
+# results in same values
+
+# checking distributions
+hist(bio_hpd_short$e_hpd)
+max(bio_hpd_short$e_hpd)
+min(bio_hpd_short$e_hpd)
+
+hist(log(bio_hpd_scale$scalehpd))
+hist(log(bio_aa_scale$scaleacc))
+hist(log(bio_aa$e))
+
+# figuring out what to do with biomass
+unique(bio$ABUNDANCE_TYPE) 
+# Count, Density, MeanCount, Presence/Absence
+unique(biotime_meta$BIOMASS_TYPE)
+# cover, size, volume weight
+
+p_a <- biotime_meta %>% 
+  filter(STUDY_ID == "509")
+
+abundance_type_plot <- bio %>% 
+  group_by(ABUNDANCE_TYPE) %>% 
+  summarise(plots =length(unique(STUDY_ID_PLOT)))

@@ -343,7 +343,7 @@ no <- bio_short %>%
   filter(test == TRUE) %>% 
   filter(AREA_SQ_KM > 1.000000e+00)
 
-# jaccard ~ area
+# jaccard ~ area ----
 # checking distribution
 hist(data1$Jtu)
 hist(data1$AREA_SQ_KM)

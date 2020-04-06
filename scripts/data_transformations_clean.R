@@ -66,7 +66,7 @@ bio <- biotime_meta %>%
   filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   mutate(number_plots = length(unique(YEAR))) %>% 
   filter(number_plots == 2) %>% # have min and max year per plot only
-  dplyr::select(STUDY_ID, PLOT, STUDY_ID_PLOT, START_YEAR, END_YEAR, duration, TAXA, LATITUDE, LONGITUDE, YEAR, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM) %>% 
+  dplyr::select(STUDY_ID, PLOT, STUDY_ID_PLOT, START_YEAR, END_YEAR, duration, TAXA, LATITUDE, LONGITUDE, YEAR, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, NUMBER_OF_SAMPLES, ABUNDANCE_TYPE) %>% 
   ungroup()
 
 # other useful dataset variations ----
@@ -82,7 +82,8 @@ bio_short <- bio %>%
 
 # data manipulation ----
 bio_turnover <- bio %>% 
-  dplyr::select(STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
+  dplyr::select(STUDY_ID, STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
+  filter(STUDY_ID == "509") %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
@@ -101,7 +102,7 @@ for (i in 1:length(unique(bio_turnover$STUDY_ID_PLOT))) {
   sub_bio_abundance_wider <- pivot_wider(sub_bio_abundance, names_from = GENUS_SPECIES, 
                                          values_from = Abundance, 
                                          values_fill = list(Abundance = 0))
-  sub_bio_abundance_matrix <- dplyr::select(sub_bio_abundance_wider, -STUDY_ID_PLOT, -YEAR, -duration_plot) 
+  sub_bio_abundance_matrix <- dplyr::select(sub_bio_abundance_wider, -STUDY_ID_PLOT, -YEAR) 
   sub_bio_presence_matrix <- with(sub_bio_abundance_matrix, ifelse(sub_bio_abundance_matrix > 0,1,0))
   J_components <- beta.pair(sub_bio_presence_matrix, index.family='jaccard')	# distance
   richness_change <- rowSums(sub_bio_presence_matrix)[2] - rowSums(sub_bio_presence_matrix)[1]
@@ -114,14 +115,23 @@ for (i in 1:length(unique(bio_turnover$STUDY_ID_PLOT))) {
 }
 
 #write.csv(beta_Jaccard, "outputs/beta_Jaccard_df.csv")
+betaj <- read.csv("outputs/beta_Jaccard_df.csv")
+# 502, 509, many 0, many NaN???
+# 502 only one species, 509 all zeros in sum.all.rawdataAbundance?
+# filter for abundance type?
 
 # extracting values accessibility ----
+# df of all unique lat/long values
+SP <- bio_short %>% 
+  dplyr::select(LATITUDE, LONGITUDE, STUDY_ID_PLOT) %>% 
+  distinct(LATITUDE, .keep_all = TRUE)
 
 points <- cbind(SP$LONGITUDE, SP$LATITUDE)
 sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
 tp <- spTransform(sppoints, crs(aa))
 
 e <- extract(aa, tp)
+# e <- extract(aa, tp, buffer = 2000, fun = mean)
 
 bio_aa <- cbind(SP, e)
 bio_aa_short <- na.omit(bio_aa)
@@ -129,7 +139,7 @@ bio_aa_short <- na.omit(bio_aa)
 bio_aa_scale <- bio_aa_short %>%
   mutate(scaleacc= 1 - ((e-min(e))/(max(e)-min(e))))
 
-hist(log(bio_aa_scale$scaleacc))
+#hist(log(bio_aa_scale$scaleacc))
 
 bio_full_acc <- bio_aa %>% 
   left_join(bio_aa_scale, by = "STUDY_ID_PLOT") %>% 
@@ -159,8 +169,8 @@ bio_hpd_scale <- bio_hpd_short %>%
   mutate(scalehpd=(e_hpd-min(e_hpd))/(max(e_hpd)-min(e_hpd)))
 
 # check histogram of values
-hist(bio_hpd_scale$scalehpd)
-hist(log(bio_hpd_scale$scalehpd))
+#hist(bio_hpd_scale$scalehpd)
+#hist(log(bio_hpd_scale$scalehpd))
 
 # join hpd to all studies
 bio_full_hpd <- bio_hpd %>% 
@@ -189,5 +199,15 @@ data1 <- beta_Jaccard %>%
   left_join(bio_full_hpd, by = "STUDY_ID_PLOT") %>% 
   left_join(bio_short, by = "STUDY_ID_PLOT")
 
-# center duration ----
+# center duration and area----
 data1$duration_plot_center <- scale(as.numeric(data1$duration_plot), scale = FALSE)
+data1$area_center <- scale(data1$AREA_SQ_KM, scale = FALSE)
+
+# checking and fixing structure of data1 ----
+str(data1)
+data1$richness_change <- as.numeric(data1$richness_change)
+data1$duration_plot <- as.numeric(data1$duration_plot)
+data1$Jtu <- as.numeric(data1$Jtu)
+data1$STUDY_ID <- as.factor(data1$STUDY_ID )
+data1$cell <- as.factor(data1$cell)
+
