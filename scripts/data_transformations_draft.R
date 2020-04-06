@@ -479,3 +479,30 @@ p_a <- biotime_meta %>%
 abundance_type_plot <- bio %>% 
   group_by(ABUNDANCE_TYPE) %>% 
   summarise(plots =length(unique(STUDY_ID_PLOT)))
+
+# testing distribution of fake lat/long ----
+library(generator)
+fake_lat <- r_latitudes(1023)
+fake_long <- r_longitudes(1023)
+
+fake_ll <- SP %>% 
+  mutate(fake_lat = c(fake_lat),
+         fake_long = c(fake_long)) %>% 
+  dplyr::select(- LATITUDE, -LONGITUDE)
+
+f_points <- cbind(fake_ll$fake_long, fake_ll$fake_lat)
+
+
+f_sppoints <- SpatialPoints(f_points, proj4string=CRS('+proj=longlat +datum=WGS84'))
+f_tp <- spTransform(f_sppoints, crs(aa))
+
+f_e <- extract(aa, f_tp)
+
+f_bio_aa <- cbind(fake_ll, f_e)
+f_bio_aa_short <- na.omit(f_bio_aa)
+
+f_bio_aa_scale <- f_bio_aa_short %>%
+  mutate(f_scaleacc=(f_e-min(f_e))/(max(f_e)-min(f_e)))
+
+hist(f_bio_aa_scale$f_scaleacc) # more normal distributed?
+hist(log(f_bio_aa_scale$f_scaleacc))

@@ -15,6 +15,11 @@ library(ggeffects)
 library(stargazer)  # for tables of model outputs
 library(broom)
 
+library(tidybayes)
+library(bayesplot)
+library(modelr)
+library(sjstats)
+
 # importing data ----
 #data1 <- read.csv("")
 
@@ -57,6 +62,12 @@ predictions <- ggpredict(mo_tu, terms = c("scaleacc", "scalehpd", "duration_plot
                                  #labels = c("Short-term", "Moderate", "Long-term"))
 
 plot(predictions)
+
+# saving model output as tabe
+table_m <- tidy_stan(mo_tu, effects = "fixed", digits = 2) %>% print()
+
+# Create table for report
+#stargazer(table_m, type = "html", out = "outputs/table_m.html", title = "results")
 
 # visualising ----
 theme_clean <- function(){
