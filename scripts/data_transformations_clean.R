@@ -22,6 +22,8 @@ library(raster) # to allow creation, reading, manip of raster data
 library(labdsv)
 library(dggridR)
 
+library(beepr)
+
 # load data ----
 # biotime data
 biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
@@ -62,7 +64,7 @@ bio <- biotime_meta %>%
   unite(STUDY_ID_PLOT, STUDY_ID, PLOT, sep = "_", remove=F) %>% 
   filter(!STUDY_ID == 298)  %>%  # has 147201 entries; set upper limit
   group_by(STUDY_ID_PLOT) %>% 
-  filter(HAS_PLOT == "Y") %>% 
+  #filter(HAS_PLOT == "Y") %>% 
   filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   mutate(number_plots = length(unique(YEAR))) %>% 
   filter(number_plots == 2) %>% # have min and max year per plot only
@@ -130,11 +132,24 @@ points <- cbind(SP$LONGITUDE, SP$LATITUDE)
 sppoints <- SpatialPoints(points, proj4string=CRS('+proj=longlat +datum=WGS84'))
 tp <- spTransform(sppoints, crs(aa))
 
+# extract numbers at different scales
 e <- extract(aa, tp)
-# e <- extract(aa, tp, buffer = 2000, fun = mean)
+e_2 <- extract(aa, tp, buffer = 2000, fun = mean)
+e_5 <- extract(aa, tp, buffer = 5000, fun = mean)
+e_25 <- extract(aa, tp, buffer = 25000, fun = mean)
+e_50 <- extract(aa, tp, buffer = 50000, fun = mean)
+e_75 <- extract(aa, tp, buffer = 75000, fun = mean)
+e_100 <- extract(aa, tp, buffer = 100000, fun = mean)
 
 bio_aa <- cbind(SP, e)
-bio_aa_short <- na.omit(bio_aa)
+bio_aa_2 <- cbind(SP, e, e_2, e_5, e_25, e_50, e_75, e_100)
+
+# save dataframe
+write.csv(bio_aa_2, "outputs/df_aa_scales.csv")
+
+# drop NA according to scale I am looking at!!
+bio_aa_short <- bio_aa_2 %>% 
+  drop_na(e_100)
 
 bio_aa_scale <- bio_aa_short %>%
   mutate(scaleacc= 1 - ((e-min(e))/(max(e)-min(e))))
@@ -155,14 +170,25 @@ bio_full_acc <- bio_aa %>%
 # turn lat/long values into right CRS format
 tp_hpd <- spTransform(sppoints, crs(hpd))
 
-# extract long/lat from raster
+# extract long/lat from raster at different scales
 e_hpd <- extract(hpd, tp_hpd)
+e_hpd2 <- extract(hpd, tp_hpd, buffer = 2000, fun = mean)
+e_hpd5 <- extract(hpd, tp_hpd, buffer = 5000, fun = mean)
+e_hpd25 <- extract(hpd, tp_hpd, buffer = 25000, fun = mean)
+e_hpd50 <- extract(hpd, tp_hpd, buffer = 50000, fun = mean)
+e_hpd75 <- extract(hpd, tp_hpd, buffer = 75000, fun = mean)
+e_hpd100 <- extract(hpd, tp_hpd, buffer = 100000, fun = mean)
 
 # bind extracted values to dataframe
 bio_hpd <- cbind(SP, e_hpd)
+bio_hpd2 <- cbind(SP, e_hpd, e_hpd2, e_hpd5, e_hpd25, e_hpd50, e_hpd75, e_hpd100)
 
-# omit NAs
-bio_hpd_short <- na.omit(bio_hpd)
+# save dataframe
+write.csv(bio_hpd2, "outputs/df_hpd_scales.csv")
+
+# omit NAs ### according to scale!!!
+bio_hpd_short <- bio_hpd %>% 
+  drop_na(e_hpd100)
 
 # scale world population extracted
 bio_hpd_scale <- bio_hpd_short %>%
