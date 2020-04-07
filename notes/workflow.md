@@ -1,36 +1,44 @@
 # Workflow
 
-## Data selection/sources ### till 13th March
-- update preregistration (write out model!)
-- data inclusion criteria for BioTIME data set, merge data sets correctly
-- standardize cell sizes of all datasets
-  - partitioning BioTIME time-series? 
-  - rarefaction BioTIME?
-- extract/import mean accessiblity score from GEE matching the location of time-series with standardized cell size
-- import population density data
-
-## Data processing ### till 13th March
-- transformations: grid cell, coding scheme categorical value population density for vis, bound accessiblity score between 0 and 1, same as HPD
-
-## Data analysis ### till 13th March
-- calculate turnover trends using Jaccard
-  - temporal: comparing last year to first year
-  - spatial: using same value as TT, but relating it across space?
+## Week till 12th April
+- fix all current faults
+  - distribution acc/hod/jacc
+  - abundance type
   
-- create model
+- make good vis graphs
+  - interaction HPD:acc
+  - RQ1
+  - PCA?
+  
+- sensitivity analysis?
+  - better temporally matched data
+  - different scales of extraction
+  - latitude?
+  - number of studies that fall into protected areas
+  
+- writing
+  - outline results
+  - better formulated methods
+  - outline intro
+  
+## Week till 19th April
+- population trends?
 
-## Writing ### till March 13th
-- put general outline
-- make conceptual diagram
+- conceptual diagram
 
-## Sensitivity analysis ### till 20th March
-- better temporally matched data
-- sensitivity to cell sizes
-- effect of latitude?
-- number of studies that fall into protected areas
+- writing + reading
+  - outline discussion
+  - refine results
+  - refine intro
+  - refine methods
+  
+## Week till 26th of April
+- writing and reading
+  - abstract
 
-## Data visualisation ### till 20th March
-- graph RQ TT
-- PCA RQ ST
-- 
+## Week till 3rd of May
+
+## Week till 7th of May
+
+
 
