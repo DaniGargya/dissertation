@@ -57,19 +57,19 @@ theme_clean <- function(){
           legend.position = c(0.2, 0.8))
 }
 
-
+# visualisation scatter plot ----
 ggplot() +
-  geom_line(data = predictions, aes(x = x, y = predicted),
+  geom_line(data = predictions, aes(x = x, y = predicted, colour = hpd),
             size = 2) +
   geom_ribbon(data = predictions, aes(ymin = conf.low, ymax = conf.high, 
-                                      x = x), alpha = 0.1) +
+                                      x = x, fill = hpd), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc, y = Jtu),
              alpha = 0.1, size = 2) +
   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
   #scale_x_continuous(limits = c (0.8, 1)) +
   theme_clean() +
-  #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
   labs(x = "\nAccessibility", y = "Jaccard turnover\n")
 
 
@@ -98,7 +98,7 @@ theme_niwot <- function(){
                                            size = 2, linetype = "blank"))
 }
 
-# We will use a function by Ben Marwick
+# We will use a function by Ben Marwick ----
 # This code loads the function in the working environment
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
 
