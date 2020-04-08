@@ -68,7 +68,7 @@ bio <- biotime_meta %>%
   filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   mutate(number_plots = length(unique(YEAR))) %>% 
   filter(number_plots == 2) %>% # have min and max year per plot only
-  dplyr::select(STUDY_ID, PLOT, STUDY_ID_PLOT, START_YEAR, END_YEAR, duration, TAXA, LATITUDE, LONGITUDE, YEAR, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, NUMBER_OF_SAMPLES, ABUNDANCE_TYPE) %>% 
+  dplyr::select(STUDY_ID, PLOT, STUDY_ID_PLOT, START_YEAR, END_YEAR, duration, TAXA, LATITUDE, LONGITUDE, YEAR, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, NUMBER_OF_SAMPLES, ABUNDANCE_TYPE, AB_BIO, BIOMASS_TYPE, PROTECTED_AREA) %>% 
   ungroup()
 
 # other useful dataset variations ----
@@ -77,15 +77,14 @@ bio_short <- bio %>%
   dplyr::select(-YEAR, -sum.allrawdata.ABUNDANCE, -GENUS_SPECIES)
 
 # calculating jacccard ----
-# workflow
-### summarising abundance per plot per year per species
-### creating empty dataframe
-### running loop
 
 # data manipulation ----
+# change biomass and density data to 1
+bio$sum.allrawdata.ABUNDANCE[bio$sum.allrawdata.ABUNDANCE < 1] <- 1
+
 bio_turnover <- bio %>% 
-  dplyr::select(STUDY_ID, STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
-  filter(STUDY_ID == "509") %>% 
+  dplyr::select(STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
+  #filter(STUDY_ID_PLOT == "334_B1Q5") %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
@@ -117,7 +116,7 @@ for (i in 1:length(unique(bio_turnover$STUDY_ID_PLOT))) {
 }
 
 #write.csv(beta_Jaccard, "outputs/beta_Jaccard_df.csv")
-betaj <- read.csv("outputs/beta_Jaccard_df.csv")
+#betaj <- read.csv("outputs/beta_Jaccard_df.csv")
 # 502, 509, many 0, many NaN???
 # 502 only one species, 509 all zeros in sum.all.rawdataAbundance?
 # filter for abundance type?
@@ -160,7 +159,8 @@ bio_full_acc <- bio_aa_short %>%
   right_join(bio_short, by = "LATITUDE") %>% 
   dplyr::select(-STUDY_ID_PLOT.x, -LONGITUDE.y) %>% 
   rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y,
-         LONGITUDE = LONGITUDE.x)
+         LONGITUDE = LONGITUDE.x) %>% 
+  dplyr::select(STUDY_ID_PLOT, scaleacc_25, e, e_2, e_5, e_25, e_50, e_75, e_100)
 
 
 # extracting values hpd ----
@@ -198,7 +198,8 @@ bio_full_hpd <- bio_hpd_short %>%
   right_join(bio_short, by = "LATITUDE") %>% 
   dplyr::select(-STUDY_ID_PLOT.x, -LONGITUDE.y) %>% 
   rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y,
-         LONGITUDE = LONGITUDE.x)
+         LONGITUDE = LONGITUDE.x) %>% 
+  dplyr::select(STUDY_ID_PLOT, scalehpd_25, e_hpd, e_hpd2, e_hpd5, e_hpd25, e_hpd50, e_hpd75, e_hpd100)
 
 
 # creating global grid cell variable ----
@@ -229,4 +230,3 @@ data1$duration_plot <- as.numeric(data1$duration_plot)
 data1$Jtu <- as.numeric(data1$Jtu)
 data1$STUDY_ID <- as.factor(data1$STUDY_ID )
 data1$cell <- as.factor(data1$cell)
-

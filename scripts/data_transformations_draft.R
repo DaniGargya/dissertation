@@ -467,7 +467,8 @@ hist(log(bio_hpd_scale$scalehpd))
 hist(log(bio_aa_scale$scaleacc))
 hist(log(bio_aa$e))
 
-# figuring out what to do with biomass
+# figuring out what to do with biomass ----
+
 unique(bio$ABUNDANCE_TYPE) 
 # Count, Density, MeanCount, Presence/Absence
 unique(biotime_meta$BIOMASS_TYPE)
@@ -479,6 +480,28 @@ p_a <- biotime_meta %>%
 abundance_type_plot <- bio %>% 
   group_by(ABUNDANCE_TYPE) %>% 
   summarise(plots =length(unique(STUDY_ID_PLOT)))
+
+abundance_ab <- bio %>% 
+  group_by(AB_BIO) %>% 
+  summarise(plots =length(unique(STUDY_ID_PLOT)))
+
+den <- bio %>% 
+  filter(AB_BIO  %in% c( "A")) #%>% 
+  #filter(sum.allrawdata.ABUNDANCE < 1)
+
+plo <- bio %>% 
+  filter(STUDY_ID == "502") %>% 
+  distinct(STUDY_ID_PLOT)
+
+den2 <- bio_meta %>% 
+  filter(!ABUNDANCE_TYPE == "Count")
+
+# loop with AB = B ----
+bio$sum.allrawdata.ABUNDANCE[bio$sum.allrawdata.ABUNDANCE < 1] <- 1
+
+beta_Jaccard$Jtu <- as.numeric(beta_Jaccard$Jtu)
+hist(beta_Jaccard$Jtu)
+
 
 # testing distribution of fake lat/long ----
 library(generator)

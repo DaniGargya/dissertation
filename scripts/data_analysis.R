@@ -39,9 +39,11 @@ sumamry(data1)
 # (given an observation is a zero or a one)
 # phi is the precision parameter of zero-one inflated beta distribution
 
+# one value for each taxa?
 
-mo_tu <- brm(bf(Jtu ~ scaleacc*scalehpd + duration_plot_center +
-                  (scaleacc|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+
+mo_tu2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center +
+                  (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
              family = zero_one_inflated_beta(), 
              data = data1,
              iter = 2000,
@@ -54,6 +56,8 @@ mo_tu <- brm(bf(Jtu ~ scaleacc*scalehpd + duration_plot_center +
 summary(mo_tu)
 plot(mo_tu)
 save(mo_tu, file = "outputs/mo_tu.RData")
+
+pairs(mo_tu)
 
 # predicting ----
 predictions <- ggpredict(mo_tu, terms = c("scaleacc", "scalehpd", "duration_plot_center"))
@@ -83,8 +87,8 @@ quantile(predictions$group)
 str(predictions)
 
 # model all with area ----
-mo_tu_a <- brm(bf(Jtu ~ scaleacc*scalehpd + duration_plot_center + area_center +
-                  (scaleacc|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+mo_tu_a <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center + area_center +
+                  (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
              family = zero_one_inflated_beta(), 
              data = data1,
              iter = 2000,
@@ -107,6 +111,17 @@ mo_tu_acc <- brm(bf(Jtu ~ scaleacc + duration_plot_center + area_center +
 # model hpd ----
 mo_tu_hpd <- brm(bf(Jtu ~ scaleacc + duration_plot_center + area_center +
                       (scaleacc|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+                 family = zero_one_inflated_beta(), 
+                 data = data1,
+                 iter = 2000,
+                 warmup = 1000,
+                 inits = '0',
+                 control = list(adapt_delta = 0.85),
+                 cores = 2, chains = 2)
+
+# model to get individual taxa response ----
+mo_tu_taxa <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25  + TAXA + scaleacc_25:TAXA +
+                     (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
                  family = zero_one_inflated_beta(), 
                  data = data1,
                  iter = 2000,
