@@ -64,7 +64,7 @@ bio <- biotime_meta %>%
   unite(STUDY_ID_PLOT, STUDY_ID, PLOT, sep = "_", remove=F) %>% 
   filter(!STUDY_ID == 298)  %>%  # has 147201 entries; set upper limit
   group_by(STUDY_ID_PLOT) %>% 
-  #filter(HAS_PLOT == "Y") %>% 
+  filter(HAS_PLOT == "Y") %>% 
   filter(YEAR %in% c(max(YEAR), min(YEAR))) %>% 
   mutate(number_plots = length(unique(YEAR))) %>% 
   filter(number_plots == 2) %>% # have min and max year per plot only
@@ -148,21 +148,19 @@ bio_aa_2 <- cbind(SP, e, e_2, e_5, e_25, e_50, e_75, e_100)
 write.csv(bio_aa_2, "outputs/df_aa_scales.csv")
 
 # drop NA according to scale I am looking at!!
+# add scale
 bio_aa_short <- bio_aa_2 %>% 
-  drop_na(e_100)
+  drop_na(e_25) %>% 
+  mutate(scaleacc_25= 1 - ((e_25-min(e_25))/(max(e_25)-min(e_25))))
 
-bio_aa_scale <- bio_aa_short %>%
-  mutate(scaleacc= 1 - ((e-min(e))/(max(e)-min(e))))
+#hist(log(bio_aa_short$scaleacc_25))
+#hist(bio_aa_short$scaleacc_25)
 
-#hist(log(bio_aa_scale$scaleacc))
-
-bio_full_acc <- bio_aa %>% 
-  left_join(bio_aa_scale, by = "STUDY_ID_PLOT") %>% 
-  dplyr::select(-LATITUDE.y, -LONGITUDE.y, -e.y) %>% 
-  rename(LATITUDE = LATITUDE.x) %>% 
+bio_full_acc <- bio_aa_short %>% 
   right_join(bio_short, by = "LATITUDE") %>% 
-  dplyr::select(STUDY_ID_PLOT.y, scaleacc) %>% 
-  rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y)
+  dplyr::select(-STUDY_ID_PLOT.x, -LONGITUDE.y) %>% 
+  rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y,
+         LONGITUDE = LONGITUDE.x)
 
 
 # extracting values hpd ----
@@ -186,26 +184,21 @@ bio_hpd2 <- cbind(SP, e_hpd, e_hpd2, e_hpd5, e_hpd25, e_hpd50, e_hpd75, e_hpd100
 # save dataframe
 write.csv(bio_hpd2, "outputs/df_hpd_scales.csv")
 
-# omit NAs ### according to scale!!!
-bio_hpd_short <- bio_hpd %>% 
-  drop_na(e_hpd100)
+# drop NA according to scale I am looking at!!
+# add scale
+bio_hpd_short <- bio_hpd2 %>% 
+  drop_na(e_hpd25) %>% 
+  mutate(scalehpd_25= 1 - ((e_hpd25-min(e_hpd25))/(max(e_hpd25)-min(e_hpd25))))
 
-# scale world population extracted
-bio_hpd_scale <- bio_hpd_short %>%
-  mutate(scalehpd=(e_hpd-min(e_hpd))/(max(e_hpd)-min(e_hpd)))
 
-# check histogram of values
-#hist(bio_hpd_scale$scalehpd)
-#hist(log(bio_hpd_scale$scalehpd))
+hist(log(bio_hpd_short$scalehpd_25))
+hist(bio_hpd_short$scalehpd_25)
 
-# join hpd to all studies
-bio_full_hpd <- bio_hpd %>% 
-  left_join(bio_hpd_scale, by = "STUDY_ID_PLOT") %>% 
-  dplyr::select(-LATITUDE.y, -LONGITUDE.y, -e_hpd.y) %>% 
-  rename(LATITUDE = LATITUDE.x) %>% 
+bio_full_hpd <- bio_hpd_short %>% 
   right_join(bio_short, by = "LATITUDE") %>% 
-  dplyr::select(STUDY_ID_PLOT.y, scalehpd) %>% 
-  rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y)
+  dplyr::select(-STUDY_ID_PLOT.x, -LONGITUDE.y) %>% 
+  rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y,
+         LONGITUDE = LONGITUDE.x)
 
 
 # creating global grid cell variable ----
