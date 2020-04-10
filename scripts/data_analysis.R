@@ -42,8 +42,8 @@ sumamry(data1)
 # one value for each taxa?
 
 
-mo_tu2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center +
-                  (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+mo_tu <- brm(bf(Jtu ~ scaleacc*scalehpd + duration_plot_center +
+                  (scaleacc|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
              family = zero_one_inflated_beta(), 
              data = data1,
              iter = 2000,
@@ -86,6 +86,52 @@ quantile(dat$scalehpd)
 quantile(predictions$group)
 str(predictions)
 
+# model 2, same parameters, better numbers ----
+mo_tu2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center +
+                   (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+              family = zero_one_inflated_beta(), 
+              data = data1,
+              iter = 2000,
+              warmup = 1000,
+              inits = '0',
+              control = list(adapt_delta = 0.85),
+              cores = 2, chains = 2)
+
+# Check model and save output ----
+summary(mo_tu2)
+plot(mo_tu2)
+save(mo_tu2, file = "outputs/mo_tu2.RData")
+
+load("outputs/mo_tu2.RData")
+
+# predicting mo_tu2 ----
+predictions_2 <- ggpredict(mo_tu2, terms = c("scaleacc_25","scalehpd_25", "duration_plot_center"))
+
+predictions_2$hpd <- factor(predictions_2$group, levels = c("0.91", "0.99", "1.06"),
+                          labels = c("Low", "Moderate", "High"))
+
+plot(predictions_2)
+
+rstantools::posterior_predict(mo_tu2)
+
+# plotting posterior distributions ----
+posterior <- as.array(mo_tu2)
+dim(posterior)
+dimnames(posterior)
+
+color_scheme_set("red")
+mcmc_intervals(posterior, pars = c("b_scaleacc_25", "b_scalehpd_25", "b_duration_plot_center", "b_scaleacc_25:scalehpd_25")) + theme_clean() +
+  #scale_x_continuous(limits = c(0, 0.2), breaks = c(0, 0.05, 0.10, 0.15, 0.20),
+                     #labels = c(0, 0.05, 0.10, 0.15, 0.20)) +
+  geom_vline(xintercept = 0)
+
+
+# checking model convergence ----
+# Check model convergence
+mcmc_trace(posterior, pars = c("b_scaleacc_25", "b_scalehpd_25", "b_duration_plot_center", "b_scaleacc_25:scalehpd_25"))
+mcmc_trace(posterior, pars = c("sd_TAXA__scaleacc_25"))
+plot(mo_tu2)
+
 # model all with area ----
 mo_tu_a <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center + area_center +
                   (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
@@ -109,8 +155,9 @@ mo_tu_acc <- brm(bf(Jtu ~ scaleacc + duration_plot_center + area_center +
                cores = 2, chains = 2)
 
 # model hpd ----
-mo_tu_hpd <- brm(bf(Jtu ~ scaleacc + duration_plot_center + area_center +
-                      (scaleacc|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+# did not converge
+mo_tu_hpd <- brm(bf(Jtu ~ scalehpd_25 + duration_plot_center + area_center +
+                      (scalehpd_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
                  family = zero_one_inflated_beta(), 
                  data = data1,
                  iter = 2000,
@@ -119,8 +166,15 @@ mo_tu_hpd <- brm(bf(Jtu ~ scaleacc + duration_plot_center + area_center +
                  control = list(adapt_delta = 0.85),
                  cores = 2, chains = 2)
 
+# Check model mo_tu_hpd and save output ----
+summary(mo_tu_hpd)
+plot(mo_tu_hpd)
+save(mo_tu_hpd, file = "outputs/mo_tu_hpd.RData")
+
+pairs(mo_tu_hpd)
+
 # model to get individual taxa response ----
-mo_tu_taxa <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25  + TAXA + scaleacc_25:TAXA +
+mo_tu_taxa <- brm(bf(Jtu ~ scaleacc_25*TAXA +
                      (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
                  family = zero_one_inflated_beta(), 
                  data = data1,
@@ -128,4 +182,4 @@ mo_tu_taxa <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25  + TAXA + scaleacc_25:TAXA +
                  warmup = 1000,
                  inits = '0',
                  control = list(adapt_delta = 0.85),
-                 cores = 2, chains = 2)
+                 cores = 1, chains = 2)
