@@ -59,18 +59,34 @@ theme_clean <- function(){
 
 # visualisation scatter plot ----
 ggplot() +
-  geom_line(data = predictions, aes(x = x, y = predicted, colour = hpd),
+  geom_line(data = predictions_2, aes(x = x, y = predicted, colour = hpd),
             size = 2) +
-  geom_ribbon(data = predictions, aes(ymin = conf.low, ymax = conf.high, 
+  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
                                       x = x, fill = hpd), alpha = 0.1) +
-  geom_point(data = data1, aes(x = scaleacc, y = Jtu),
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
              alpha = 0.1, size = 2) +
   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
   #scale_x_continuous(limits = c (0.8, 1)) +
   theme_clean() +
   scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
   scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  labs(x = "\nAccessibility", y = "Jaccard turnover\n")
+  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
+
+
+
+ggplot() +
+    geom_line(data = predictions_2, aes(x = x, y = predicted),
+              size = 2) +
+    geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
+                                          x = x), alpha = 0.1) +
+    geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+               alpha = 0.1, size = 2) +
+    #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+    #scale_x_continuous(limits = c (0.8, 1)) +
+    theme_clean() +
+    #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+    #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+    labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
 
 # RQ2: taxa making raincloud plot ----
@@ -126,3 +142,45 @@ ggsave(raincloud_taxa, filename = "outputs/raincloud_taxa_graph.png",
        height = 5, width = 8)
 
 # RQ3: accessibility and hpd
+
+# PCA ----
+library(ape)
+
+# clean dataframe?
+data_clean <- data1 %>% 
+  dplyr::select(Jtu, scaleacc_25, scalehpd_25, cell, STUDY_ID, STUDY_ID_PLOT, TAXA)
+
+
+# NMDS and plot results?
+data_clean %>% 
+  metaMDS(trace = F) %>%
+  ordiplot(type = "none") 
+
+PCA <- rda(data_clean, scale = FALSE) # same scale of variables?
+
+# bar plot of relative eigenvalues
+barplot(as.vector(PCA$CA$eig)/sum(PCA$CA$eig)) 
+
+# Calculate the percent of variance explained by first two axes
+sum((as.vector(PCA$CA$eig)/sum(PCA$CA$eig))[1:2])
+
+# Now, we`ll plot our results with the plot function
+plot(PCA)
+plot(PCA, display = "sites", type = "points")
+plot(PCA, display = "species", type = "text")
+
+
+# effect size graph ----
+pd <- position_dodge(0.2) # So that the error bars on graphs don't overlap 
+
+(pred_plot <- ggplot(predictSP, 
+                    aes(x=TAXA, y=mean, colour=treatment, group=treatment))+ 
+  geom_errorbar(aes(ymin=down, ymax=up), 
+                colour="black", width=.2, position=pd) + 
+  geom_point(position=pd, size=4) + 
+  theme_classic() + 
+  labs(x="Taxa", y="Jaccard dissimilarity") + 
+  theme(axis.text.x = element_text(size=12), 
+        axis.text.y = element_text(size=12), 
+        axis.title.x = element_text(size=14), 
+        axis.title.y = element_text(size=14)))
