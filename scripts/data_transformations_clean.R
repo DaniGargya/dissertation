@@ -22,7 +22,6 @@ library(raster) # to allow creation, reading, manip of raster data
 library(labdsv)
 library(dggridR)
 
-library(beepr)
 
 # load data ----
 # biotime data
@@ -71,6 +70,8 @@ bio <- biotime_meta %>%
   dplyr::select(STUDY_ID, PLOT, STUDY_ID_PLOT, START_YEAR, END_YEAR, duration, TAXA, LATITUDE, LONGITUDE, YEAR, sum.allrawdata.ABUNDANCE, GENUS_SPECIES, LATITUDE, LONGITUDE, AREA_SQ_KM, NUMBER_OF_SAMPLES, ABUNDANCE_TYPE, AB_BIO, BIOMASS_TYPE, PROTECTED_AREA) %>% 
   ungroup()
 
+write.csv(bio, "data/bio.csv")
+
 # other useful dataset variations ----
 bio_short <- bio %>% 
   distinct(STUDY_ID_PLOT, .keep_all = TRUE) %>% 
@@ -84,7 +85,6 @@ bio$sum.allrawdata.ABUNDANCE[bio$sum.allrawdata.ABUNDANCE < 1] <- 1
 
 bio_turnover <- bio %>% 
   dplyr::select(STUDY_ID_PLOT, YEAR, GENUS_SPECIES, sum.allrawdata.ABUNDANCE) %>% 
-  #filter(STUDY_ID_PLOT == "334_B1Q5") %>% 
   group_by(STUDY_ID_PLOT, YEAR, GENUS_SPECIES) %>% 
   summarise(Abundance = sum(sum.allrawdata.ABUNDANCE)) %>% 
   ungroup()
@@ -115,11 +115,8 @@ for (i in 1:length(unique(bio_turnover$STUDY_ID_PLOT))) {
   i = i+1
 }
 
-#write.csv(beta_Jaccard, "outputs/beta_Jaccard_df.csv")
+#write.csv(beta_Jaccard, "data/beta_Jaccard_df.csv")
 #betaj <- read.csv("outputs/beta_Jaccard_df.csv")
-# 502, 509, many 0, many NaN???
-# 502 only one species, 509 all zeros in sum.all.rawdataAbundance?
-# filter for abundance type?
 
 # extracting values accessibility ----
 # df of all unique lat/long values
@@ -144,7 +141,8 @@ bio_aa <- cbind(SP, e)
 bio_aa_2 <- cbind(SP, e, e_2, e_5, e_25, e_50, e_75, e_100)
 
 # save dataframe
-write.csv(bio_aa_2, "outputs/df_aa_scales.csv")
+#write.csv(bio_aa_2, "data/df_aa_scales.csv")
+bio_aa_2 <- read.csv("data/df_aa_scales.csv") %>%  dplyr::select(-X)
 
 # drop NA according to scale I am looking at!!
 # add scale
@@ -182,7 +180,8 @@ bio_hpd <- cbind(SP, e_hpd)
 bio_hpd2 <- cbind(SP, e_hpd, e_hpd2, e_hpd5, e_hpd25, e_hpd50, e_hpd75, e_hpd100)
 
 # save dataframe
-write.csv(bio_hpd2, "outputs/df_hpd_scales.csv")
+#write.csv(bio_hpd2, "data/df_hpd_scales.csv")
+bio_hpd2 <- read.csv("data/df_hpd_scales.csv") %>%  dplyr::select(-X)
 
 # drop NA according to scale I am looking at!!
 # add scale
@@ -191,8 +190,8 @@ bio_hpd_short <- bio_hpd2 %>%
   mutate(scalehpd_25= 1 - ((e_hpd25-min(e_hpd25))/(max(e_hpd25)-min(e_hpd25))))
 
 
-hist(log(bio_hpd_short$scalehpd_25))
-hist(bio_hpd_short$scalehpd_25)
+#hist(log(bio_hpd_short$scalehpd_25))
+#hist(bio_hpd_short$scalehpd_25)
 
 bio_full_hpd <- bio_hpd_short %>% 
   right_join(bio_short, by = "LATITUDE") %>% 
