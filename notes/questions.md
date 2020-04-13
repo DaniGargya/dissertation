@@ -2,15 +2,20 @@
 
 ### Model
 - check syntax
+  - what about phi?
+  
 - leave duration out?
+
 - include area? (-> no relationship jacc ~ a; only when area logged)
+
 - how to do sensitivity analysis with scale?
 - other sensitivity analysis?
+
 - how to get taxa?
   - do I need to standardise explanatory values?
+  - how to access those values of random effect?
 
 - how to check models?
-- does not work with TAXA?
 
 - what about not being normally distributed?
 
@@ -22,6 +27,7 @@
 - how to plot interaction effect hpd? at the moment use group
 - RQ2: taxa -> what do density graphs actually tell me?
 - can I use PCA?
+- how to change axis?
 
 ### RQ
 - change to hpd vs acc vs both?
