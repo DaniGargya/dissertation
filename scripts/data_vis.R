@@ -58,6 +58,7 @@ theme_clean <- function(){
 }
 
 # visualisation scatter plot ----
+# with hpd interaction
 ggplot() +
   geom_line(data = predictions_2, aes(x = x, y = predicted, colour = hpd),
             size = 2) +
@@ -65,6 +66,7 @@ ggplot() +
                                       x = x, fill = hpd), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
              alpha = 0.1, size = 2) +
+  facet_wrap("TAXA") +
   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
   #scale_x_continuous(limits = c (0.8, 1)) +
   theme_clean() +
@@ -73,7 +75,7 @@ ggplot() +
   labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
 
-
+# only accessibility, facet_wrap taxa
 ggplot() +
     geom_line(data = predictions_2, aes(x = x, y = predicted),
               size = 2) +
@@ -81,12 +83,30 @@ ggplot() +
                                           x = x), alpha = 0.1) +
     geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
                alpha = 0.1, size = 2) +
+    facet_wrap("TAXA") +
     #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
     #scale_x_continuous(limits = c (0.8, 1)) +
     theme_clean() +
     #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
     #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
     labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
+
+# only accessibility, facet_wrap hpd
+ggplot() +
+  geom_line(data = predictions_2, aes(x = x, y = predicted),
+            size = 2) +
+  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x), alpha = 0.1) +
+  facet_wrap("hpd") +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+             alpha = 0.1, size = 2) +
+  
+  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+  #scale_x_continuous(limits = c (0.8, 1)) +
+  theme_clean() +
+  #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
 
 # RQ2: taxa making raincloud plot ----
@@ -122,7 +142,7 @@ source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/f
 (violin_taxa <- ggplot(data1, aes(x = TAXA, y = Jtu)) +
     geom_violin())
 
-# raincloud plot ----
+# raincloud plot taxa jtu----
 (raincloud_taxa <- 
     ggplot(data = data1, 
            aes(x = reorder(TAXA, desc(Jtu)), y = Jtu, fill = TAXA)) +
@@ -141,16 +161,198 @@ source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/f
 ggsave(raincloud_taxa, filename = "outputs/raincloud_taxa_graph.png",
        height = 5, width = 8)
 
+# raincloud plot taxa accessibility ----
+(raincloud_acc <- 
+    ggplot(data = data1, 
+           aes(x = reorder(TAXA, desc(scaleacc_25)), y = scaleacc_25, fill = TAXA)) +
+    geom_flat_violin(position = position_nudge(x = 0.2, y = 0), alpha = 0.8) +
+    geom_point(aes(y = scaleacc_25, color = TAXA), 
+               position = position_jitter(width = 0.15), size = 1, alpha = 0.1) +
+    geom_boxplot(width = 0.2, outlier.shape = NA, alpha = 0.8) +
+    labs(y = "\nAccessibility score", x = NULL) +
+    guides(fill = FALSE, color = FALSE) +
+    scale_y_continuous(limits = c(0, 1)) +
+    scale_fill_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C")) +
+    scale_colour_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C")) +
+    coord_flip() +
+    theme_niwot())
+
+ggsave(raincloud_acc, filename = "outputs/raincloud_taxa_acc_graph.png",
+       height = 5, width = 8)
+
+
+# raincloud plot taxa hpd ----
+(raincloud_hpd <- 
+   ggplot(data = data1, 
+          aes(x = reorder(TAXA, desc(scalehpd_25)), y = scalehpd_25, fill = TAXA)) +
+   geom_flat_violin(position = position_nudge(x = 0.2, y = 0), alpha = 0.8) +
+   geom_point(aes(y = scalehpd_25, color = TAXA), 
+              position = position_jitter(width = 0.15), size = 1, alpha = 0.1) +
+   geom_boxplot(width = 0.2, outlier.shape = NA, alpha = 0.8) +
+   labs(y = "\nHuman population density", x = NULL) +
+   guides(fill = FALSE, color = FALSE) +
+   scale_y_continuous(limits = c(0, 1)) +
+   scale_fill_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C")) +
+   scale_colour_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C")) +
+   coord_flip() +
+   theme_niwot())
+
+ggsave(raincloud_hpd, filename = "outputs/raincloud_taxa_hpd_graph.png",
+       height = 5, width = 8)
+
 # RQ3: accessibility and hpd
+
 
 # PCA ----
 library(ape)
 
-# clean dataframe?
-data_clean <- data1 %>% 
-  dplyr::select(Jtu, scaleacc_25, scalehpd_25, cell, STUDY_ID, STUDY_ID_PLOT, TAXA)
+# clean dataframe
+data_small <- data1 %>% 
+  dplyr::select(STUDY_ID_PLOT, TAXA, Jtu, scaleacc_25, scalehpd_25, richness_change, AREA_SQ_KM, duration_plot)
+
+data_small <- column_to_rownames(data_small, "STUDY_ID_PLOT")
+
+# colour by taxa ----
+res.pca <- PCA(data_small[,-1], scale.unit = TRUE, graph = TRUE)
 
 
+fviz_pca_ind(res.pca,
+             geom.ind = "point", # show points only (nbut not "text")
+             col.ind = data_small$TAXA, # color by groups
+             palette = c("#00AFBB", "#E7B800", "#FC4E07", "#9400D3", "#228B22"),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = "Groups"
+)
+
+# biplot
+fviz_pca_biplot(res.pca, 
+                col.ind = data_small$TAXA, palette = "jco", 
+                addEllipses = TRUE, label = "var",
+                col.var = "black", repel = TRUE,
+                legend.title = "Taxa") 
+
+# try website ----
+#http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/112-pca-principal-component-analysis-essentials/#pca-data-format
+
+library("FactoMineR")
+library(factoextra)
+res.pca <- PCA(data_small[,-1], scale.unit = TRUE, graph = TRUE)
+
+print(res.pca)
+
+# eigenvalues/ variances
+eig.val <- get_eigenvalue(res.pca)
+eig.val
+
+# scree plot
+fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50))
+
+# saving results
+var <- get_pca_var(res.pca)
+var
+
+# Coordinates
+head(var$coord)
+# Cos2: quality on the factore map
+head(var$cos2)
+# Contributions to the principal components
+head(var$contrib)
+
+# correlation cirlce
+# Coordinates of variables
+head(var$coord, 4)
+
+# variable correlation plot
+fviz_pca_var(res.pca, col.var = "black")
+
+# quality of representation
+head(var$cos2, 4)
+
+library("corrplot")
+corrplot(var$cos2, is.corr=FALSE)
+
+# Total cos2 of variables on Dim.1 and Dim.2
+fviz_cos2(res.pca, choice = "var", axes = 1:2)
+
+# Color by cos2 values: quality on the factor map
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+)
+
+# Change the transparency by cos2 values
+fviz_pca_var(res.pca, alpha.var = "cos2")
+
+# contributions of variables to PCs
+head(var$contrib, 4)
+corrplot(var$contrib, is.corr=FALSE)   
+
+# Contributions of variables to PC1
+fviz_contrib(res.pca, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2
+fviz_contrib(res.pca, choice = "var", axes = 2, top = 10)
+
+fviz_contrib(res.pca, choice = "var", axes = 1:2, top = 10)
+
+fviz_pca_var(res.pca, col.var = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07")
+)
+
+# Change the transparency by contrib values
+fviz_pca_var(res.pca, alpha.var = "contrib")
+
+# Color by a custom continuous variable
+# Create a random continuous variable of length 10
+set.seed(123)
+my.cont.var <- rnorm(6)
+# Color variables by the continuous variable
+fviz_pca_var(res.pca, col.var = my.cont.var,
+             gradient.cols = c("blue", "yellow", "red"),
+             legend.title = "Cont.Var")
+
+# Color by groups
+# Create a grouping variable using kmeans
+# Create 3 groups of variables (centers = 3)
+set.seed(123)
+res.km <- kmeans(var$coord, centers = 3, nstart = 25)
+grp <- as.factor(res.km$cluster)
+# Color variables by groups
+fviz_pca_var(res.pca, col.var = grp, 
+             palette = c("#0073C2FF", "#EFC000FF", "#868686FF"),
+             legend.title = "Cluster")
+
+
+# dimension description
+res.desc <- dimdesc(res.pca, axes = c(1,2), proba = 0.05)
+# Description of dimension 1
+res.desc$Dim.1
+
+# Description of dimension 2
+res.desc$Dim.2
+
+# graph of individuals
+ind <- get_pca_ind(res.pca)
+ind
+
+# Coordinates of individuals
+head(ind$coord)
+# Quality of individuals
+head(ind$cos2)
+# Contributions of individuals
+head(ind$contrib)
+
+# plots quality and contribution
+fviz_pca_ind(res.pca)
+
+# colour by cos2 values
+fviz_pca_ind(res.pca, col.ind = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Avoid text overlapping (slow if many points)
+)
+
+
+
+# coding club tutorial ----
 # NMDS and plot results?
 data_clean %>% 
   metaMDS(trace = F) %>%
@@ -184,3 +386,5 @@ pd <- position_dodge(0.2) # So that the error bars on graphs don't overlap
         axis.text.y = element_text(size=12), 
         axis.title.x = element_text(size=14), 
         axis.title.y = element_text(size=14)))
+
+# RQ 3: interaction jaccard and accessibility/hpd?

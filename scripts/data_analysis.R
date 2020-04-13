@@ -86,6 +86,26 @@ quantile(dat$scalehpd)
 quantile(predictions$group)
 str(predictions)
 
+# checking funnel plot ----
+scaleaccc <- data1 %>% 
+  dplyr::select(scaleacc_25)
+  
+plot(scaleaccc$Slope, I(1/scaleaccc$SE), xlim = c(-100,100), ylim = c(0, 60)) # this makes the funnel plot of slope (rate of change in days/year) and precision (1/SE)
+
+# backtransform data outputs ----
+# https://vuorre.netlify.com/post/2019/02/18/analyze-analog-scale-ratings-with-zero-one-inflated-beta-models/
+
+posterior_samples(fit, pars = "b_")[,1:4] %>% 
+  mutate_at(c("b_phi_Intercept"), exp) %>% 
+  mutate_at(vars(-"b_phi_Intercept"), plogis) %>% 
+  posterior_summary() %>% 
+  as.data.frame() %>% 
+  rownames_to_column("Parameter") %>% 
+  kable(digits = 2) 
+
+
+
+
 # model 2, same parameters, better numbers ----
 mo_tu2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center +
                    (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
@@ -105,7 +125,7 @@ save(mo_tu2, file = "outputs/mo_tu2.RData")
 load("outputs/mo_tu2.RData")
 
 # predicting mo_tu2 ----
-predictions_2 <- ggpredict(mo_tu2, terms = c("scaleacc_25","scalehpd_25", "duration_plot_center"))
+predictions_2 <- ggpredict(mo_tu2, terms = c("scaleacc_25","scalehpd_25"))
 
 predictions_2$hpd <- factor(predictions_2$group, levels = c("0.91", "0.99", "1.06"),
                           labels = c("Low", "Moderate", "High"))
@@ -125,6 +145,21 @@ mcmc_intervals(posterior, pars = c("b_scaleacc_25", "b_scalehpd_25", "b_duration
                      #labels = c(0, 0.05, 0.10, 0.15, 0.20)) +
   geom_vline(xintercept = 0)
 
+# model diagnostics ----
+# https://bayesat.github.io/lund2018/slides/andrey_anikin_slides.pdf
+# observed vs predicted
+pp = brms::pp_check(mo_tu2)
+pp + theme_bw()
+
+# default plot model predictions
+brms::marginal_effects(mo_tu2)
+
+# model fit
+fit = fitted(
+  mo_tu2
+)
+
+plot(conditional_effects(mo_tu2), points = TRUE)
 
 # checking model convergence ----
 # Check model convergence

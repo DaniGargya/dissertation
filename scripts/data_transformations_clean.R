@@ -116,7 +116,9 @@ for (i in 1:length(unique(bio_turnover$STUDY_ID_PLOT))) {
 }
 
 #write.csv(beta_Jaccard, "data/beta_Jaccard_df.csv")
-#betaj <- read.csv("outputs/beta_Jaccard_df.csv")
+betaj <- read.csv("data/beta_Jaccard_df.csv")
+beta_Jaccard <- betaj %>% 
+  dplyr::select(-X)
 
 # extracting values accessibility ----
 # df of all unique lat/long values
@@ -227,5 +229,9 @@ str(data1)
 data1$richness_change <- as.numeric(data1$richness_change)
 data1$duration_plot <- as.numeric(data1$duration_plot)
 data1$Jtu <- as.numeric(data1$Jtu)
+data1$richness_change <- as.numeric(data1$richness_change)
 data1$STUDY_ID <- as.factor(data1$STUDY_ID )
 data1$cell <- as.factor(data1$cell)
+data1$STUDY_ID_PLOT <- as.integer(data1$STUDY_ID_PLOT)
+
+write.csv(data1, "data/data1.csv")
