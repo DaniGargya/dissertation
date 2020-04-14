@@ -21,7 +21,7 @@ library(modelr)
 library(sjstats)
 
 # importing data ----
-#data1 <- read.csv("")
+data1 <- read.csv("data/data1.csv") %>%  dplyr::select(-X)
 
 # checking data ----
 head(data1)
@@ -31,7 +31,8 @@ sumamry(data1)
 # visualising distributions of data----
 # -> zero one inflated beta ditribution
 
-# Model with all ----   
+
+# Model with all mo_tu ----   
 # default priors
 # zero one inflated beta distribution
 # zoi refers to the probability of being a zero or a one
@@ -106,7 +107,8 @@ posterior_samples(fit, pars = "b_")[,1:4] %>%
 
 
 
-# model 2, same parameters, better numbers ----
+
+# model 2, same parameters, better numbers mo_tu2 ----
 mo_tu2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center +
                    (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
               family = zero_one_inflated_beta(), 
@@ -161,11 +163,31 @@ fit = fitted(
 
 plot(conditional_effects(mo_tu2), points = TRUE)
 
+pre_mo_tu2 <- predict(mo_tu2)
+
 # checking model convergence ----
 # Check model convergence
 mcmc_trace(posterior, pars = c("b_scaleacc_25", "b_scalehpd_25", "b_duration_plot_center", "b_scaleacc_25:scalehpd_25"))
 mcmc_trace(posterior, pars = c("sd_TAXA__scaleacc_25"))
 plot(mo_tu2)
+
+
+# model 3, more iterations mo_tu3 ----
+mo_tu3 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + AREA_SQ_KM +
+                   (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+              family = zero_one_inflated_beta(), 
+              data = data1,
+              iter = 3000,
+              warmup = 1000,
+              inits = '0',
+              control = list(adapt_delta = 0.85),
+              cores = 2, chains = 2)
+# Check model and save output ----
+summary(mo_tu3)
+plot(mo_tu3)
+save(mo_tu3, file = "outputs/mo_tu3.RData")
+load("outputs/mo_tu3.RData")
+
 
 # model all with area ----
 mo_tu_a <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center + area_center +
