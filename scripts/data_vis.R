@@ -21,21 +21,7 @@ library(ggplot2)
 library(ggpubr)
 library(mapdata)
 library(gridExtra)
-library(dggridR)
-library(devtools)
-
-#find_rtools()
-#pkgbuild::has_rtools
-
-#install_url('https://cran.r-project.org/src/contrib/Archive/dggridR/dggridR_2.0.3.tar.gz')
-
-packageurl <- 'https://cran.r-project.org/src/contrib/Archive/dggridR/dggridR_2.0.3.tar.gz'
-install.packages(packageurl, repos=NULL, type="source")
-
-install_github('r-barnes/dggridR', vignette=TRUE)
-install_github('r-barnes/dggridR', vignette=TRUE)
-
-devtools::install_github("karthik/wesanderson")
+library(ggExtra)
 
 
 # RQ1: jaccard ~ accessibility ----
@@ -58,7 +44,7 @@ theme_clean <- function(){
 }
 
 # visualisation scatter plot ----
-# with hpd interaction
+# with hpd interaction ----
 ggplot() +
   geom_line(data = predictions_2, aes(x = x, y = predicted, colour = hpd),
             size = 2) +
@@ -75,7 +61,7 @@ ggplot() +
   labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
 
-# only accessibility, facet_wrap taxa
+# only accessibility, facet_wrap taxa ----
 ggplot() +
     geom_line(data = predictions_2, aes(x = x, y = predicted),
               size = 2) +
@@ -91,7 +77,7 @@ ggplot() +
     #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
     labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
-# only accessibility, facet_wrap hpd
+# only accessibility, facet_wrap hpd ----
 ggplot() +
   geom_line(data = predictions_2, aes(x = x, y = predicted),
             size = 2) +
@@ -108,6 +94,32 @@ ggplot() +
   #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
   labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
+# only accessibility, colour continuous hpd ----
+ggplot() +
+  geom_line(data = predictions_2, aes(x = x, y = predicted),
+            size = 2) +
+  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x), alpha = 0.1) +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, colour = scalehpd_25),
+             alpha = 0.1, size = 2) +
+  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+  #scale_x_continuous(limits = c (0.8, 1)) +
+  theme_clean() +
+  #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
+
+# marginal disrtibution around ----
+# classic plot :
+(p <- ggplot(data1, aes(x = scaleacc_25, y= scalehpd_25, size = Jtu, colour = TAXA)) +
+  geom_point(alpha = 0.5) +
+  #scale_size(range = c(0, 1), name="Jaccard turnover") +
+  theme_clean() +
+  theme(legend.position='right'))
+  #theme(legend.position="none") 
+
+# marginal density
+(p2 <- ggMarginal(p, type="densigram", size = 3, fill = "slateblue", groupColour = TRUE))
 
 # RQ2: taxa making raincloud plot ----
 # creating theme----
