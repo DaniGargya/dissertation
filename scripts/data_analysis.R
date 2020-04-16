@@ -132,9 +132,66 @@ predictions_2 <- ggpredict(mo_tu2, terms = c("scaleacc_25","scalehpd_25"))
 predictions_2$hpd <- factor(predictions_2$group, levels = c("0.91", "0.99", "1.06"),
                           labels = c("Low", "Moderate", "High"))
 
+predictions_3 <- ggpredict(mo_tu2, terms = c("scaleacc_25", "scalehpd_25[0.25, 0.5, 0.9]"))
+predictions_3$hpd <- factor(predictions_3$group, levels = c("0.25", "0.5", "0.9"),
+                            labels = c("Low", "Moderate", "High"))
+
 plot(predictions_2)
 
 rstantools::posterior_predict(mo_tu2)
+
+
+# extract slopes ----
+# extract slopes for each cell
+slopes_mo <- list(coef(mo_tu2))
+save(slopes_mo, file = "outputs/slopes_mo.RData")
+
+coef(mo_tu2)
+fixef(mo_tu2)
+ranef(mo_tu2)
+
+ranef1 <- ranef(mo_tu2)
+taxa <- as.data.frame(ranef1$TAXA)
+taxa$TAXA <- rownames(taxa)
+
+# predict taxa ----
+me <- ggpredict(mo_tu2, terms = c("scaleacc_25", "TAXA"), type = "re")
+
+
+
+# histogram studyID deviation ----
+re_studyid <- as.data.frame(ranef(mo_tu2)$STUDY_ID)
+hist(re_studyid$Estimate.Intercept)
+
+re_studyid$STUDY_ID <- rownames(re_studyid)
+
+re_studyid_ta <- re_studyid %>% 
+  left_join(data1, by = "STUDY_ID")
+
+(re_study_hist <- ggplot(re_studyid_ta, aes(x=Estimate.Intercept, color = TAXA, fill = TAXA))+
+    geom_histogram() +
+    theme_classic())
+
+
+
+
+# estimate acc + dev study_id
+(turnover_gain <- slopes_forest6 %>%
+    data_grid(sum_gain_km_scaled = seq_range(sum_gain_km_scaled, n = 101)) %>%
+    add_predicted_draws(Jtu_hansen_gain_cont, re_formula = NULL, allow_new_levels = TRUE) %>%
+    ggplot(aes(x = sum_gain_km_scaled)) +
+    stat_lineribbon(aes(y = .prediction), .width = c(.95, .8, .5), colour = "#578988", alpha = 0.5) +
+    geom_point(aes(y = final_tu), data = slopes_forest6, colour = "#578988",
+               alpha = 0.8, size = 2) +
+    scale_fill_manual(values = c("grey90", "grey80", "grey60")) +
+    labs(x = bquote(atop(' ', '\nForest cover gain' ~ (km^2))), 
+         y = "Turnover \n", title = "GFC (2000-2016)\n") +
+    scale_x_continuous(breaks = c(-0.8993193, 0.9145646, 2.735345, 4.549229, 6.342422),
+                       labels = paste0(c("0", "5", "10", "15", "20"))) +
+    scale_y_continuous(breaks = c(0, 0.5, 1),
+                       labels = c("0", "0.5", "1")) +
+    guides(fill = F))
+
 
 # plotting posterior distributions ----
 posterior <- as.array(mo_tu2)
@@ -172,6 +229,9 @@ mcmc_trace(posterior, pars = c("sd_TAXA__scaleacc_25"))
 plot(mo_tu2)
 
 
+
+
+
 # model 3, more iterations mo_tu3 ----
 mo_tu3 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + AREA_SQ_KM +
                    (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
@@ -189,27 +249,20 @@ save(mo_tu3, file = "outputs/mo_tu3.RData")
 load("outputs/mo_tu3.RData")
 
 
-# model all with area ----
-mo_tu_a <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center + area_center +
-                  (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
-             family = zero_one_inflated_beta(), 
-             data = data1,
-             iter = 2000,
-             warmup = 1000,
-             inits = '0',
-             control = list(adapt_delta = 0.85),
-             cores = 2, chains = 2)
+# model 4, short mo__tu4 ----
 
-# model accessibility ----
-mo_tu_acc <- brm(bf(Jtu ~ scaleacc + duration_plot_center + area_center +
-                    (scaleacc|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
-               family = zero_one_inflated_beta(), 
-               data = data1,
-               iter = 2000,
-               warmup = 1000,
-               inits = '0',
-               control = list(adapt_delta = 0.85),
-               cores = 2, chains = 2)
+mo_tu4 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25*TAXA + duration_plot + AREA_SQ_KM +
+                   (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+              family = zero_one_inflated_beta(), 
+              data = data1,
+              iter = 4000,
+              warmup = 1000,
+              inits = '0',
+              control = list(adapt_delta = 0.85),
+              cores = 2, chains = 2)
+
+
+# compare hpd to acc ----
 
 # model hpd ----
 # did not converge
@@ -229,14 +282,3 @@ plot(mo_tu_hpd)
 save(mo_tu_hpd, file = "outputs/mo_tu_hpd.RData")
 
 pairs(mo_tu_hpd)
-
-# model to get individual taxa response ----
-mo_tu_taxa <- brm(bf(Jtu ~ scaleacc_25*TAXA +
-                     (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
-                 family = zero_one_inflated_beta(), 
-                 data = data1,
-                 iter = 2000,
-                 warmup = 1000,
-                 inits = '0',
-                 control = list(adapt_delta = 0.85),
-                 cores = 1, chains = 2)
