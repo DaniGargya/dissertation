@@ -24,6 +24,7 @@ library(gridExtra)
 library(ggExtra)
 
 
+
 # RQ1: jaccard ~ accessibility ----
 # clean theme ----
 theme_clean <- function(){
@@ -43,25 +44,27 @@ theme_clean <- function(){
           legend.position = c(0.2, 0.8))
 }
 
-# visualisation scatter plot ----
-# with hpd interaction ----
-ggplot() +
-  geom_line(data = predictions_2, aes(x = x, y = predicted, colour = hpd),
+predictions_acc <- ggpredict(mo_tu2, terms = c("scaleacc_25"))
+
+
+# accessibility model predictions ----
+(graph_acc <- ggplot() +
+  geom_line(data = predictions_acc, aes(x = x, y = predicted),
             size = 2) +
-  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
-                                      x = x, fill = hpd), alpha = 0.1) +
+  geom_ribbon(data = predictions_acc, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
              alpha = 0.1, size = 2) +
-  facet_wrap("TAXA") +
   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
   #scale_x_continuous(limits = c (0.8, 1)) +
   theme_clean() +
-  scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
+  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n"))
+
+ggsave(graph_acc, filename = "outputs/graph_acc.png",
+       height = 5, width = 8)
 
 
-# only accessibility, facet_wrap taxa ----
+# (only accessibility, facet_wrap taxa) ----
 ggplot() +
     geom_line(data = predictions_2, aes(x = x, y = predicted),
               size = 2) +
@@ -77,49 +80,9 @@ ggplot() +
     #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
     labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
-# only accessibility, facet_wrap hpd ----
-ggplot() +
-  geom_line(data = predictions_2, aes(x = x, y = predicted),
-            size = 2) +
-  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
-                                        x = x), alpha = 0.1) +
-  facet_wrap("hpd") +
-  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
-             alpha = 0.1, size = 2) +
-  
-  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
-  #scale_x_continuous(limits = c (0.8, 1)) +
-  theme_clean() +
-  #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
-# only accessibility, colour continuous hpd ----
-ggplot() +
-  geom_line(data = predictions_2, aes(x = x, y = predicted),
-            size = 2) +
-  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
-                                        x = x), alpha = 0.1) +
-  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, colour = scalehpd_25),
-             alpha = 0.1, size = 2) +
-  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
-  #scale_x_continuous(limits = c (0.8, 1)) +
-  theme_clean() +
-  #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
-  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
 
-# marginal disrtibution around ----
-# classic plot :
-(p <- ggplot(data1, aes(x = scaleacc_25, y= scalehpd_25, size = Jtu, colour = TAXA)) +
-  geom_point(alpha = 0.5) +
-  #scale_size(range = c(0, 1), name="Jaccard turnover") +
-  theme_clean() +
-  theme(legend.position='right'))
-  #theme(legend.position="none") 
 
-# marginal density
-(p2 <- ggMarginal(p, type="densigram", size = 3, fill = "slateblue", groupColour = TRUE))
 
 # RQ2: taxa making raincloud plot ----
 # creating theme----
@@ -194,25 +157,112 @@ ggsave(raincloud_acc, filename = "outputs/raincloud_taxa_acc_graph.png",
 
 
 # raincloud plot taxa hpd ----
-(raincloud_hpd <- 
-   ggplot(data = data1, 
-          aes(x = reorder(TAXA, desc(scalehpd_25)), y = scalehpd_25, fill = TAXA)) +
-   geom_flat_violin(position = position_nudge(x = 0.2, y = 0), alpha = 0.8) +
-   geom_point(aes(y = scalehpd_25, color = TAXA), 
-              position = position_jitter(width = 0.15), size = 1, alpha = 0.1) +
-   geom_boxplot(width = 0.2, outlier.shape = NA, alpha = 0.8) +
-   labs(y = "\nHuman population density", x = NULL) +
-   guides(fill = FALSE, color = FALSE) +
-   scale_y_continuous(limits = c(0, 1)) +
-   scale_fill_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C")) +
-   scale_colour_manual(values = c("#5A4A6F", "#E47250",  "#EBB261", "#9D5A6C")) +
-   coord_flip() +
-   theme_niwot())
 
-ggsave(raincloud_hpd, filename = "outputs/raincloud_taxa_hpd_graph.png",
-       height = 5, width = 8)
+# acc graph with facet taxa ----
+(graph_acc <- ggplot() +
+   geom_line(data = me, aes(x = x, y = predicted),
+             size = 2) +
+   geom_ribbon(data = me, aes(ymin = conf.low, ymax = conf.high, 
+                                           x = x), alpha = 0.1) +
+   facet_wrap("group") +
+   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+              alpha = 0.1, size = 2) +
+   facet_wrap ("TAXA")) +
+   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+   #scale_x_continuous(limits = c (0.8, 1)) +
+   theme_clean() +
+   labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n"))
 
-# RQ3: accessibility and hpd
+plot(me)
+
+# effect size graph ----
+(ef_taxa <- ggplot(taxa, aes(x = TAXA, y = Estimate.scaleacc_25, fill = TAXA)) +
+  geom_bar(stat="identity")+
+   geom_errorbar(aes(ymin = Estimate.scaleacc_25-Est.Error.scaleacc_25, ymax =  Estimate.scaleacc_25+Est.Error.scaleacc_25)) +
+   theme_clean())
+
+
+(ef_taxa_point <- ggplot(taxa, aes(x = TAXA, y = Estimate.scaleacc_25, group = TAXA, color = TAXA)) +
+    geom_pointrange(aes(ymin = Estimate.scaleacc_25-Est.Error.scaleacc_25, ymax =  Estimate.scaleacc_25+Est.Error.scaleacc_25)) +
+    theme_clean())
+
+pd <- position_dodge(0.2) # So that the error bars on graphs don't overlap 
+
+(pred_plot <- ggplot(predictSP, 
+                    aes(x=TAXA, y=mean, colour=treatment, group=treatment))+ 
+  geom_errorbar(aes(ymin=down, ymax=up), 
+                colour="black", width=.2, position=pd) + 
+  geom_point(position=pd, size=4) + 
+  theme_classic() + 
+  labs(x="Taxa", y="Jaccard dissimilarity") + 
+  theme(axis.text.x = element_text(size=12), 
+        axis.text.y = element_text(size=12), 
+        axis.title.x = element_text(size=14), 
+        axis.title.y = element_text(size=14)))
+
+
+# RQ 3: interaction hpd ----
+# with hpd interaction ----
+ggplot() +
+  geom_line(data = predictions_2, aes(x = x, y = predicted, colour = hpd),
+            size = 2) +
+  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x, fill = hpd), alpha = 0.1) +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+             alpha = 0.1, size = 2) +
+  facet_wrap("TAXA") +
+  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+  #scale_x_continuous(limits = c (0.8, 1)) +
+  theme_clean() +
+  scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
+
+# only accessibility, facet_wrap hpd ----
+ggplot() +
+  geom_line(data = predictions_3, aes(x = x, y = predicted),
+            size = 2) +
+  geom_ribbon(data = predictions_3, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x), alpha = 0.1) +
+  facet_wrap("hpd") +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+             alpha = 0.1, size = 2) +
+  
+  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+  #scale_x_continuous(limits = c (0.8, 1)) +
+  theme_clean() +
+  #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
+
+# only accessibility, colour continuous hpd ----
+ggplot() +
+  geom_line(data = predictions_2, aes(x = x, y = predicted),
+            size = 2) +
+  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x), alpha = 0.1) +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, colour = scalehpd_25),
+             alpha = 0.1, size = 2) +
+  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+  #scale_x_continuous(limits = c (0.8, 1)) +
+  theme_clean() +
+  #scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  #scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n")
+
+# marginal disrtibution around ----
+# classic plot :
+(p <- ggplot(data1, aes(x = scaleacc_25, y= scalehpd_25, size = Jtu, colour = TAXA)) +
+   geom_point(alpha = 0.5) +
+   #scale_size(range = c(0, 1), name="Jaccard turnover") +
+   theme_clean() +
+   theme(legend.position='right'))
+#theme(legend.position="none") 
+
+# marginal density
+(p2 <- ggMarginal(p, type="densigram", size = 3, fill = "slateblue", groupColour = TRUE))
+
+
 
 
 # PCA ----
@@ -361,42 +411,3 @@ fviz_pca_ind(res.pca, col.ind = "cos2",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
              repel = TRUE # Avoid text overlapping (slow if many points)
 )
-
-
-
-# coding club tutorial ----
-# NMDS and plot results?
-data_clean %>% 
-  metaMDS(trace = F) %>%
-  ordiplot(type = "none") 
-
-PCA <- rda(data_clean, scale = FALSE) # same scale of variables?
-
-# bar plot of relative eigenvalues
-barplot(as.vector(PCA$CA$eig)/sum(PCA$CA$eig)) 
-
-# Calculate the percent of variance explained by first two axes
-sum((as.vector(PCA$CA$eig)/sum(PCA$CA$eig))[1:2])
-
-# Now, we`ll plot our results with the plot function
-plot(PCA)
-plot(PCA, display = "sites", type = "points")
-plot(PCA, display = "species", type = "text")
-
-
-# effect size graph ----
-pd <- position_dodge(0.2) # So that the error bars on graphs don't overlap 
-
-(pred_plot <- ggplot(predictSP, 
-                    aes(x=TAXA, y=mean, colour=treatment, group=treatment))+ 
-  geom_errorbar(aes(ymin=down, ymax=up), 
-                colour="black", width=.2, position=pd) + 
-  geom_point(position=pd, size=4) + 
-  theme_classic() + 
-  labs(x="Taxa", y="Jaccard dissimilarity") + 
-  theme(axis.text.x = element_text(size=12), 
-        axis.text.y = element_text(size=12), 
-        axis.title.x = element_text(size=14), 
-        axis.title.y = element_text(size=14)))
-
-# RQ 3: interaction jaccard and accessibility/hpd?
