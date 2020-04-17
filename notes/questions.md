@@ -1,5 +1,23 @@
 # Questions
 
+- predict vs vis raw data
+  - when what?
+  - what to predict? can do several predicts?
+  
+- quantiles (hpd)
+  - default ones are above 1?
+  - how to set them?
+  
+- how to account for random effects of model?
+
+- how to answer taxa question?
+  - where to put in model?
+  - slopes and intercept display?
+  
+- testing for overfitting?
+
+
+
 ### Model
 - check syntax
   - what about phi?
