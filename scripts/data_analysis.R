@@ -2,10 +2,7 @@
 # Dani Gargya
 # March 20
 
-# workflow ----
-# creating a model
-# checking it
-# sensitivtiy analysis (extra script?)
+### It's model 6 that I have een trying to run
 
 # loading libraries ----
 library(tidyverse) # (Contains loads of useful functions)
@@ -28,11 +25,19 @@ head(data1)
 tail(data1)
 sumamry(data1)
 
-# visualising distributions of data----
-# -> zero one inflated beta ditribution
+#### model 6, taxa fixed effect ----
+mo_tu6 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + TAXA +
+                   (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+              family = zero_one_inflated_beta(), 
+              data = data1,
+              iter = 4000,
+              warmup = 1000,
+              inits = '0',
+              control = list(adapt_delta = 0.85),
+              cores = 2, chains = 2)
 
 
-# Model with all mo_tu ----   
+#### Model 1 all mo_tu ----   
 # default priors
 # zero one inflated beta distribution
 # zoi refers to the probability of being a zero or a one
@@ -74,15 +79,17 @@ table_m <- tidy_stan(mo_tu, effects = "fixed", digits = 2) %>% print()
 # Create table for report
 #stargazer(table_m, type = "html", out = "outputs/table_m.html", title = "results")
 
-# calculating quartiles for levels hpd ----
+# calculating quantiles for levels hpd ----
 dat <- data1 %>% 
-  drop_na(scalehpd)
+  drop_na(scalehpd_25)
 
 quantile(dat$scalehpd)
 #           0%          25%          50%          75%         100% 
 #0.000000e+00 0.000000e+00 8.891233e-05 1.794126e-03 1.000000e+00 
 
 # "0", "8.891233e-05", "1.794126e-03"
+
+quantile(dat$scalehpd_25)
 
 quantile(predictions$group)
 str(predictions)
@@ -108,7 +115,7 @@ posterior_samples(fit, pars = "b_")[,1:4] %>%
 
 
 
-# model 2, same parameters, better numbers mo_tu2 ----
+#### model 2, same parameters, better numbers mo_tu2 ----
 mo_tu2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot_center +
                    (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
               family = zero_one_inflated_beta(), 
@@ -132,14 +139,20 @@ predictions_2 <- ggpredict(mo_tu2, terms = c("scaleacc_25","scalehpd_25"))
 predictions_2$hpd <- factor(predictions_2$group, levels = c("0.91", "0.99", "1.06"),
                           labels = c("Low", "Moderate", "High"))
 
-predictions_3 <- ggpredict(mo_tu2, terms = c("scaleacc_25", "scalehpd_25[0.25, 0.5, 0.9]"))
-predictions_3$hpd <- factor(predictions_3$group, levels = c("0.25", "0.5", "0.9"),
+predictions_3 <- ggpredict(mo_tu2, terms = c("scaleacc_25", "scalehpd_25[0.994, 0.996, 0.999]"))
+predictions_3$hpd <- factor(predictions_3$group, levels = c("0.994", "0.996", "0.999"),
                             labels = c("Low", "Moderate", "High"))
 
 plot(predictions_2)
 
 rstantools::posterior_predict(mo_tu2)
 
+###### convert raw data points (data1) according to quantiles ----
+data1 <- data1 %>% drop_na(scalehpd_25)
+
+data1$hpd_q <- cut(data1$scalehpd_25, 
+                   breaks = c(-Inf, 0.994, 0.999, Inf),
+                   labels = c("Low", "Moderate", "High"))
 
 # extract slopes ----
 # extract slopes for each cell
@@ -175,7 +188,7 @@ re_studyid_ta <- re_studyid %>%
 
 
 
-# estimate acc + dev study_id
+# (estimate acc + dev study_id) ----
 (turnover_gain <- slopes_forest6 %>%
     data_grid(sum_gain_km_scaled = seq_range(sum_gain_km_scaled, n = 101)) %>%
     add_predicted_draws(Jtu_hansen_gain_cont, re_formula = NULL, allow_new_levels = TRUE) %>%
@@ -232,7 +245,7 @@ plot(mo_tu2)
 
 
 
-# model 3, more iterations mo_tu3 ----
+#### model 3, more iterations mo_tu3 ----
 mo_tu3 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + AREA_SQ_KM +
                    (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
               family = zero_one_inflated_beta(), 
@@ -249,10 +262,10 @@ save(mo_tu3, file = "outputs/mo_tu3.RData")
 load("outputs/mo_tu3.RData")
 
 
-# model 4, short mo__tu4 ----
+#### model 4, short mo__tu4 ----
 
 mo_tu4 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25*TAXA + duration_plot + AREA_SQ_KM +
-                   (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+                   (scaleacc_25|TAXA) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
               family = zero_one_inflated_beta(), 
               data = data1,
               iter = 4000,
@@ -262,9 +275,17 @@ mo_tu4 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25*TAXA + duration_plot + AREA_SQ_KM
               cores = 2, chains = 2)
 
 
+# Check model and save output ----
+summary(mo_tu4)
+plot(mo_tu4)
+save(mo_tu4, file = "outputs/mo_tu4.RData")
+
+load("outputs/mo_tu4.RData")
+
+
 # compare hpd to acc ----
 
-# model hpd ----
+#### model hpd ----
 # did not converge
 mo_tu_hpd <- brm(bf(Jtu ~ scalehpd_25 + duration_plot_center + area_center +
                       (scalehpd_25|TAXA) + (1|cell) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
@@ -282,3 +303,81 @@ plot(mo_tu_hpd)
 save(mo_tu_hpd, file = "outputs/mo_tu_hpd.RData")
 
 pairs(mo_tu_hpd)
+
+
+#### model 5, random intercept taxa ----
+mo_tu5 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot +
+                   (1|TAXA) + (1|STUDY_ID), coi ~ 1, zoi ~ 1),
+              family = zero_one_inflated_beta(), 
+              data = data1,
+              iter = 4000,
+              warmup = 1000,
+              inits = '0',
+              control = list(adapt_delta = 0.85),
+              cores = 2, chains = 2)
+
+# Check model mo_tu_hpd and save output ----
+summary(mo_tu5)
+plot(mo_tu5)
+save(mo_tu5, file = "outputs/mo_tu_5.RData")
+
+
+#### other analyis ----
+# check distribution 0,1, 0-1 raw data ----
+dis1 <- data1 %>% 
+  filter(Jtu == 1) %>% 
+  summarise(time_series = length(unique(STUDY_ID_PLOT)))
+# 394
+
+dis0 <- data1 %>% 
+  filter(Jtu == 0) %>% 
+  summarise(time_series = length(unique(STUDY_ID_PLOT)))
+# 2123
+
+# between 0 and 1 -> 3270
+# quantile analysis ----
+pred_q30 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.3, 0.5, 0.7]"))
+
+pred_q20 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.2, 0.5, 0.8]"))
+
+pred_q10 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.1, 0.5, 0.9]"))
+
+pred_q2 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.02, 0.5, 0.98]"))
+
+# q30
+(ggplot() +
+  geom_line(data = pred_q30, aes(x = x, y = predicted, color = group),
+            size = 1) +
+  geom_ribbon(data = pred_q30, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x), alpha = 0.1)) #+
+  #facet_wrap("group"))
+
+# q20
+(ggplot() +
+    geom_line(data = pred_q20, aes(x = x, y = predicted, color = group),
+              size = 1) +
+    geom_ribbon(data = pred_q20, aes(ymin = conf.low, ymax = conf.high, 
+                                     x = x), alpha = 0.1)) #+
+  #facet_wrap("group"))
+
+
+# q10
+(ggplot() +
+    geom_line(data = pred_q10, aes(x = x, y = predicted, color = group),
+              size = 1) +
+    geom_ribbon(data = pred_q10, aes(ymin = conf.low, ymax = conf.high, 
+                                     x = x), alpha = 0.1)) #+
+#facet_wrap("group"))
+
+# q2
+(ggplot() +
+    geom_line(data = pred_q2, aes(x = x, y = predicted, color = group),
+              size = 1) +
+    geom_ribbon(data = pred_q2, aes(ymin = conf.low, ymax = conf.high, 
+                                     x = x), alpha = 0.1))# +
+    #facet_wrap("group"))
+
+# plot coi, zoi, phi ----
+plot1 <- ggplot(data1, aes(x= scaleacc_25, y = Jtu)) +
+  geom_point()
+
