@@ -1,14 +1,14 @@
 # Workflow
 
-## Week till 12th April
-- fix all current faults
-  - distribution acc/hod/jacc
-  - abundance type
-  
-- make good vis graphs
-  - interaction HPD:acc
-  - RQ1
-  - PCA?
+## Milestone till 24th April
+- have results
+- have draft of everything (bad but still there)
+
+## Saturday 
+- rethink graphs
+- understand model better phi/coi/zoi
+- read through all notes
+- start thinking about discussion
   
 - sensitivity analysis?
   - better temporally matched data
@@ -16,12 +16,8 @@
   - latitude?
   - number of studies that fall into protected areas
   
-- writing
-  - outline results
-  - better formulated methods
-  - outline intro
   
-## Week till 19th April
+
 - population trends?
 
 - conceptual diagram
@@ -31,10 +27,6 @@
   - refine results
   - refine intro
   - refine methods
-  
-## Week till 26th of April
-- writing and reading
-  - abstract
 
 ## Week till 3rd of May
 
