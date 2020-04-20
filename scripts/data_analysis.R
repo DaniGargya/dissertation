@@ -385,16 +385,20 @@ dis0 <- data1 %>%
 
 # between 0 and 1 -> 3270
 # quantile analysis ----
-pred_q30 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.3, 0.5, 0.7]"))
+quantile(data1$scalehpd_25, probs = c(0.3, 0.5, 0.7))
+pred_q30 <- ggpredict(mo_tu_simp1,terms = c("scaleacc_25", "scalehpd_25[0.9943990, 0.9966642, 0.9999365]"))
 
-pred_q20 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.2, 0.5, 0.8]"))
+quantile(data1$scalehpd_25, probs = c(0.2, 0.5, 0.8))
+pred_q20 <- ggpredict(mo_tu_simp1,terms = c("scaleacc_25", "scalehpd_25[0.9935632, 0.9966642, 0.9999492]"))
 
-pred_q10 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.1, 0.5, 0.9]"))
+quantile(data1$scalehpd_25, probs = c(0.1, 0.5, 0.9))
+pred_q10 <- ggpredict(mo_tu_simp1,terms = c("scaleacc_25", "scalehpd_25[0.9868194, 0.9966642, 0.9999771]"))
 
-pred_q2 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.02, 0.5, 0.98]"))
+quantile(data1$scalehpd_25, probs = c(0.02, 0.5, 0.98))
+pred_q2 <- ggpredict(mo_tu_simp1,terms = c("scaleacc_25", "scalehpd_25[0.8859076, 0.9966642, 0.9999998]"))
 
 # q30
-(ggplot() +
+(plotq30 <- ggplot() +
   geom_line(data = pred_q30, aes(x = x, y = predicted, color = group),
             size = 1) +
   geom_ribbon(data = pred_q30, aes(ymin = conf.low, ymax = conf.high, 
@@ -402,7 +406,7 @@ pred_q2 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.02, 0.5, 0.9
   #facet_wrap("group"))
 
 # q20
-(ggplot() +
+(plotq20 <- ggplot() +
     geom_line(data = pred_q20, aes(x = x, y = predicted, color = group),
               size = 1) +
     geom_ribbon(data = pred_q20, aes(ymin = conf.low, ymax = conf.high, 
@@ -411,7 +415,7 @@ pred_q2 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.02, 0.5, 0.9
 
 
 # q10
-(ggplot() +
+(plotq10 <- ggplot() +
     geom_line(data = pred_q10, aes(x = x, y = predicted, color = group),
               size = 1) +
     geom_ribbon(data = pred_q10, aes(ymin = conf.low, ymax = conf.high, 
@@ -419,12 +423,14 @@ pred_q2 <- ggpredict(mo_tu5,terms = c("scaleacc_25", "scalehpd_25[0.02, 0.5, 0.9
 #facet_wrap("group"))
 
 # q2
-(ggplot() +
+(plotq2 <- ggplot() +
     geom_line(data = pred_q2, aes(x = x, y = predicted, color = group),
               size = 1) +
     geom_ribbon(data = pred_q2, aes(ymin = conf.low, ymax = conf.high, 
                                      x = x), alpha = 0.1))# +
     #facet_wrap("group"))
+
+grid.arrange(plotq30, plotq20, plotq10, plotq2, ncol = 1)
 
 # plot coi, zoi, phi ----
 plot1 <- ggplot(data1, aes(x= scaleacc_25, y = Jtu)) +
