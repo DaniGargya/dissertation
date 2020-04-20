@@ -1,4 +1,5 @@
 # Questions
+- quantify when writing resutls -> try out!
 
 ### model
 - what does it mean to have two different models?
