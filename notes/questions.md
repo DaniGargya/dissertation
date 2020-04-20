@@ -21,6 +21,7 @@
 
 
 ### writing
+- reframe accessibility? it's kind of a cumulative index for human influence
 - how to cite paper gergana?
 - equation for model?
 - sample size in methods?
