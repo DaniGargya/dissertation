@@ -63,6 +63,17 @@ mo_tu_simp2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + TAXA +
 
 save(mo_tu_simp2, file = "outputs/IMSsimple_model2.RData")
 
+
+mo_tu_simp3 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 +
+                        (1|STUDY_ID)),
+                   family = zero_one_inflated_beta(),
+                   data = data1,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
 #### Model 1 all mo_tu ----   
 # default priors
 # zero one inflated beta distribution
