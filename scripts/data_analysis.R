@@ -385,6 +385,7 @@ dis0 <- data1 %>%
 
 # between 0 and 1 -> 3270
 # quantile analysis ----
+# https://strengejacke.github.io/ggeffects/articles/effectsatvalues.html
 quantile(data1$scalehpd_25, probs = c(0.3, 0.5, 0.7))
 pred_q30 <- ggpredict(mo_tu_simp1,terms = c("scaleacc_25", "scalehpd_25[0.9943990, 0.9966642, 0.9999365]"))
 
