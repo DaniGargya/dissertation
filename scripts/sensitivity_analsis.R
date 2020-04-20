@@ -2,6 +2,9 @@
 # Dani Gargya
 # April 2020
 
+# data ----
+bio <- read.csv("data/bio.csv") %>%  dplyr::select(-X)
+
 # sites coincidence with protected areas ----
 protected_area <- bio %>% 
   group_by(PROTECTED_AREA) %>% 
@@ -17,4 +20,6 @@ short_timeframe <- bio %>%
 # differences in latitude? (more promminent in tropics?)----
 
 # number of data points?
+
+# model only terrestrial plants ----
 
