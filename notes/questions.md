@@ -1,81 +1,31 @@
 # Questions
 
-- predict vs vis raw data
-  - when what?
-  - what to predict? can do several predicts?
+### model
+- what does it mean to have two different models?
+  - can I still visualise as I did it (group hpd anyways with ggpredict)?
   
-- quantiles (hpd)
-  - default ones are above 1?
-  - how to set them?
+- check logic of quantiles
+
+- coi, phi, zoi plotting??
   
-- how to account for random effects of model?
+- intercept is taxa? but # the intercept is the predicted mean of the response when all other predictors have the value “0”
 
-- how to answer taxa question?
-  - where to put in model?
-  - slopes and intercept display?
+- where to put random effect?
+
+- add_predicted_draws -> do I need to filter model before?  otherwise error: Error: The following variables are missing in 'data':
+'scalehpd_25', 'duration_plot', 'TAXA'
+ 
   
-- testing for overfitting?
-
-
-
-### Model
-- check syntax
-  - what about phi?
-  
-- leave duration out?
-
-- include area? (-> no relationship jacc ~ a; only when area logged)
-
-- how to do sensitivity analysis with scale?
-- other sensitivity analysis?
-
-- how to get taxa?
-  - do I need to standardise explanatory values?
-  - how to access those values of random effect?
-
-- how to check models?
-
-- what about not being normally distributed?
-
-- ggpredict: do I need to backtransform the values after?
-- how to write for every 10% increase in accessibility, 10% increase of jaccard?
-
-
 ### Vis
-- how to plot interaction effect hpd? at the moment use group
-- RQ2: taxa -> what do density graphs actually tell me?
-- can I use PCA?
-- how to change axis?
+- check all vis
 
-### RQ
-- change to hpd vs acc vs both?
-
-
-### Data inclusion
-- filter for has plot?
-- one other study with many datapoints (exclude 502 as well? has 1451 studies)
-- minimum duration vs data points as criteria
-
-### scaling
-- done right with centering duration and area?
-
-
-### Accessibility/ HPD
-- only normal distribution of loged
-- fake data is better distributed?
 
 ### writing
-- jaccard is increasing 15% for every 10% increase of acc?
+- how to cite paper gergana?
 - equation for model?
 - sample size in methods?
 - limitations of results?
 - include sensitivity analysis conducted here?
-
-
-
-
-### General
-- how to exclude other drivers?
 
 
 ### Content
