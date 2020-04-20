@@ -21,6 +21,7 @@ library(sjstats)
 data1 <- read.csv("data/data1.csv") %>%  dplyr::select(-X)
 
 # checking data ----
+str(data1)
 head(data1)
 tail(data1)
 sumamry(data1)
@@ -345,6 +346,17 @@ mo_tu5 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot +
 summary(mo_tu5)
 plot(mo_tu5)
 save(mo_tu5, file = "outputs/mo_tu_5.RData")
+
+#### model 7, random intercept taxa ----
+mo_tu7 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + AREA_SQ_KM +
+                   (1|TAXA) + (1|STUDY_ID)),
+              family = zero_one_inflated_beta(), 
+              data = data1,
+              iter = 4000,
+              warmup = 1000,
+              inits = '0',
+              control = list(adapt_delta = 0.85),
+              cores = 2, chains = 2)
 
 
 #### other analyis ----

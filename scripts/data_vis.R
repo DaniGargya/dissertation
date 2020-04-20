@@ -24,8 +24,6 @@ library(gridExtra)
 library(ggExtra)
 
 
-
-# RQ1: jaccard ~ accessibility ----
 # clean theme ----
 theme_clean <- function(){
   theme_bw() +
@@ -44,10 +42,36 @@ theme_clean <- function(){
           legend.position = c(0.2, 0.8))
 }
 
+
+
+# creating niwot theme----
+theme_niwot <- function(){
+  theme_bw() +
+    theme(text = element_text(family = "Helvetica Light"),
+          axis.text = element_text(size = 16), 
+          axis.title = element_text(size = 18),
+          axis.line.x = element_line(color="black"), 
+          axis.line.y = element_line(color="black"),
+          panel.border = element_blank(),
+          panel.grid.major.x = element_blank(),                                          
+          panel.grid.minor.x = element_blank(),
+          panel.grid.minor.y = element_blank(),
+          panel.grid.major.y = element_blank(),  
+          plot.margin = unit(c(1, 1, 1, 1), units = , "cm"),
+          plot.title = element_text(size = 18, vjust = 1, hjust = 0),
+          legend.text = element_text(size = 12),          
+          legend.title = element_blank(),                              
+          legend.position = c(0.95, 0.15), 
+          legend.key = element_blank(),
+          legend.background = element_rect(color = "black", 
+                                           fill = "transparent", 
+                                           size = 2, linetype = "blank"))
+}
+
+#### RQ1: jaccard ~ accessibility ----
+# accessibility model predictions ----
 predictions_acc <- ggpredict(mo_tu2, terms = c("scaleacc_25"))
 
-
-# accessibility model predictions ----
 (graph_acc <- ggplot() +
   geom_line(data = predictions_acc, aes(x = x, y = predicted),
             size = 2) +
@@ -84,32 +108,8 @@ ggplot() +
 
 
 
-# RQ2: taxa making raincloud plot ----
-# creating theme----
-theme_niwot <- function(){
-  theme_bw() +
-    theme(text = element_text(family = "Helvetica Light"),
-          axis.text = element_text(size = 16), 
-          axis.title = element_text(size = 18),
-          axis.line.x = element_line(color="black"), 
-          axis.line.y = element_line(color="black"),
-          panel.border = element_blank(),
-          panel.grid.major.x = element_blank(),                                          
-          panel.grid.minor.x = element_blank(),
-          panel.grid.minor.y = element_blank(),
-          panel.grid.major.y = element_blank(),  
-          plot.margin = unit(c(1, 1, 1, 1), units = , "cm"),
-          plot.title = element_text(size = 18, vjust = 1, hjust = 0),
-          legend.text = element_text(size = 12),          
-          legend.title = element_blank(),                              
-          legend.position = c(0.95, 0.15), 
-          legend.key = element_blank(),
-          legend.background = element_rect(color = "black", 
-                                           fill = "transparent", 
-                                           size = 2, linetype = "blank"))
-}
-
-# We will use a function by Ben Marwick ----
+#### RQ2: taxa making raincloud plot ----
+# call function by Ben Marwick ----
 # This code loads the function in the working environment
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
 
@@ -137,7 +137,6 @@ ggsave(raincloud_taxa, filename = "outputs/raincloud_taxa_graph.png",
        height = 5, width = 8)
 
 # same, no flip ----
-# raincloud plot taxa jtu----
 (raincloud_taxa <- 
    ggplot(data = data1, 
           aes(x = reorder(TAXA, desc(Jtu)), y = Jtu, fill = TAXA)) +
@@ -175,7 +174,11 @@ ggsave(raincloud_acc, filename = "outputs/raincloud_taxa_acc_graph.png",
 
 # raincloud plot taxa hpd ----
 
-# acc graph with facet taxa ----
+# predict acc + taxa ----
+# predict taxa ----
+me <- ggpredict(mo_tu2, terms = c("scaleacc_25", "TAXA"), type = "re")
+
+# plot
 (graph_acc <- ggplot() +
    geom_line(data = me, aes(x = x, y = predicted),
              size = 2) +
@@ -193,18 +196,17 @@ ggsave(raincloud_acc, filename = "outputs/raincloud_taxa_acc_graph.png",
 plot(me)
 
 # effect size graph ----
+# points plot
+(ef_taxa_point <- ggplot(taxa, aes(x = TAXA, y = Estimate.scaleacc_25, group = TAXA, color = TAXA)) +
+   geom_pointrange(aes(ymin = Estimate.scaleacc_25-Est.Error.scaleacc_25, ymax =  Estimate.scaleacc_25+Est.Error.scaleacc_25)) +
+   theme_clean() +
+   theme(legend.position = "none"))
+
+# barplot
 (ef_taxa <- ggplot(taxa, aes(x = TAXA, y = Estimate.scaleacc_25, fill = TAXA)) +
   geom_bar(stat="identity")+
    geom_errorbar(aes(ymin = Estimate.scaleacc_25-Est.Error.scaleacc_25, ymax =  Estimate.scaleacc_25+Est.Error.scaleacc_25)) +
    theme_clean())
-
-
-(ef_taxa_point <- ggplot(taxa, aes(x = TAXA, y = Estimate.scaleacc_25, group = TAXA, color = TAXA)) +
-    geom_pointrange(aes(ymin = Estimate.scaleacc_25-Est.Error.scaleacc_25, ymax =  Estimate.scaleacc_25+Est.Error.scaleacc_25)) +
-    theme_clean() +
-    theme(legend.position = "none"))
-
-
 
 # from g ----
 
@@ -223,7 +225,7 @@ pd <- position_dodge(0.2) # So that the error bars on graphs don't overlap
         axis.title.y = element_text(size=14)))
 
 
-# RQ 3: interaction hpd ----
+#### RQ 3: interaction hpd ----
 # only accessibility, facet_wrap hpd ----
 ggplot() +
   geom_line(data = predictions_3, aes(x = x, y = predicted),
@@ -274,7 +276,6 @@ dat_mod <- data1 %>%
 
 dat_high <- data1 %>% 
   filter(hpd_q == "High")
-
 
 
 
@@ -504,3 +505,8 @@ fviz_pca_ind(res.pca, col.ind = "cos2",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
              repel = TRUE # Avoid text overlapping (slow if many points)
 )
+
+
+load("outputs/IMSsimple_model1.RData")
+summary(mo_tu_simp1)
+
