@@ -10,6 +10,12 @@ summary(mo_tu_simp1)
 
 load("outputs/IMSsimple_model2.RData")
 summary(mo_tu_simp2)
+
+load("outputs/mo_tu_simp3.RData")
+summary(mo_tu_simp3)
+
+load("outputs/mo_tu_scale100.RData")
+summary(mo_tu_scale100)
 # Load libraries ----
 library(tidyverse) # contains dplyr, ggplot, ...
 library(maps) # for mapping the flamingo data using coordinates
@@ -70,9 +76,19 @@ theme_niwot <- function(){
 
 #### RQ1: jaccard ~ accessibility ----
 # accessibility model predictions ----
-pred_simp1_acc <- ggpredict(mo_tu_simp1, terms = c("scaleacc_25", "duration_plot"))
 predictions_acc <- ggpredict(mo_tu2, terms = c("scaleacc_25"))
+pred_simp1_acc <- ggpredict(mo_tu_simp1, terms = c("scaleacc_25", "duration_plot"))
+pred_scale100 <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100"))
+pred_scale100_d <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "duration_plot"))
 
+# visualse pred by study ID ----
+library(randomcoloR)
+n <- 100
+palette <- distinctColorPalette(n)
+ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "STUDY_ID"), type = "re") %>% plot(colors = palette) # by study ID
+
+
+# graph only acc----
 (graph_acc <- ggplot() +
   geom_line(data = pred_simp1_acc, aes(x = x, y = predicted),
             size = 2) +
@@ -90,9 +106,9 @@ ggsave(graph_acc, filename = "outputs/graph_simp1_acc.png",
 
 # acc and duration ----
 ggplot() +
-  geom_line(data = pred_simp1_acc, aes(x = x, y = predicted, color = group),
+  geom_line(data = pred_scale100_d, aes(x = x, y = predicted, color = group),
             size = 2) +
-  geom_ribbon(data = pred_simp1_acc, aes(ymin = conf.low, ymax = conf.high, 
+  geom_ribbon(data = pred_scale100_d, aes(ymin = conf.low, ymax = conf.high, 
                                         x = x, fill = group), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
              alpha = 0.1, size = 2) +
@@ -126,6 +142,32 @@ ggplot() +
 
 
 #### RQ2: taxa making raincloud plot ----
+# basic exploration ----
+# boxplot
+boxplot(Jtu ~ TAXA, data = data1)
+
+# on scatterplot
+(colour_plot <- ggplot(data1, aes(x = scaleacc_100, y = Jtu, colour = TAXA)) +
+    geom_point(size = 2) +
+    theme_classic())
+# -> plant the only one with variation
+
+# facet wrap
+(split_plot <- ggplot(aes(x = scaleacc_100, y = Jtu), data = data1) + 
+    geom_point() + 
+    facet_wrap(~ TAXA))
+
+# Plot the predictions 
+(ggplot(pred_scale100) + 
+    geom_line(aes(x = x, y = predicted)) +          # slope
+    geom_ribbon(aes(x = x, ymin = conf.low , ymax = conf.high), 
+                fill = "lightgrey", alpha = 0.5) +  # error band
+    geom_point(data = data1,                      # adding the raw data (scaled values)
+               aes(x = scaleacc_100, y = Jtu, colour = TAXA)) + 
+    labs(x = "acc (scale 100)d)", y = "Turnover") +
+    theme_minimal()
+)
+
 # call function by Ben Marwick ----
 # This code loads the function in the working environment
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
@@ -193,18 +235,17 @@ ggsave(raincloud_acc, filename = "outputs/raincloud_taxa_acc_graph.png",
 
 # predict acc + taxa ----
 # predict taxa ----
-me <- ggpredict(mo_tu2, terms = c("scaleacc_25", "TAXA"), type = "re")
+me <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "TAXA"))
 
 # plot
 (graph_acc <- ggplot() +
-   geom_line(data = me, aes(x = x, y = predicted),
+   geom_line(data = me, aes(x = x, y = predicted, color = group),
              size = 2) +
    geom_ribbon(data = me, aes(ymin = conf.low, ymax = conf.high, 
                                            x = x), alpha = 0.1) +
-   facet_wrap("group") +
-   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, color = TAXA),
               alpha = 0.1, size = 2) +
-   facet_wrap ("TAXA") +
+   #facet_wrap ("TAXA") +
    #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
    #scale_x_continuous(limits = c (0.8, 1)) +
    theme_clean() +
@@ -226,35 +267,23 @@ plot(me)
    theme_clean())
 
 # effect size points plot mo simple1 ----
-summary(mo_tu_simp1)
+summary(mo_tu_scale100)
 fixef(mo_tu_simp1)
 # create dataframe with effectsizes
 # the intercept is the predicted mean of the response when all other predictors have the value “0”
-tax <- as.data.frame(fixef(mo_tu_simp1, pars = c("Intercept", "TAXAMammals", "TAXATerrestrialinvertebrates", "TAXATerrestrialplants")))
+tax <- as.data.frame(fixef(mo_tu_scale100, pars = c("Intercept", "TAXAMammals", "TAXATerrestrialinvertebrates", "TAXATerrestrialplants")))
 tax$TAXA <- rownames(tax)
 
-(ef_taxa_mo_simp <- ggplot(tax, aes(x = TAXA, y = Estimate, group = TAXA, color = TAXA)) +
-    geom_pointrange(aes(ymin = Q2.5, ymax =  Q97.5)) +
+me_taxa <- ggpredict(mo_tu_scale100, terms = c("TAXA"))
+
+(ef_taxa_mo_simp <- ggplot(me_taxa, aes(x = x, y = predicted, color = x)) +
+    geom_point(aes(size = 2)) +
+    geom_pointrange(aes(ymin = conf.low, ymax =  conf.high), size = 2) +
     theme_clean() +
     theme(legend.position = "none") +
+    geom_hline(yintercept=0, linetype="dashed", size=1) +
     coord_flip())
 
-
-# from g ----
-
-pd <- position_dodge(0.2) # So that the error bars on graphs don't overlap 
-
-(pred_plot <- ggplot(predictSP, 
-                    aes(x=TAXA, y=mean, colour=treatment, group=treatment))+ 
-  geom_errorbar(aes(ymin=down, ymax=up), 
-                colour="black", width=.2, position=pd) + 
-  geom_point(position=pd, size=4) + 
-  theme_classic() + 
-  labs(x="Taxa", y="Jaccard dissimilarity") + 
-  theme(axis.text.x = element_text(size=12), 
-        axis.text.y = element_text(size=12), 
-        axis.title.x = element_text(size=14), 
-        axis.title.y = element_text(size=14)))
 
 
 #### RQ 3: interaction hpd ----
@@ -273,9 +302,9 @@ ggplot() +
 
 # only accessibility, colour continuous hpd ----
 ggplot() +
-  geom_line(data = predictions_2, aes(x = x, y = predicted),
+  geom_line(data = pred_scale100_acc_hpd, aes(x = x, y = predicted),
             size = 2) +
-  geom_ribbon(data = predictions_2, aes(ymin = conf.low, ymax = conf.high, 
+  geom_ribbon(data = pred_scale100_acc_hpd, aes(ymin = conf.low, ymax = conf.high, 
                                         x = x), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, colour = scalehpd_25),
              alpha = 0.1, size = 2) +
@@ -288,18 +317,21 @@ ggplot() +
 
 # make multi panel plot with filtered data sets ----
 # filter dataset predicitons ----
-pre_low <- predictions_3 %>% 
+pre_low <- pred_scale100_acc_hpd %>% 
   filter(hpd == "Low")
 
-pre_mod <- predictions_3 %>% 
+pre_mod <- pred_scale100_acc_hpd %>% 
   filter(hpd == "Moderate")
 
-pre_high <- predictions_3 %>% 
+pre_high <- pred_scale100_acc_hpd %>% 
   filter(hpd == "High")
 
 
 
 # filter dataset all ----
+data1$hpd_q <- cut(data1$scalehpd_100, 
+                   breaks = c(-Inf, 0.2, 0.8, Inf),
+                   labels = c("Low", "Moderate", "High"))
 dat_low <- data1 %>% 
   filter(hpd_q == "Low")
 
@@ -393,20 +425,26 @@ acc_hpd
 
 ## acc and hpd, simp1 ----
 pred_simp1_acc_hpd <- ggpredict(mo_tu_simp1, terms = c("scaleacc_25", "scalehpd_25[quart]"))
+pred_scale100_acc_hpd <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "scalehpd_100[0.001818158, 0.009887737, 0.023398489]")) # quantiles at 0.2, 0.5, 0.8
+pred_scale100_acc_hpd <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "scalehpd_100[0.2, 0.5, 0.8]")) # values at 0.2, 0.5, 0.8
+pred_scale100_acc_hpd$hpd <- factor(pred_scale100_acc_hpd$group, levels = c("0.2", "0.5", "0.8"),
+                            labels = c("Low", "Moderate", "High"))
 
 ggplot() +
-  geom_line(data = pred_simp1_acc_hpd, aes(x = x, y = predicted, color = group),
+  geom_line(data = pred_scale100_acc_hpd, aes(x = x, y = predicted, color = group),
             size = 2) +
-  geom_ribbon(data = pred_simp1_acc_hpd, aes(ymin = conf.low, ymax = conf.high, 
+  geom_ribbon(data = pred_scale100_acc_hpd, aes(ymin = conf.low, ymax = conf.high, 
                                          x = x, fill = group), alpha = 0.1) +
-  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+  facet_wrap("group") +
+  geom_point(data = data1, aes(x = scaleacc_100, y = Jtu),
              alpha = 0.1, size = 2) +
   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
   #scale_x_continuous(limits = c (0.8, 1)) +
   theme_clean() +
-  scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4", "red")) +
-  scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4", "red")) +
+  scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
   labs(x = "\nAccessibility", y = "Turnover\n")
+
 
 # PCA ----
 library(ape)
