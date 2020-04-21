@@ -75,6 +75,18 @@ mo_tu_simp3 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 +
 
 save(mo_tu_simp3, file = "outputs/mo_tu_simp3.RData")
 
+mo_tu_simp4 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 +
+                        (1|cell)),
+                   family = zero_one_inflated_beta(),
+                   data = data1,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
+save(mo_tu_simp4, file = "outputs/mo_tu_simp4.RData")
+
 #### Model 1 all mo_tu ----   
 # default priors
 # zero one inflated beta distribution
