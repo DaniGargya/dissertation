@@ -90,7 +90,7 @@ save(mo_tu_simp4, file = "outputs/mo_tu_simp4.RData")
 data1_plants <- data1 %>% 
   filter(TAXA == "Terrestrial plants")
 
-mo_tu_simp5 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
+mo_tu_simp5 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
                         (1|STUDY_ID)), # or with (1|cell)?
                    family = zero_one_inflated_beta(), 
                    data = data1_plants,
