@@ -86,6 +86,48 @@ mo_tu_simp4 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 +
 
 save(mo_tu_simp4, file = "outputs/mo_tu_simp4.RData")
 
+# sensitivity analysis plants
+data1_plants <- data1 %>% 
+  filter(TAXA == "Terrestrial plants")
+
+mo_tu_simp5 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
+                        (1|STUDY_ID)), # or with (1|cell)?
+                   family = zero_one_inflated_beta(), 
+                   data = data1_plants,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
+save(mo_tu_simp5, file = "outputs/mo_tu_simp5.RData")
+
+# sensitivity analysis scale (1km) # but lots of missing data!
+mo_tu_simp6 <- brm(bf(Jtu ~ scaleacc_1 + scalehpd_1 + duration_plot + TAXA +
+                        (1|STUDY_ID)), # or with (1|cell)?
+                   family = zero_one_inflated_beta(), 
+                   data = data1,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
+save(mo_tu_simp6, file = "outputs/mo_tu_simp6.RData")
+
+# sensitivity analysis scale (50km)
+mo_tu_simp7 <- brm(bf(Jtu ~ scaleacc_50 + scalehpd_50 + duration_plot + TAXA +
+                        (1|STUDY_ID)), # or with (1|cell)?
+                   family = zero_one_inflated_beta(), 
+                   data = data1,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
+save(mo_tu_simp7, file = "outputs/mo_tu_simp7.RData")
+
 #### Model 1 all mo_tu ----   
 # default priors
 # zero one inflated beta distribution
