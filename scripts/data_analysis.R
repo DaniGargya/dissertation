@@ -6,16 +6,15 @@
 
 # loading libraries ----
 library(tidyverse) # (Contains loads of useful functions)
-library(ggplot2) # (Package for making nice graphs)
 library(brms)
-library(ggeffects)
-library(stargazer)  # for tables of model outputs
-library(broom)
+#library(ggeffects)
+#ibrary(stargazer)  # for tables of model outputs
+#library(broom)
 
-library(tidybayes)
-library(bayesplot)
-library(modelr)
-library(sjstats)
+#library(tidybayes)
+#library(bayesplot)
+#library(modelr)
+#library(sjstats)
 
 # importing data ----
 data1 <- read.csv("data/data1.csv") %>%  dplyr::select(-X)
