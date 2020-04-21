@@ -3,13 +3,13 @@
 # March 2020
 
 # Load data ----
-biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
-biotime_meta <- read.csv("data/BioTIMEMetadata_02_04_2018.csv")
-bio <- read.csv("data/bio.csv")
+data1 <- read.csv("data/data1.csv") %>%  dplyr::select(-X)
+# load simple model outputs
+load("outputs/mo_tu_simp1.RData")
+summary(mo_tu_simp1)
 
-bio_short <- bio %>% 
-  distinct(STUDY_ID_PLOT, STUDY_ID, CENT_LAT, CENT_LONG, TAXA, TOTAL, START_YEAR, END_YEAR, NUMBER_OF_SAMPLES, AREA_SQ_KM, HAS_PLOT, HAS_PLOT, NUMBER_LAT_LONG)
-
+load("outputs/IMSsimple_model2.RData")
+summary(mo_tu_simp2)
 # Load libraries ----
 library(tidyverse) # contains dplyr, ggplot, ...
 library(maps) # for mapping the flamingo data using coordinates
@@ -70,22 +70,39 @@ theme_niwot <- function(){
 
 #### RQ1: jaccard ~ accessibility ----
 # accessibility model predictions ----
+pred_simp1_acc <- ggpredict(mo_tu_simp1, terms = c("scaleacc_25", "duration_plot"))
 predictions_acc <- ggpredict(mo_tu2, terms = c("scaleacc_25"))
 
 (graph_acc <- ggplot() +
-  geom_line(data = predictions_acc, aes(x = x, y = predicted),
+  geom_line(data = pred_simp1_acc, aes(x = x, y = predicted),
             size = 2) +
-  geom_ribbon(data = predictions_acc, aes(ymin = conf.low, ymax = conf.high, 
+  geom_ribbon(data = pred_simp1_acc, aes(ymin = conf.low, ymax = conf.high, 
                                         x = x), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
              alpha = 0.1, size = 2) +
   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
   #scale_x_continuous(limits = c (0.8, 1)) +
   theme_clean() +
-  labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n"))
+  labs(x = "\nAccessibility", y = "Turnover\n"))
 
-ggsave(graph_acc, filename = "outputs/graph_acc.png",
+ggsave(graph_acc, filename = "outputs/graph_simp1_acc.png",
        height = 5, width = 8)
+
+# acc and duration ----
+ggplot() +
+  geom_line(data = pred_simp1_acc, aes(x = x, y = predicted, color = group),
+            size = 2) +
+  geom_ribbon(data = pred_simp1_acc, aes(ymin = conf.low, ymax = conf.high, 
+                                        x = x, fill = group), alpha = 0.1) +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+             alpha = 0.1, size = 2) +
+  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+  #scale_x_continuous(limits = c (0.8, 1)) +
+  theme_clean() +
+  scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4")) +
+  labs(x = "\nAccessibility", y = "Turnover\n")
+
 
 
 # (only accessibility, facet_wrap taxa) ----
@@ -207,6 +224,21 @@ plot(me)
   geom_bar(stat="identity")+
    geom_errorbar(aes(ymin = Estimate.scaleacc_25-Est.Error.scaleacc_25, ymax =  Estimate.scaleacc_25+Est.Error.scaleacc_25)) +
    theme_clean())
+
+# effect size points plot mo simple1 ----
+summary(mo_tu_simp1)
+fixef(mo_tu_simp1)
+# create dataframe with effectsizes
+# the intercept is the predicted mean of the response when all other predictors have the value “0”
+tax <- as.data.frame(fixef(mo_tu_simp1, pars = c("Intercept", "TAXAMammals", "TAXATerrestrialinvertebrates", "TAXATerrestrialplants")))
+tax$TAXA <- rownames(tax)
+
+(ef_taxa_mo_simp <- ggplot(tax, aes(x = TAXA, y = Estimate, group = TAXA, color = TAXA)) +
+    geom_pointrange(aes(ymin = Q2.5, ymax =  Q97.5)) +
+    theme_clean() +
+    theme(legend.position = "none") +
+    coord_flip())
+
 
 # from g ----
 
@@ -359,6 +391,23 @@ acc_hpd
 (p3 <- ggMarginal(acc_hpd, data1, x = scaleacc_25, y = Jtu, type="density", size = 2, fill = "slateblue"))
 
 
+## acc and hpd, simp1 ----
+pred_simp1_acc_hpd <- ggpredict(mo_tu_simp1, terms = c("scaleacc_25", "scalehpd_25[quart]"))
+
+ggplot() +
+  geom_line(data = pred_simp1_acc_hpd, aes(x = x, y = predicted, color = group),
+            size = 2) +
+  geom_ribbon(data = pred_simp1_acc_hpd, aes(ymin = conf.low, ymax = conf.high, 
+                                         x = x, fill = group), alpha = 0.1) +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+             alpha = 0.1, size = 2) +
+  #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+  #scale_x_continuous(limits = c (0.8, 1)) +
+  theme_clean() +
+  scale_fill_manual(values = c("darksalmon", "firebrick3", "firebrick4", "red")) +
+  scale_colour_manual(values = c("darksalmon", "firebrick3", "firebrick4", "red")) +
+  labs(x = "\nAccessibility", y = "Turnover\n")
+
 # PCA ----
 library(ape)
 
@@ -506,7 +555,19 @@ fviz_pca_ind(res.pca, col.ind = "cos2",
              repel = TRUE # Avoid text overlapping (slow if many points)
 )
 
+# add predicted draws ----
+library(modelr)
+library(bayesplot)
+library(tidybayes)
 
-load("outputs/IMSsimple_model1.RData")
+(model_fit <- data1 %>%
+    data_grid(scaleacc_25 = seq_range(scaleacc_25, n = 101)) %>%
+    add_predicted_draws(mo_tu_simp1, re_formula = NULL, allow_new_levels = TRUE) %>%
+    ggplot(aes(x = scaleacc_25, y = Jtu)) +
+    stat_lineribbon(aes(y = .prediction), .width = c(.95, .80, .50),
+                    alpha = 1/2, colour = "black") +
+    geom_point(data = data1, colour = "darkseagreen4", size = 3) +
+    scale_fill_brewer(palette = "Greys"))
+
+#mo_tu_simp1_acc <- fixef(mo_tu_simp1, pars = c("scaleacc_25"), summary = FALSE)
 summary(mo_tu_simp1)
-
