@@ -27,7 +27,7 @@ library(dggridR)
 # biotime data
 biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
 biotime_meta <- read.csv("data/BioTIMEMetadata_02_04_2018.csv")
-# bio <- read.csv("data/bio.csv")
+#bio <- read.csv("data/bio.csv") %>%  dplyr::select(-X)
 
 # accessibility data
 aa <- raster("data/2015_accessibility_to_cities_v1.0/2015_accessibility_to_cities_v1.0.tif")
@@ -189,7 +189,7 @@ bio_hpd2 <- read.csv("data/df_hpd_scales.csv") %>%  dplyr::select(-X)
 # add scale
 bio_hpd_short <- bio_hpd2 %>% 
   drop_na(e_hpd25) %>% 
-  mutate(scalehpd_25= 1 - ((e_hpd25-min(e_hpd25))/(max(e_hpd25)-min(e_hpd25))))
+  mutate(scalehpd_25= (e_hpd25-min(e_hpd25))/(max(e_hpd25)-min(e_hpd25)))
 
 
 #hist(log(bio_hpd_short$scalehpd_25))
@@ -232,5 +232,10 @@ data1$Jtu <- as.numeric(data1$Jtu)
 data1$STUDY_ID <- as.factor(data1$STUDY_ID)
 data1$cell <- as.factor(data1$cell)
 data1$STUDY_ID_PLOT <- as.integer(data1$STUDY_ID_PLOT)
+
+data1 <- data2 %>% 
+  mutate(scalehpd_25_2 = (1 - scalehpd_25)) %>% 
+  dplyr::select(-scalehpd_25) %>% 
+  rename(scalehpd_25 = scalehpd_25_2)
 
 write.csv(data1, "data/data1.csv")
