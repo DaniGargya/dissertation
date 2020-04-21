@@ -200,9 +200,11 @@ rstantools::posterior_predict(mo_tu2)
 ###### convert raw data points (data1) according to quantiles ----
 data1 <- data1 %>% drop_na(scalehpd_25)
 
-data1$hpd_q <- cut(data1$scalehpd_25, 
-                   breaks = c(-Inf, 0.994, 0.999, Inf),
+data1$hpd_q <- cut(data1$scalehpd_100, 
+                   breaks = c(-Inf, 0.001818158, 0.023398489, Inf),
                    labels = c("Low", "Moderate", "High"))
+
+# quantiles 0.001818158, 0.009887737, 0.023398489
 
 # extract slopes ----
 # extract slopes for each cell
