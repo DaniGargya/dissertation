@@ -18,7 +18,9 @@ short_timeframe <- bio %>%
 # scale accessibility ----
 data1 <- data1 %>% 
   mutate(scaleacc_100= 1 - ((e_100-min(e_100))/(max(e_100)-min(e_100)))) %>% 
-  mutate(scalehpd_100= (e_hpd100-min(e_hpd100))/(max(e_hpd100)-min(e_hpd100)))
+  mutate(scaleacc_50= 1 - ((e_50-min(e_50))/(max(e_50)-min(e_50)))) %>% 
+  mutate(scalehpd_100= (e_hpd100-min(e_hpd100))/(max(e_hpd100)-min(e_hpd100))) %>% 
+  mutate(scalehpd_50= (e_hpd50-min(e_hpd50))/(max(e_hpd50)-min(e_hpd50)))
 
 check <- data1 %>% 
   drop_na(e_hpd)
@@ -39,9 +41,13 @@ mo_tu_scale100 <- brm(bf(Jtu ~ scaleacc_100 + scalehpd_100 + duration_plot + TAX
                    control = list(adapt_delta = 0.85),
                    cores = 2, chains = 4)
 
+save(mo_tu_scale100, file = "outputs/mo_tu_scale100.RData")
+summary(mo_tu_scale100)
+
 # differences in latitude? (more promminent in tropics?)----
 
 # number of data points?
 
 # model only terrestrial plants ----
 
+# hpd as main driver ----
