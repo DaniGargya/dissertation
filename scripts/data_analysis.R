@@ -7,6 +7,8 @@
 # loading libraries ----
 library(tidyverse) # (Contains loads of useful functions)
 library(brms)
+library(rstan)
+library(rstantools)
 #library(ggeffects)
 #ibrary(stargazer)  # for tables of model outputs
 #library(broom)
@@ -48,7 +50,7 @@ mo_tu_simp1 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
                    control = list(adapt_delta = 0.85),
                    cores = 4, chains = 4)
 
-save(mo_tu_simp1, file = "outputs/IMSsimple_model1.RData")
+save(mo_tu_simp1, file = "outputs/mo_tu_simp1.RData")
 
 mo_tu_simp2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + TAXA +
                    (1|STUDY_ID)),
@@ -60,7 +62,7 @@ mo_tu_simp2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + TAXA +
               control = list(adapt_delta = 0.85),
               cores = 4, chains = 4)
 
-save(mo_tu_simp2, file = "outputs/IMSsimple_model2.RData")
+save(mo_tu_simp2, file = "outputs/mo_tu_simp2.RData")
 
 mo_tu_simp3 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 +
                         (1|STUDY_ID)),
@@ -86,14 +88,10 @@ mo_tu_simp4 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 +
 
 save(mo_tu_simp4, file = "outputs/mo_tu_simp4.RData")
 
-# sensitivity analysis plants
-data1_plants <- data1 %>% 
-  filter(TAXA == "Terrestrial plants")
-
-mo_tu_simp5 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
-                        (1|STUDY_ID)), # or with (1|cell)?
+mo_tu_simp5 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
+                        (1|cell)),
                    family = zero_one_inflated_beta(), 
-                   data = data1_plants,
+                   data = data1,
                    iter = 4000,
                    warmup = 1000,
                    inits = '0',
@@ -102,9 +100,9 @@ mo_tu_simp5 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
 
 save(mo_tu_simp5, file = "outputs/mo_tu_simp5.RData")
 
-# sensitivity analysis scale (1km) # but lots of missing data!
-mo_tu_simp6 <- brm(bf(Jtu ~ scaleacc_1 + scalehpd_1 + duration_plot + TAXA +
-                        (1|STUDY_ID)), # or with (1|cell)?
+
+mo_tu_simp6 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
+                       (1|cell) + (1|STUDY_ID)),
                    family = zero_one_inflated_beta(), 
                    data = data1,
                    iter = 4000,
@@ -115,7 +113,25 @@ mo_tu_simp6 <- brm(bf(Jtu ~ scaleacc_1 + scalehpd_1 + duration_plot + TAXA +
 
 save(mo_tu_simp6, file = "outputs/mo_tu_simp6.RData")
 
+# sensitivity analysis plants
+data1_plants <- data1 %>% 
+  filter(TAXA == "Terrestrial plants")
+
+mo_tu_simp_plants <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
+                        (1|STUDY_ID)), # or with (1|cell)?
+                   family = zero_one_inflated_beta(), 
+                   data = data1_plants,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
+save(mo_tu_simp_plants, file = "outputs/mo_tu_simp_plants.RData")
+
+
 # sensitivity analysis scale (50km)
+# done
 mo_tu_simp7 <- brm(bf(Jtu ~ scaleacc_50 + scalehpd_50 + duration_plot + TAXA +
                         (1|STUDY_ID)), # or with (1|cell)?
                    family = zero_one_inflated_beta(), 
@@ -127,6 +143,19 @@ mo_tu_simp7 <- brm(bf(Jtu ~ scaleacc_50 + scalehpd_50 + duration_plot + TAXA +
                    cores = 4, chains = 4)
 
 save(mo_tu_simp7, file = "outputs/mo_tu_simp7.RData")
+
+# sensitivity analysis scale (1km) # but lots of missing data!
+mo_tu_simp8 <- brm(bf(Jtu ~ scaleacc_1 + scalehpd_1 + duration_plot + TAXA +
+                        (1|STUDY_ID)), # or with (1|cell)?
+                   family = zero_one_inflated_beta(), 
+                   data = data1,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
+save(mo_tu_simp8, file = "outputs/mo_tu_simp8.RData")
 
 #### Model 1 all mo_tu ----   
 # default priors
