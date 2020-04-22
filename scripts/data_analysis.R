@@ -48,7 +48,7 @@ mo_tu_simp1 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
                    control = list(adapt_delta = 0.85),
                    cores = 4, chains = 4)
 
-save(mo_tu_simp1, file = "outputs/IMSsimple_model1.RData")
+save(mo_tu_simp1, file = "outputs/mo_tu_simp1.RData")
 
 mo_tu_simp2 <- brm(bf(Jtu ~ scaleacc_25*scalehpd_25 + duration_plot + TAXA +
                    (1|STUDY_ID)),
