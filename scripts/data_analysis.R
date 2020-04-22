@@ -7,6 +7,8 @@
 # loading libraries ----
 library(tidyverse) # (Contains loads of useful functions)
 library(brms)
+library(rstan)
+library(rstantools)
 #library(ggeffects)
 #ibrary(stargazer)  # for tables of model outputs
 #library(broom)
