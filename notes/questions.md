@@ -1,4 +1,21 @@
 # Questions
+- publication bias?
+- check newbold references!
+- interpretation random effects?
+- AIC values?
+
+- make list most important papers
+
+- papers: check for
+  - turnover
+  - accessibility
+  - roads/ urbanisation
+  - hpd?
+  
+- importance of long-term monitoring (temporal)
+- importance of turnover as a metric
+- Before-after-control-imoact better than space for time
+- accessibility leading to land-use change?
 
 ### model
 - intercept is overall model slope/interval -> what does it mean if it is negaitve and overlap 0?
