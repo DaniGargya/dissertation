@@ -146,7 +146,7 @@ save(mo_tu_simp7, file = "outputs/mo_tu_simp7.RData")
 
 # sensitivity analysis scale (1km) # but lots of missing data!
 mo_tu_simp8 <- brm(bf(Jtu ~ scaleacc_1 + scalehpd_1 + duration_plot + TAXA +
-                        (1|STUDY_ID)), # or with (1|cell)?
+                        (1|cell) + (1|STUDY_ID)), 
                    family = zero_one_inflated_beta(), 
                    data = data1,
                    iter = 4000,
@@ -521,3 +521,22 @@ grid.arrange(plotq30, plotq20, plotq10, plotq2, ncol = 1)
 plot1 <- ggplot(data1, aes(x= scaleacc_25, y = Jtu)) +
   geom_point()
 
+# run linear model ----
+hist(data1$Jtu)
+
+data_small <- data1 %>% 
+  filter(!Jtu == 1) %>% 
+  filter(!Jtu == 0)
+
+hist(data_small$Jtu)
+
+
+mo_blm <- MCMCglmm(Jtu ~ scaleacc_25, random= ~ STUDY_ID, data = data_small)
+summary(mo_blm)
+
+plot(mo_blm$VCV)
+plot(mo_blm$Sol)
+
+mo_tu_lm <- brm(bf(Jtu ~ scaleacc_25 + (1|STUDY_ID)), 
+                 data = data_small)
+summary(mo_tu_lm)
