@@ -212,6 +212,7 @@ pairs(mo_tu)
 
 # Gergana's code implemented
 load("~/Desktop/mo_tu_simp6.RData")
+load("outputs/mo_tu_simp1.RData")
 
 (plot <- data1 %>%
     data_grid(scaleacc_25 = seq_range(scaleacc_25, n = 3), scalehpd_25 = seq_range(scalehpd_25, n = 3), duration_plot = seq_range(duration_plot, n = 3), TAXA = rep(c("Birds", "Mammals", "Terrestrial invertebrates", "Terrestrial plants"), 3)) %>%
@@ -224,10 +225,11 @@ load("~/Desktop/mo_tu_simp6.RData")
     scale_fill_manual(values = c("grey90", "grey80", "grey60")) +
     labs(x = "\nAccessibility (proportion)", 
          y = "Turnover\n", title = "Dani's plot\n") +
-    scale_x_continuous(breaks = c(-1.727407, -0.7744444, 0.6537037, 2.081852, 3.510000),
-                       labels = paste0(c("0", "0.08", "0.16", "0.24", "0.32"))) +
-    scale_y_continuous(breaks = c(0, 0.5, 1),
-                       labels = c("0", "0.5", "1")) +
+    #scale_x_continuous(breaks = c(-1.727407, -0.7744444, 0.6537037, 2.081852, 3.510000),
+    #                   labels = paste0(c("0", "0.08", "0.16", "0.24", "0.32"))) +
+    #scale_y_continuous(breaks = c(0, 0.5, 1),
+    #                   labels = c("0", "0.5", "1")) +
+    theme_bw() +
     guides(fill = F))
 
 
