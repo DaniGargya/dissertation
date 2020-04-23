@@ -186,6 +186,53 @@ save(mo_tu, file = "outputs/mo_tu.RData")
 pairs(mo_tu)
 
 # predicting ----
+
+# Code from Gergana:
+
+# the variables need to have the exact same names
+# slopes_luh_Jtu are the raw points - the exact dataframe used to run the model
+# Jtu_luh_cont is the model output
+
+# (turnover_luh2 <- slopes_luh_Jtu %>%
+#    data_grid(forest.diff_scaled = seq_range(forest.diff_scaled, n = 101)) %>%
+#    add_predicted_draws(Jtu_luh_cont, re_formula = NULL, allow_new_levels = TRUE) %>%
+#    ggplot(aes(x = forest.diff_scaled)) +
+#    stat_lineribbon(aes(y = .prediction), .width = c(.95, .8, .5), colour = "#578988", alpha = 0.5) +
+#    geom_hline(linetype = "dashed", yintercept = 0, colour = "grey10") +
+#    geom_point(aes(y = final_tu), data = slopes_luh_Jtu, colour = "#578988",
+#               alpha = 0.8, size = 2) +
+#    scale_fill_manual(values = c("grey90", "grey80", "grey60")) +
+#    labs(x = "\nForest loss (proportion)", 
+#         y = "Turnover\n", title = "LUH (full time series duration)\n") +
+#    scale_x_continuous(breaks = c(-1.727407, -0.7744444, 0.6537037, 2.081852, 3.510000),
+#                       labels = paste0(c("0", "0.08", "0.16", "0.24", "0.32"))) +
+#    scale_y_continuous(breaks = c(0, 0.5, 1),
+#                       labels = c("0", "0.5", "1")) +
+#    guides(fill = F))
+
+# Gergana's code implemented
+load("~/Desktop/mo_tu_simp6.RData")
+
+(plot <- data1 %>%
+    data_grid(scaleacc_25 = seq_range(scaleacc_25, n = 3), scalehpd_25 = seq_range(scalehpd_25, n = 3), duration_plot = seq_range(duration_plot, n = 3), TAXA = rep(c("Birds", "Mammals", "Terrestrial invertebrates", "Terrestrial plants"), 3)) %>%
+    add_predicted_draws(mo_tu_simp6, re_formula = NULL, allow_new_levels = TRUE) %>%
+    ggplot(aes(x = scaleacc_25)) +
+    stat_lineribbon(aes(y = .prediction), .width = c(.95, .8, .5), colour = "#578988", alpha = 0.5) +
+    geom_hline(linetype = "dashed", yintercept = 0, colour = "grey10") +
+    geom_point(aes(y = Jtu), data = data1, colour = "#578988",
+               alpha = 0.8, size = 2) +
+    scale_fill_manual(values = c("grey90", "grey80", "grey60")) +
+    labs(x = "\nAccessibility (proportion)", 
+         y = "Turnover\n", title = "Dani's plot\n") +
+    scale_x_continuous(breaks = c(-1.727407, -0.7744444, 0.6537037, 2.081852, 3.510000),
+                       labels = paste0(c("0", "0.08", "0.16", "0.24", "0.32"))) +
+    scale_y_continuous(breaks = c(0, 0.5, 1),
+                       labels = c("0", "0.5", "1")) +
+    guides(fill = F))
+
+
+# Dani's code
+
 predictions <- ggpredict(mo_tu, terms = c("scaleacc", "scalehpd", "duration_plot_center"))
 
 predictions$hpd <- factor(predictions$group, levels = c("-0.08", "0.02", "0.13"),
