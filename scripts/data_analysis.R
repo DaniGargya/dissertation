@@ -157,8 +157,8 @@ mo_tu_simp8 <- brm(bf(Jtu ~ scaleacc_1 + scalehpd_1 + duration_plot + TAXA +
 
 save(mo_tu_simp8, file = "outputs/mo_tu_simp8.RData")
 
-mo_tu_simp9 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
-                        (1|cell) + (scaleacc_25|STUDY_ID)),
+mo_tu_simp9 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + 
+                     (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID)),
                    family = zero_one_inflated_beta(), 
                    data = data1,
                    iter = 4000,
