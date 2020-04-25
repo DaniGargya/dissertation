@@ -157,6 +157,7 @@ mo_tu_simp8 <- brm(bf(Jtu ~ scaleacc_1 + scalehpd_1 + duration_plot + TAXA +
 
 save(mo_tu_simp8, file = "outputs/mo_tu_simp8.RData")
 
+# random slopes taxa
 mo_tu_simp9 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + 
                      (scaleacc_25|TAXA) + (1|cell) + (1|STUDY_ID)),
                    family = zero_one_inflated_beta(), 
@@ -168,6 +169,35 @@ mo_tu_simp9 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
                    cores = 4, chains = 4)
 
 save(mo_tu_simp9, file = "outputs/mo_tu_simp9.RData")
+
+
+# smaller time frame 1970 - 2010
+data1_tfsmall <- data1 %>% 
+  filter(!START_YEAR < 1970) %>% 
+  filter(!END_YEAR > 2015)
+
+mo_tu_simp_tf <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
+                          (1|cell) + (1|STUDY_ID)), 
+                     family = zero_one_inflated_beta(), 
+                     data = data1_tfsmall,
+                     iter = 4000,
+                     warmup = 1000,
+                     inits = '0',
+                     control = list(adapt_delta = 0.85),
+                     cores = 4, chains = 4)
+
+# richness change
+mo_tu_simp_ri <- brm(bf(richness_change ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
+                        (1|cell) + (1|STUDY_ID)),
+                   family = zero_one_inflated_beta(), 
+                   data = data1,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 4, chains = 4)
+
+save(mo_tu_simp_ri, file = "outputs/mo_tu_simp_ri.RData")
 
 #### Model 1 all mo_tu ----   
 # default priors
