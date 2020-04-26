@@ -117,9 +117,9 @@ mo_tu_simp_tf <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
                      cores = 4, chains = 4)
 
 # richness change
-mo_tu_simp_ri <- brm(bf(richness_change ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
-                        (1|cell) + (1|STUDY_ID)),
-                   family = zero_one_inflated_beta(), 
+mo_tu_simp_ri <- brm(richness_change ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
+                        (1|cell) + (1|STUDY_ID),
+                   family = gaussian(), 
                    data = data1,
                    iter = 4000,
                    warmup = 1000,
