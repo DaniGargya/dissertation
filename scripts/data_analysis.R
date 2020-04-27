@@ -7,16 +7,16 @@
 # loading libraries ----
 library(tidyverse) # (Contains loads of useful functions)
 library(brms)
-#library(rstan)
-#library(rstantools)
-#library(ggeffects)
-#ibrary(stargazer)  # for tables of model outputs
-#library(broom)
+library(rstan)
+library(rstantools)
+library(ggeffects)
+library(stargazer)  # for tables of model outputs
+library(broom)
 
-#library(tidybayes)
-#library(bayesplot)
-#library(modelr)
-#library(sjstats)
+library(tidybayes)
+library(bayesplot)
+library(modelr)
+library(sjstats)
 
 # importing data ----
 data1 <- read.csv("data/data1.csv") %>%  dplyr::select(-X)
@@ -128,7 +128,6 @@ mo_tu_simp_ri <- brm(richness_change ~ scaleacc_25 + scalehpd_25 + duration_plot
                    cores = 4, chains = 4)
 
 save(mo_tu_simp_ri, file = "outputs/mo_tu_simp_ri.RData")
-
 
 # predicting ----
 (plot <- data1 %>%
