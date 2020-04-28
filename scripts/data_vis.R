@@ -4,18 +4,58 @@
 
 # Load data ----
 data1 <- read.csv("data/data1.csv") %>%  dplyr::select(-X)
+
 # load simple model outputs
-load("outputs/mo_tu_simp1.RData")
-summary(mo_tu_simp1)
+# no cell
+#load("outputs/mo_tu_simp1.RData")
+#summary(mo_tu_simp1)
 
-load("outputs/IMSsimple_model2.RData")
-summary(mo_tu_simp2)
+# interaction
+# load("outputs/mo_tu_simp2.RData")
+#summary(mo_tu_simp2)
 
-load("outputs/mo_tu_simp3.RData")
-summary(mo_tu_simp3)
+# interaction
+#load("outputs/mo_tu_simp3.RData")
+#summary(mo_tu_simp3)
 
+# interaction
+#load("outputs/mo_tu_simp4.RData")
+#summary(mo_tu_simp4)
+
+# accessibility|taxa
+#load("outputs/mo_tu_simp9.RData")
+#summary(mo_tu_simp9)
+
+# MODEL TO USE
+load("outputs/mo_tu_simp6.RData")
+summary(mo_tu_simp6)
+plot(mo_tu_simp6)
+
+# sensitivity 1km
+load("outputs/mo_tu_simp8.RData")
+summary(mo_tu_simp8)
+
+# sensitivity 50km
+load("outputs/mo_tu_simp7.RData")
+summary(mo_tu_simp7)
+
+# sensitivity 100km
 load("outputs/mo_tu_scale100.RData")
 summary(mo_tu_scale100)
+
+# sensitivity plants
+load("outputs/mo_tu_simp_plants.RData")
+summary(mo_tu_simp_plants)
+
+# richness
+load("outputs/mo_tu_simp_ri.RData")
+summary(mo_tu_simp_ri)
+
+
+
+
+
+
 # Load libraries ----
 library(tidyverse) # contains dplyr, ggplot, ...
 library(maps) # for mapping the flamingo data using coordinates
@@ -28,6 +68,8 @@ library(ggpubr)
 library(mapdata)
 library(gridExtra)
 library(ggExtra)
+library(tidybayes)
+library(ggeffects)
 
 
 # clean theme ----
@@ -78,21 +120,25 @@ theme_niwot <- function(){
 # accessibility model predictions ----
 predictions_acc <- ggpredict(mo_tu2, terms = c("scaleacc_25"))
 pred_simp1_acc <- ggpredict(mo_tu_simp1, terms = c("scaleacc_25", "duration_plot"))
+pred_simp1_acc_re <- ggpredict(mo_tu_simp1, terms = c("scaleacc_25", "duration_plot", "STUDY_ID"), type = "re", allow_new_levels = TRUE)
 pred_scale100 <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100"))
 pred_scale100_d <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "duration_plot"))
+pred_scalehpd100 <- ggpredict(mo_tu_scale100, terms = c("scalehpd_100"))
+pred_simp6_acc <- ggpredict(mo_tu_simp6, terms = c("scaleacc_25", "duration_plot"))
 
 # visualse pred by study ID ----
 library(randomcoloR)
 n <- 100
 palette <- distinctColorPalette(n)
 ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "STUDY_ID"), type = "re") %>% plot(colors = palette) # by study ID
+ggpredict(mo_tu_simp6, terms = c("scaleacc_25", "cell"), type = "re") %>% plot(colors = palette) # by study ID
 
 
 # graph only acc----
 (graph_acc <- ggplot() +
-  geom_line(data = pred_simp1_acc, aes(x = x, y = predicted),
+  geom_line(data = pred_simp6_acc, aes(x = x, y = predicted),
             size = 2) +
-  geom_ribbon(data = pred_simp1_acc, aes(ymin = conf.low, ymax = conf.high, 
+  geom_ribbon(data = pred_simp6_acc, aes(ymin = conf.low, ymax = conf.high, 
                                         x = x), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
              alpha = 0.1, size = 2) +
@@ -104,11 +150,41 @@ ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "STUDY_ID"), type = "re") %>
 ggsave(graph_acc, filename = "outputs/graph_simp1_acc.png",
        height = 5, width = 8)
 
+# graph only acc raw----
+data_npa <- data1 %>% 
+  filter(PROTECTED_AREA == TRUE)
+
+(graph_acc <- ggplot() +
+   geom_point(data = data_npa, aes(x = scaleacc_25, y = Jtu, colour = PROTECTED_AREA),
+              alpha = 0.7, size = 2) +
+   theme_clean() +
+   labs(x = "\nAccessibility", y = "Turnover\n"))
+
+(graph_acc <- ggplot() +
+    geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, colour = PROTECTED_AREA),
+               alpha = 0.7, size = 2) +
+    theme_clean() +
+    labs(x = "\nAccessibility", y = "Turnover\n"))
+
+
+# graph only hpd----
+(graph_acc <- ggplot() +
+   geom_line(data = pred_scalehpd100, aes(x = x, y = predicted),
+             size = 2) +
+   geom_ribbon(data = pred_scalehpd100, aes(ymin = conf.low, ymax = conf.high, 
+                                          x = x), alpha = 0.1) +
+   geom_point(data = data1, aes(x = scalehpd_100, y = Jtu, color = scaleacc_100),
+              alpha = 0.5, size = 2) +
+   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
+   #scale_x_continuous(limits = c (0.8, 1)) +
+   theme_clean() +
+   labs(x = "\nHPD", y = "Turnover\n"))
+
 # acc and duration ----
 ggplot() +
-  geom_line(data = pred_scale100_d, aes(x = x, y = predicted, color = group),
+  geom_line(data = pred_simp6_acc, aes(x = x, y = predicted, color = group),
             size = 2) +
-  geom_ribbon(data = pred_scale100_d, aes(ymin = conf.low, ymax = conf.high, 
+  geom_ribbon(data = pred_simp6_acc, aes(ymin = conf.low, ymax = conf.high, 
                                         x = x, fill = group), alpha = 0.1) +
   geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
              alpha = 0.1, size = 2) +
@@ -236,13 +312,15 @@ ggsave(raincloud_acc, filename = "outputs/raincloud_taxa_acc_graph.png",
 # predict acc + taxa ----
 # predict taxa ----
 me <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "TAXA"))
+me_6 <- ggpredict(mo_tu_simp6, terms = c("scaleacc_25", "TAXA"))
+pred_taxa <-ggpredict(mo_tu_simp6, terms = c("TAXA"))
 
 # plot
 (graph_acc <- ggplot() +
-   geom_line(data = me, aes(x = x, y = predicted, color = group),
+   geom_line(data = me_6, aes(x = x, y = predicted, color = group),
              size = 2) +
-   geom_ribbon(data = me, aes(ymin = conf.low, ymax = conf.high, 
-                                           x = x), alpha = 0.1) +
+   geom_ribbon(data = me_6, aes(ymin = conf.low, ymax = conf.high, 
+                                           x = x, fill = group), alpha = 0.1) +
    geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, color = TAXA),
               alpha = 0.1, size = 2) +
    #facet_wrap ("TAXA") +
@@ -251,7 +329,7 @@ me <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100", "TAXA"))
    theme_clean() +
    labs(x = "\nAccessibility", y = "Jaccard dissimilarity\n"))
 
-plot(me)
+plot(me_6)
 
 # effect size graph ----
 # points plot
@@ -276,7 +354,7 @@ tax$TAXA <- rownames(tax)
 
 me_taxa <- ggpredict(mo_tu_scale100, terms = c("TAXA"))
 
-(ef_taxa_mo_simp <- ggplot(me_taxa, aes(x = x, y = predicted, color = x)) +
+(ef_taxa_mo_simp <- ggplot(pred_taxa, aes(x = x, y = predicted, color = x)) +
     geom_point(aes(size = 2)) +
     geom_pointrange(aes(ymin = conf.low, ymax =  conf.high), size = 2) +
     theme_clean() +
@@ -431,11 +509,11 @@ pred_scale100_acc_hpd$hpd <- factor(pred_scale100_acc_hpd$group, levels = c("0.2
                             labels = c("Low", "Moderate", "High"))
 
 ggplot() +
-  geom_line(data = pred_scale100_acc_hpd, aes(x = x, y = predicted, color = group),
+  geom_line(data = pred_scale100_acc_hpd, aes(x = x, y = predicted, color = hpd),
             size = 2) +
   geom_ribbon(data = pred_scale100_acc_hpd, aes(ymin = conf.low, ymax = conf.high, 
                                          x = x, fill = group), alpha = 0.1) +
-  facet_wrap("group") +
+  #facet_wrap("group") +
   geom_point(data = data1, aes(x = scaleacc_100, y = Jtu),
              alpha = 0.1, size = 2) +
   #annotate("text", x = -0.65, y = 5, label = "Slope = -0.06, Std. error = 0.01") +  
@@ -609,3 +687,22 @@ library(tidybayes)
 
 #mo_tu_simp1_acc <- fixef(mo_tu_simp1, pars = c("scaleacc_25"), summary = FALSE)
 summary(mo_tu_simp1)
+
+
+(plot <- data1 %>%
+    data_grid(scaleacc_25 = seq_range(scaleacc_25, n = 3), scalehpd_25 = seq_range(scalehpd_25, n = 3), duration_plot = seq_range(duration_plot, n = 3), TAXA = rep(c("Birds", "Mammals", "Terrestrial invertebrates", "Terrestrial plants"), 3)) %>%
+    add_predicted_draws(mo_tu_simp6, re_formula = NULL, allow_new_levels = TRUE) %>%
+    ggplot(aes(x = scaleacc_25)) +
+    stat_lineribbon(aes(y = .prediction, colour = TAXA, fill = TAXA), .width = c(.95), alpha = 0.5) +
+    geom_hline(linetype = "dashed", yintercept = 0, colour = "grey10") +
+    geom_point(aes(y = Jtu), data = data1, colour = "#578988",
+               alpha = 0.8, size = 2) +
+    scale_fill_manual(values = c("grey90", "grey80", "grey60", "darkgrey")) +
+    labs(x = "\nAccessibility (proportion)", 
+         y = "Turnover\n", title = "Dani's plot\n") +
+    #scale_x_continuous(breaks = c(-1.727407, -0.7744444, 0.6537037, 2.081852, 3.510000),
+    #                   labels = paste0(c("0", "0.08", "0.16", "0.24", "0.32"))) +
+    #scale_y_continuous(breaks = c(0, 0.5, 1),
+    #                   labels = c("0", "0.5", "1")) +
+    theme_classic() +
+    guides(fill = F))

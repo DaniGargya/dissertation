@@ -149,8 +149,8 @@ bio_aa_2 <- read.csv("data/df_aa_scales.csv") %>%  dplyr::select(-X)
 # drop NA according to scale I am looking at!!
 # add scale
 bio_aa_short <- bio_aa_2 %>% 
-  drop_na(e_25) %>% 
-  mutate(scaleacc_25= 1 - ((e_25-min(e_25))/(max(e_25)-min(e_25))))
+  drop_na(e) %>% 
+  mutate(scaleacc_1= 1 - ((e -min(e))/(max(e)-min(e))))
 
 #hist(log(bio_aa_short$scaleacc_25))
 #hist(bio_aa_short$scaleacc_25)
@@ -160,7 +160,7 @@ bio_full_acc <- bio_aa_short %>%
   dplyr::select(-STUDY_ID_PLOT.x, -LONGITUDE.y) %>% 
   rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y,
          LONGITUDE = LONGITUDE.x) %>% 
-  dplyr::select(STUDY_ID_PLOT, scaleacc_25, e, e_2, e_5, e_25, e_50, e_75, e_100)
+  dplyr::select(STUDY_ID_PLOT, scaleacc_1, e, e_2, e_5, e_25, e_50, e_75, e_100)
 
 
 # extracting values hpd ----
@@ -188,8 +188,11 @@ bio_hpd2 <- read.csv("data/df_hpd_scales.csv") %>%  dplyr::select(-X)
 # drop NA according to scale I am looking at!!
 # add scale
 bio_hpd_short <- bio_hpd2 %>% 
-  drop_na(e_hpd25) %>% 
-  mutate(scalehpd_25= (e_hpd25-min(e_hpd25))/(max(e_hpd25)-min(e_hpd25)))
+  drop_na(e_hpd) %>% 
+  mutate(scalehpd_1= (e_hpd-min(e_hpd))/(max(e_hpd)-min(e_hpd)))
+
+bio_hpd2[!complete.cases(bio_hpd2$e_hpd25),]
+# 377_300440
 
 
 #hist(log(bio_hpd_short$scalehpd_25))
@@ -200,7 +203,7 @@ bio_full_hpd <- bio_hpd_short %>%
   dplyr::select(-STUDY_ID_PLOT.x, -LONGITUDE.y) %>% 
   rename(STUDY_ID_PLOT = STUDY_ID_PLOT.y,
          LONGITUDE = LONGITUDE.x) %>% 
-  dplyr::select(STUDY_ID_PLOT, scalehpd_25, e_hpd, e_hpd2, e_hpd5, e_hpd25, e_hpd50, e_hpd75, e_hpd100)
+  dplyr::select(STUDY_ID_PLOT, scalehpd_1, e_hpd, e_hpd2, e_hpd5, e_hpd25, e_hpd50, e_hpd75, e_hpd100)
 
 
 # creating global grid cell variable ----
@@ -219,6 +222,11 @@ data1 <- beta_Jaccard %>%
   left_join(bio_full_acc, by = "STUDY_ID_PLOT") %>% 
   left_join(bio_full_hpd, by = "STUDY_ID_PLOT") %>% 
   left_join(bio_short, by = "STUDY_ID_PLOT")
+  
+  
+#filter(!STUDY_ID_PLOT == "377_300440") %>% 
+#select(STUDY_ID_PLOT, scaleacc_1, scalehpd_1)
+#data1_1$STUDY_ID_PLOT <- as.integer(data1_1$STUDY_ID_PLOT)
 
 # center duration and area----
 data1$duration_plot_center <- scale(as.numeric(data1$duration_plot), scale = FALSE)
@@ -233,9 +241,4 @@ data1$STUDY_ID <- as.factor(data1$STUDY_ID)
 data1$cell <- as.factor(data1$cell)
 data1$STUDY_ID_PLOT <- as.integer(data1$STUDY_ID_PLOT)
 
-data1 <- data2 %>% 
-  mutate(scalehpd_25_2 = (1 - scalehpd_25)) %>% 
-  dplyr::select(-scalehpd_25) %>% 
-  rename(scalehpd_25 = scalehpd_25_2)
-
-write.csv(data1, "data/data1.csv")
+#write.csv(data1, "data/data1.csv")
