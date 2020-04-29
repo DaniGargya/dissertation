@@ -12,6 +12,7 @@ library(rstantools)
 library(ggeffects)
 library(stargazer)  # for tables of model outputs
 library(broom)
+library(tibble)
 
 library(tidybayes)
 library(bayesplot)
