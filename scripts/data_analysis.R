@@ -2,22 +2,14 @@
 # Dani Gargya
 # March 20
 
-### It's model 6 that I have een trying to run
-
 # loading libraries ----
 library(tidyverse) # (Contains loads of useful functions)
 library(brms)
-library(rstan)
-library(rstantools)
 library(ggeffects)
-library(stargazer)  # for tables of model outputs
-library(broom)
-library(tibble)
-
 library(tidybayes)
 library(bayesplot)
-library(modelr)
-library(sjstats)
+#library(modelr)
+#library(sjstats)
 
 # importing data ----
 data1 <- read.csv("data/data1.csv") %>%  dplyr::select(-X)
@@ -149,6 +141,25 @@ save(mo_tu_simp_ri, file = "outputs/mo_tu_simp_ri.RData")
     theme_classic() +
     guides(fill = F))
 
+# acc and duration
+(plot <- data1 %>%
+    data_grid(scaleacc_25 = seq_range(scaleacc_25, n = 3), scalehpd_25 = seq_range(scalehpd_25, n = 3), duration_plot = seq_range(duration_plot, n = 3), TAXA = rep(c("Birds", "Mammals", "Terrestrial invertebrates", "Terrestrial plants"), 3)) %>%
+    add_predicted_draws(mo_tu_simp6, re_formula = NULL, allow_new_levels = TRUE) %>%
+    ggplot(aes(x = scaleacc_25, color = duration_plot)) +
+    stat_lineribbon(aes(y = .prediction, fill = duration_plot), alpha = 0.5) +
+    geom_hline(linetype = "dashed", yintercept = 0, colour = "grey10") +
+    geom_point(aes(y = Jtu), data = data1, colour = "#578988",
+               alpha = 0.8, size = 2) +
+    #scale_fill_manual(values = c("grey90", "grey80", "grey60")) +
+    labs(x = "\nAccessibility (proportion)", 
+         y = "Turnover\n", title = "Dani's plot\n") +
+    #scale_x_continuous(breaks = c(-1.727407, -0.7744444, 0.6537037, 2.081852, 3.510000),
+    #                   labels = paste0(c("0", "0.08", "0.16", "0.24", "0.32"))) +
+    #scale_y_continuous(breaks = c(0, 0.5, 1),
+    #                   labels = c("0", "0.5", "1")) +
+    theme_classic() +
+    guides(fill = F))
+
 
 # TAXA
 (plot2 <- data1 %>%
@@ -221,11 +232,18 @@ dis1 <- data1 %>%
   filter(Jtu == 1) %>% 
   summarise(time_series = length(unique(STUDY_ID_PLOT)))
 # 394
+# 6.8%
 
 dis0 <- data1 %>% 
   filter(Jtu == 0) %>% 
+  group_by(TAXA) %>% 
   summarise(time_series = length(unique(STUDY_ID_PLOT)))
 # 2123
+# 36.7%
+# 73% plants showed no turnover at all (speaking for ecological lags)
+# 22.8 %  of mammals showed no turnover
+# but both also easier to detect?
+
 
 # between 0 and 1 -> 3270
 

@@ -149,11 +149,23 @@ bio_aa_2 <- read.csv("data/df_aa_scales.csv") %>%  dplyr::select(-X)
 # drop NA according to scale I am looking at!!
 # add scale
 bio_aa_short <- bio_aa_2 %>% 
-  drop_na(e) %>% 
-  mutate(scaleacc_1= 1 - ((e -min(e))/(max(e)-min(e))))
+  drop_na(e_25) %>% 
+  mutate(scaleacc_1= 1 - ((e_25 -min(e_25))/(max(e_25)-min(e_25))))
 
-#hist(log(bio_aa_short$scaleacc_25))
-#hist(bio_aa_short$scaleacc_25)
+min(bio_aa_short$e_25) # 0.004530478
+max(bio_aa_short$e_25) # 8348.096 # only 20%
+
+aa_mm <- setMinMax(aa)
+minValue(aa_mm) # 0
+maxValue(aa_mm) # 41556
+hist(aa)
+
+# over-representing highly accessible places but not full spectrum of not accessible places
+# but also most places highly accessible?
+
+
+hist(bio_aa_short$scaleacc_1)
+hist(bio_aa_short$e_25)
 
 bio_full_acc <- bio_aa_short %>% 
   right_join(bio_short, by = "LATITUDE") %>% 
@@ -188,15 +200,22 @@ bio_hpd2 <- read.csv("data/df_hpd_scales.csv") %>%  dplyr::select(-X)
 # drop NA according to scale I am looking at!!
 # add scale
 bio_hpd_short <- bio_hpd2 %>% 
-  drop_na(e_hpd) %>% 
-  mutate(scalehpd_1= (e_hpd-min(e_hpd))/(max(e_hpd)-min(e_hpd)))
+  drop_na(e_hpd25) %>% 
+  mutate(scalehpd_1= (e_hpd25-min(e_hpd25))/(max(e_hpd25)-min(e_hpd25)))
 
 bio_hpd2[!complete.cases(bio_hpd2$e_hpd25),]
 # 377_300440
 
+min(bio_hpd_short$e_hpd25) # 0
+max(bio_hpd_short$e_hpd25) # 10101.26
+
+hpd_mm <- setMinMax(hpd)
+minValue(hpd_mm) # 0
+maxValue(hpd_mm) # 483318.2
+hist(hpd)
 
 #hist(log(bio_hpd_short$scalehpd_25))
-#hist(bio_hpd_short$scalehpd_25)
+hist(bio_hpd_short$scalehpd_1)
 
 bio_full_hpd <- bio_hpd_short %>% 
   right_join(bio_short, by = "LATITUDE") %>% 

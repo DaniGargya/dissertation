@@ -1,6 +1,9 @@
 # Exploration data for dissertation project (FULL_DATA)
 # Dani Gargya, daniela@gargya.de
 # Feb 2020
+display.brewer.pal(n = 8, name = 'Dark2')
+# Hexadecimal color specification 
+brewer.pal(n = 8, name = "Dark2")
 
 ### Questions
 # min duration vs data points in time-series

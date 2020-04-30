@@ -2,8 +2,6 @@
 # Dani Gargya
 # April 2020
 
-update.packages(ask = FALSE, checkBuilt = TRUE)  # update R packages
-tinytex::tlmgr_update() 
 # to run
 # scale 100 with 2 random effects
 # smaller time frame
