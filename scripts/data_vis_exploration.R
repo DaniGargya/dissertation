@@ -1,4 +1,4 @@
-# Data visualisation
+# Data visualisation exploration ----
 # Dani Gargya
 # March 2020
 
@@ -246,6 +246,28 @@ ggplot() +
    #scale_x_continuous(limits = c (0.8, 1)) +
    theme_clean() +
    labs(x = "\nHPD", y = "Turnover\n"))
+
+
+
+# prediction
+pred_acc <- ggpredict(mo_tu_simp6, terms = c("scaleacc_25"))
+
+pred_acc_d$Monitoring <- factor(pred_acc_d$group, levels = c("6", "19.1", "32.2"),
+                                labels = c("Short-term", "Moderate", "Long-term"))
+
+# model vis
+(graph_acc <- ggplot() +
+  geom_line(data = pred_acc, aes(x = x, y = predicted),
+            size = 2) +
+  geom_ribbon(data = pred_acc, aes(ymin = conf.low, ymax = conf.high, 
+                                     x = x), alpha = 0.1) +
+  geom_point(data = data1, aes(x = scaleacc_25, y = Jtu),
+             alpha = 0.1, size = 2) +
+  theme_clean() +
+  scale_fill_manual(values = c("#1B9E77", "#66A61E", "#7CFC00")) +
+  scale_colour_manual(values = c("#1B9E77", "#66A61E", "#7CFC00")) +
+  labs(x = "\nAccessibility (proportion)", y = "Turnover\n") +
+  theme(legend.position = c(0.2, 0.8)))
 
 
 #### RQ2: taxa making raincloud plot ----
