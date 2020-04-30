@@ -1,0 +1,156 @@
+---
+title: " "
+output:
+  pdf_document:
+    number_sections: TRUE
+geometry: "left = 2.5cm, right = 2cm, top = 2cm, bottom = 2cm"
+fontsize: 11pt
+header-includes:
+  - \usepackage{float}
+  - \usepackage{sectsty}
+  - \usepackage{paralist}
+  - \usepackage{setspace}\spacing{1.5}
+  - \usepackage{fancyhdr}
+  - \usepackage{lastpage}
+  - \usepackage{dcolumn}
+  - \usepackage[font={small}]{caption}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(units)
+```
+
+
+\allsectionsfont{\raggedright}
+\subsectionfont{\raggedright}
+\subsubsectionfont{\raggedright}
+
+\pagenumbering{gobble} 
+
+\begin{centering}
+
+\vspace{3 cm}
+
+```{r uni logo, echo=F, out.width = '20%'}
+knitr::include_graphics("images/logo1.png")
+```
+\vspace{1 cm}
+
+\Large
+
+{\bf The University of Edinburgh}
+
+
+\Large
+
+{\bf School of Geosciences}
+
+
+\vspace{1 cm}
+
+\Large
+\doublespacing
+{\bf GLOBAL ASSESSMENT OF LOCAL BIODIVERSTIY CHANGES \\ REVEAL SURPRISINGLY COMPLEX RESPONSES \\ TO LARGE-SCALE HUMAN ACTIVITY}
+
+\vspace{1 cm}
+
+\normalsize
+\singlespacing
+By 
+
+\vspace{0.5 cm}
+
+\Large
+
+{\bf DANIELA GARGYA}
+
+\vspace{1.5 cm}
+
+\normalsize
+
+in partial fulfilment of the requirement \\for the degree of BSc with Honours \\in Ecological and Environmental Sciences with Management
+
+\vspace{1.5 cm}
+
+\normalsize
+May 2020
+
+
+\end{centering}
+
+\newpage
+
+\pagenumbering{gobble}
+
+
+
+\textbf{Abstract}
+
+
+\spacing{1.5}
+
+Globally, biodiversity is changing in complex ways in a time of accelerating human impact. We lack real-world data how large-scale anthropogenic activity, as a prominent contemporary global change driver, is directly and indirectly influencing the reshuffling of ecological communities over time. Here, I quantify the influence of human activity captured with the metric accessibility to cities on ecological assemblages worldwide by analysing change in 5787 time-series across birds, mammals, plants and invertebrates. Surprisingly, I found that for every 10% increase in accessibility, species replacement (turnover) decreases by 5%. Turnover was highest for invertebrates and mammals and lowest for birds and plants. My findings demonstrate the complexity of real-world biodiversity change and challenge the assumption that current conservation focus on protecting wilderness areas might not be sufficient to achieve biodiversity composition conservation goals.
+
+
+\pagenumbering{roman} 
+
+
+
+\newpage
+
+\centering
+\raggedright
+\tableofcontents
+
+\newpage
+
+\section*{Acknowledgements}
+
+I would like to thank my supervisors, Dr Isla Myers-Smith and Gergana Daskalova for their constant support, shared knowledge and encouragement throughout the process of this dissertation and beyond. From finding a research question, to help with statistical analysis, coding, and writing tips, I always found open ears and patient explanations.  Also, I am very grateful for the opportunity to have become part of Team Shrub, where I learned a lot during the weekly lab meetings while also having fun. 
+
+
+I also want to acknowledge and thank my great support network. Starting with my wonderful flatmates, Anna, Larisa and Giada, for always supporting and keeping the spirits high, but also given valuable feedback and proofreading drafts. 
+
+
+\newpage
+
+\pagenumbering{gobble} 
+
+\pagenumbering{arabic} 
+```{r child = 'introduction.Rmd'}
+```
+
+
+\newpage
+
+```{r child = 'methods.Rmd'}
+```
+
+\newpage
+
+```{r child = 'results.Rmd'}
+```
+
+\newpage 
+
+```{r child = 'discussion.Rmd'}
+```
+
+\newpage 
+
+```{r child = 'conclusion.Rmd'}
+```
+
+\newpage 
+
+```{r child = 'references.Rmd'}
+```
+
+\newpage 
+
+```{r child = 'appendix.Rmd'}
+```
+
+
+

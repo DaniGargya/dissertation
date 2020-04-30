@@ -1,0 +1,10 @@
+---
+title: ''
+output: pdf_document
+---
+
+# Conclusion
+
+This study advances our understanding of how local biodiversity patterns respond to global change drivers, such as large-scale human activity across taxa. First, I demonstrated that large-scale human activity captured in the metric accessibility has not led to increases in temporal turnover across the 5787 time-series surveyed. Second, I demonstrated that human population density did not have a significant effect on turnover. Thirdly, I provided evidence for individualistic, yet complex turnover-taxa relationships. Lack of effect could be due to blabla. 
+
+My findings indicate the importance of using real-world data complementary to space-for-time and model study designs as biodiversity is complex. Higher turnover associated with lower accessibility challenges the assumption that wilderness is sufficient to achieve conservation goals. Incorporating a more complex spectrum of biodiversity change in response to large-scale human impact will improve our understanding of future impacts of global change drivers and thus can inform the most effective conservation strategies during this time of accelerating human impact.
