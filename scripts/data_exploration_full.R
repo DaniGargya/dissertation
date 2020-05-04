@@ -111,13 +111,13 @@ str(bio)
 
 # spatial scale ----
 # plots per study
-plot_study <- bio %>% 
+plot_study <- data1 %>% 
   group_by(STUDY_ID) %>% 
   summarise(plots =length(unique(STUDY_ID_PLOT)))
 
 # average/std dev plots per study
-mean(plot_study$plots) # 60.24
-sd(plot_study$plots) # +/- 170
+mean(plot_study$plots) # 64
+sd(plot_study$plots) # +/- 145
 
 
 # observations per plot
@@ -142,6 +142,11 @@ sd(years_study$duration) # +/- 15.79
 # average/std dev data points per study ID
 mean(years_study$DATA_POINTS) # 11.08
 sd(years_study$DATA_POINTS) # 12.46
+
+min(data1$START_YEAR)
+max(data1$END_YEAR)
+mean(data1$duration_plot)
+sd(data1$duration_plot)
 
 
 # taxa scale ----
@@ -169,7 +174,7 @@ write.table(samples_taxa, "outputs/samples_taxa.txt")
    geom_point(range = c(7,15)) +
    scale_size_continuous(range = c(3,10)) +
    guides(size = FALSE) +
-   scale_colour_brewer(palette = "Dark2") +
+   scale_colour_manual(values = taxa.palette) +
    scale_fill_manual(labels = c("Terrestrial plants",
                                 "Birds",
                                 "Mammals",
@@ -205,19 +210,20 @@ bio_short2$sort <- as.numeric(as.character(bio_short2$sort))
                                        colour = TAXA,
                                        x = fct_reorder(STUDY_ID_PLOT, desc(sort))),
                    size = 1) +
-    scale_colour_brewer(palette = "Dark2") +
+    scale_colour_manual(values = taxa.palette) +
     labs(x = NULL, y = NULL,
          title = ("\n\n b) Temporal distribution of time-series\n")) +
-    theme_clean() +
+    #theme_clean() +
     coord_flip() +
     guides(colour = F) +
-    theme_clean() +
+    theme_bw() +
     theme(panel.grid.minor = element_blank(),
           panel.grid.major.y = element_blank(),
           panel.grid.major.x = element_line(),
+          panel.border = element_blank(),
+          panel.background = element_blank(),
           axis.ticks = element_blank(),
           legend.position = "bottom", 
-          panel.border = element_blank(),
           legend.title = element_blank(),
           axis.title.y = element_blank(),
           axis.text.y = element_blank(),
@@ -238,8 +244,8 @@ taxa_sum <- bio_short2 %>%  group_by(TAXA) %>% tally
     geom_treemap() +
     geom_treemap_subgroup_border(colour = "white", size = 1) +
     geom_treemap_text(colour = "white", place = "center", reflow = T) +
-    scale_colour_brewer(palette = "Dark2") +
-    scale_fill_brewer(palette = "Dark2") +
+    scale_colour_manual(values = taxa.palette) +
+    scale_fill_manual(values = taxa.palette) +
     labs(title = ("\n\n c) Taxonomic distribution of time-series\n")) +
     theme(plot.title = element_text(size = 14, hjust = 0.5, face = "bold")) +
     guides(fill= FALSE))
@@ -370,3 +376,17 @@ j_a_b <- MCMCglmm(Jtu ~ log(AREA_SQ_KM),  data = data1)
 summary(j_a_b)
 
 
+
+# quantifications ----
+acc_75 <- data1 %>% 
+  filter(scaleacc_25 > 0.9)
+# 96.7% above 0.75
+# 90.5% above 0.9
+
+hpd_10 <- data1 %>% 
+  filter(scalehpd_25 < 0.25)
+# 96.4 below 0.1
+# 99.2% below 0.25
+
+taxa_check <- data1 %>% 
+  filter(TAXA == "Terrestrial plants")

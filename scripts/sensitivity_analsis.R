@@ -108,3 +108,32 @@ mo_tu_simp_tf <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA +
 save(mo_tu_simp_tf, file = "outputs/mo_tu_simp_tf.RData")
 summary(mo_tu_simp_tf)
 # richness trends ----
+
+mo_tu_simp_10 <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot + TAXA + AREA_SQ_KM +
+                    (1|cell) + (1|STUDY_ID)),
+                   family = zero_one_inflated_beta(), 
+                   data = data1,
+                   iter = 4000,
+                   warmup = 1000,
+                   inits = '0',
+                   control = list(adapt_delta = 0.85),
+                   cores = 2, chains = 4)
+
+save(mo_tu_simp_10, file = "outputs/mo_tu_simp_10.RData")
+
+
+# sensitivity analysis protected areas ----
+data1_pa <- data1 %>% 
+  filter(!PROTECTED_AREA == "TRUE")
+
+mo_tu_simp_pa <- brm(bf(Jtu ~ scaleacc_25 + scalehpd_25 + duration_plot +
+                              (1|cell) + (1|STUDY_ID)), 
+                         family = zero_one_inflated_beta(), 
+                         data = data1_pa,
+                         iter = 4000,
+                         warmup = 1000,
+                         inits = '0',
+                         control = list(adapt_delta = 0.85),
+                         cores = 2, chains = 4)
+
+save(mo_tu_simp_pa, file = "outputs/mo_tu_simp_pa.RData")

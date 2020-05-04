@@ -27,7 +27,7 @@ library(dggridR)
 # biotime data
 biotime_full <- read.csv("data/BioTIMEQuery02_04_2018.csv")
 biotime_meta <- read.csv("data/BioTIMEMetadata_02_04_2018.csv")
-#bio <- read.csv("data/bio.csv") %>%  dplyr::select(-X)
+bio <- read.csv("data/bio.csv") %>%  dplyr::select(-X)
 
 # accessibility data
 aa <- raster("data/2015_accessibility_to_cities_v1.0/2015_accessibility_to_cities_v1.0.tif")

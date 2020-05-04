@@ -16,11 +16,14 @@ header-includes:
   - \usepackage[font={small}]{caption}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(units)
-```
 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE,
+tidy.opts=list(width.cutoff = 60))
+library(units)
+
+```
 
 \allsectionsfont{\raggedright}
 \subsectionfont{\raggedright}
@@ -51,7 +54,7 @@ knitr::include_graphics("images/logo1.png")
 
 \Large
 \doublespacing
-{\bf GLOBAL ASSESSMENT OF LOCAL BIODIVERSTIY CHANGES \\ REVEAL SURPRISINGLY COMPLEX RESPONSES \\ TO LARGE-SCALE HUMAN ACTIVITY}
+{\bf GLOBAL ASSESSMENT OF LOCAL BIODIVERSTIY \\ CHANGES REVEAL COMPLEX RESPONSES TO \\ LARGE-SCALE HUMAN ACTIVITY}
 
 \vspace{1 cm}
 
@@ -90,7 +93,7 @@ May 2020
 
 \spacing{1.5}
 
-Globally, biodiversity is changing in complex ways in a time of accelerating human impact. We lack real-world data how large-scale anthropogenic activity, as a prominent contemporary global change driver, is directly and indirectly influencing the reshuffling of ecological communities over time. Here, I quantify the influence of human activity captured with the metric accessibility to cities on ecological assemblages worldwide by analysing change in 5787 time-series across birds, mammals, plants and invertebrates. Surprisingly, I found that for every 10% increase in accessibility, species replacement (turnover) decreases by 5%. Turnover was highest for invertebrates and mammals and lowest for birds and plants. My findings demonstrate the complexity of real-world biodiversity change and challenge the assumption that current conservation focus on protecting wilderness areas might not be sufficient to achieve biodiversity composition conservation goals.
+Globally, biodiversity is changing in complex ways in a time of accelerating human impact. We lack real-world data how cumulative large-scale anthropogenic activity, as a prominent contemporary global change driver, is influencing the re-shuffling of ecological communities over time. Despite calls for more encompassing tests, research has mostly focussed on individual types of environmental change. Here, I quantify the influence of multiple types of human impacts captured with the proxy accessibility to cities on ecological assemblages worldwide by analysing change in 5787 time-series across birds, mammals, plants and invertebrates. Surprisingly, I found that for every 10% increase in accessibility, species replacement (turnover) decreased by 1.6 %. I further highlight the need to account for both direct and indirect effects of human activities. Turnover was highest for invertebrates and mammals and lowest for birds and plants. My findings demonstrate the complexity of real-world biodiversity change and challenge the assumption that current conservation focus on protecting wilderness areas might not be sufficient to achieve biodiversity composition conservation goals.
 
 
 \pagenumbering{roman} 
@@ -107,11 +110,20 @@ Globally, biodiversity is changing in complex ways in a time of accelerating hum
 
 \section*{Acknowledgements}
 
-I would like to thank my supervisors, Dr Isla Myers-Smith and Gergana Daskalova for their constant support, shared knowledge and encouragement throughout the process of this dissertation and beyond. From finding a research question, to help with statistical analysis, coding, and writing tips, I always found open ears and patient explanations.  Also, I am very grateful for the opportunity to have become part of Team Shrub, where I learned a lot during the weekly lab meetings while also having fun. 
+I would like to thank my supervisors, Dr Isla Myers-Smith and Gergana Daskalova for their constant support, shared knowledge and encouragement throughout the process of this dissertation and beyond. From finding a research question, to help with statistical analysis, coding, and writing tips, I always found open ears and patient explanations.  Also, I am very grateful for the opportunity to have become part of Team Shrub, where I learned a lot during the weekly lab meetings while also having fun. The feedback Team Shrub provided me on one of my paragraphs was very useful.
+
+I also want to acknowledge and thank my great support network. Starting with my wonderful flatmates, Anna, Larisa and Giada, for always supporting and keeping the spirits high, but also giving valuable feedback and proofreading drafts. Next, I want to thank my parents, for always 
 
 
-I also want to acknowledge and thank my great support network. Starting with my wonderful flatmates, Anna, Larisa and Giada, for always supporting and keeping the spirits high, but also given valuable feedback and proofreading drafts. 
+\newpage
 
+\section*{List of abbreviations}
+
+BACI Before after control impact
+
+CI	Confidence Interval
+
+RQ	Research question
 
 \newpage
 

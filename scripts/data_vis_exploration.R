@@ -162,13 +162,14 @@ data_npa <- data1 %>%
 
 (graph_acc <- ggplot() +
    geom_point(data = data_npa, aes(x = scaleacc_25, y = Jtu, colour = PROTECTED_AREA),
-              alpha = 0.7, size = 2) +
+              alpha = 0.2, size = 2) +
    theme_clean() +
    labs(x = "\nAccessibility", y = "Turnover\n"))
 
 (graph_acc <- ggplot() +
     geom_point(data = data1, aes(x = scaleacc_25, y = Jtu, colour = PROTECTED_AREA),
-               alpha = 0.7, size = 2) +
+               alpha = 0.5, size = 2) +
+    scale_colour_manual(values = c("yellow", "black")) +
     theme_clean() +
     labs(x = "\nAccessibility", y = "Turnover\n"))
 
@@ -800,10 +801,10 @@ data1_nopl <- data1 %>%
   filter(!TAXA == "Terrestrial plants")
 
 (graph_acc <- ggplot() +
-    geom_line(data = pred_plants, color = "#E7298A", aes(x = x, y = predicted),
+    geom_line(data = pred_plants, color = "yellow", aes(x = x, y = predicted),
               size = 2) +
-    geom_ribbon(data = pred_plants, color = "#E7298A", aes(ymin = conf.low, ymax = conf.high, 
-                                    x = x), alpha = 0.1, fill = "#E7298A") +
+    geom_ribbon(data = pred_plants, color = "yellow", aes(ymin = conf.low, ymax = conf.high, 
+                                    x = x), alpha = 0.1, fill = "yellow") +
     geom_point(data = data1_plants, color = "#E7298A", aes(x = scaleacc_25, y = Jtu),
                alpha = 0.1, size = 2) +
     geom_line(data = pred_all, color = "#1B9E77", aes(x = x, y = predicted),
@@ -815,13 +816,27 @@ data1_nopl <- data1 %>%
     theme_clean() +
     labs(x = "\nAccessibility", y = "Turnover\n"))
 
+# only plants color by study ID ----
+(plants_studyID <- ggplot() +
+   geom_line(data = pred_plants, color = "yellow", aes(x = x, y = predicted),
+             size = 2) +
+   geom_ribbon(data = pred_plants, color = "yellow", aes(ymin = conf.low, ymax = conf.high, 
+                                                         x = x), alpha = 0.1, fill = "yellow") +
+   geom_point(data = data1_plants, aes(x = scaleacc_25, y = Jtu, color = STUDY_ID),
+              alpha = 0.5, size = 1) +
+   theme_clean() +
+   labs(x = "\nAccessibility", y = "Turnover\n") +
+   theme(legend.position = "right"))
+
+ggsave(plants_studyID, file = "outputs/plants_studyID.png", width = 7, height = 5)
+
 # scale analysis ----
 pred_1 <- ggpredict(mo_tu_simp8, terms = c("scaleacc_1"))
 pred_25 <- ggpredict(mo_tu_simp6, terms = c("scaleacc_25"))
 pred_50 <- ggpredict(mo_tu_simp7, terms = c("scaleacc_50"))
 pred_100 <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100"))
 
-(graph_acc <- ggplot() +
+(graph_scale <- ggplot() +
     geom_line(data = pred_1, color = "red", aes(x = x, y = predicted),
               size = 2) +
     geom_ribbon(data = pred_1, color = "red", aes(ymin = conf.low, ymax = conf.high, 
@@ -838,5 +853,23 @@ pred_100 <- ggpredict(mo_tu_scale100, terms = c("scaleacc_100"))
               size = 2) +
     geom_ribbon(data = pred_100, color = "yellow", aes(ymin = conf.low, ymax = conf.high, 
                                                      x = x), alpha = 0.1, fill = "yellow") +
+    theme_clean() +
+    labs(x = "\nAccessibility", y = "Turnover\n"))
+
+ggsave(graph_scale, filename = "outputs/graph_scale.png", height = 5, width = 8)
+
+# small time frame analysis ----
+pred_full <- ggpredict(mo_tu_simp6, terms = c("scaleacc_25"))
+pred_short <- ggpredict(mo_tu_simp_tf, terms = c("scaleacc_25"))
+
+(graph_tf <- ggplot() +
+    geom_line(data = pred_full, color = "red", aes(x = x, y = predicted),
+              size = 2) +
+    geom_ribbon(data = pred_full, color = "red", aes(ymin = conf.low, ymax = conf.high, 
+                                                  x = x), alpha = 0.1, fill = "red") +
+    geom_line(data = pred_short, color = "green", aes(x = x, y = predicted),
+              size = 2) +
+    geom_ribbon(data = pred_short, color = "green", aes(ymin = conf.low, ymax = conf.high, 
+                                                     x = x), alpha = 0.1, fill = "green") +
     theme_clean() +
     labs(x = "\nAccessibility", y = "Turnover\n"))

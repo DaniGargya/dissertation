@@ -1,39 +1,41 @@
 ---
 title: ''
 output: pdf_document
+header-includes:
+  - \usepackage{float}
+  - \usepackage{sectsty}
+  - \usepackage{paralist}
+  - \usepackage{fancyhdr}
+  - \usepackage{lastpage}
+  - \usepackage{dcolumn}
 ---
 
 # Results
 
 ## Temporal turnover and accessibility (Research Question 1)
 
-Contrary to my predictions, I found that temporal turnover has not increased as accessibility is increasing across the 5787 time-series surveyed (slope = -1.05, CI = -1.59 to -0.51, Figure 1, see Table 1 for more model outputs). On average, for every 10% increase in accessibility, turnover decreases by 1.6 %. In line with my predictions, the duration of the observation influenced the magnitude of the detected temporal turnover trends, with higher temporal turnover observed for longer monitoring of sites. Quantification. Only ~ 7% experienced complete turnover of communities (turnover = 1)  and ~ 37% experienced no turnover at all (turnover = 0). There is high uncertainty around the main effect at lower values of accessibility. As can be seen from the distribution 90.5 % of data points have accessibility score of 0.9 and above.
- 
- and that your relationship is driven by random effect things like certain studies really driving the overall relationship with really high accessibility? and there is a lot of uncertainty around the main effect at lower values of accessibility?
+Contrary to my predictions, I found that temporal turnover has decreased as accessibility increases across the 5787 time-series surveyed (slope = -1.20, CI = -2.09 to -0.32, Figure 1, see Table 1 for full model outputs). On average, for every 10% increase in accessibility, turnover decreases by 1.6 %. Notably, when taking the last census point as a baseline (lowest point of slope located at high accessibility), the ecological assemblages across levels of accessibility have experienced average 24% replacement of their species (as turnover is bound between 0 and 1) over their time-period monitored (average duration of 19 years).  63% of time-series experienced some turnover (turnover > 0) and only ~ 7% of time-series analysed experienced complete turnover of communities (turnover = 1). As 90.5% of data points have an accessibility score of 0.9 and above, there is higher uncertainty around the main effect at lower values of accessibility than at higher values, indicating the need to take the high value of temporal turnover at low accessibility with caution.
 
-```{r RQ1, echo=F, out.width = '90%'}
+In line with my predictions, the duration of the observation influenced the magnitude of the detected temporal turnover trends, with higher temporal turnover observed for longer monitoring of sites (see Figure A2 in appendix). 
+
+```{r RQ1, echo=F, fig.cap="\\label{fig:fig1}Temporal turnover has decreased as accessibility is increasing across the 5787 time-series surveyed (slope = -1.20, CI = -2.09 to -0.32, see Table 1 for full model outputs) using a mixed model. Grey points represent raw data. Lines and error bands represent model predictions and.",out.width = '90%',fig.show='hold',fig.pos="H", fig.align='center'}
 knitr::include_graphics("outputs/graph_acc_den.png")
 ```
 
-Figure 2. Jaccard turnover has increased for higher levels of accessibility across 5788 time-series globally (slope = 0.05, CI = 0.03 to 0.07, Figure 1, see Table 1 for more model outputs). Grey points represent raw data. Lines and error bands represent model predictions and 95% credible intervals, respectively. Colour coding of lines represent differing duration of monitoring. See trace plots and model Rhat values in appendix confirming model convergence.
 
 ## Temporal turnover and human population density (Research Question 2 modified)
 
-Looking at the relationship between turnover and human population density, I found that temporal turnover has not increased as human population density increased across the 5787 time-series surveyed (slope = -1.05, CI = -1.59 to -0.51, Figure 1, see Table 1 for more model outputs). the duration of the observation influenced the magnitude of the detected temporal turnover trends, with higher temporal turnover observed for longer monitoring of sites. Quantification. Uncertainty of main effect is more similar throughout levels of human population density. As can be seen from the distribution 96.4 % of data points have human population density score of 0.1 and below.
+Looking at the relationship between temporal turnover and human population density (without the interaction as that model did not converge), I found that temporal turnover has neither increased nor decreased as human population density increases across the 5787 time-series surveyed (slope = -0.22, CI = -0.49 to 0.05, Figure 1, see Table 1 for more model outputs). Notably, when taking the last census point as a baseline (lowest point of slope located at high human population density), the ecological assemblages have experienced a 17 % replacement of their species (as turnover is bound between 0 and 1)  over their time-period monitored (average duration of 19 years). Contrary to the distribution of accessibility falling into higher spectrum, 96.4% of data points have human population density score of 0.1 and below. 
 
-```{r RQ2, echo=F, out.width = '90%'}
+```{r RQ2, echo=F, fig.cap="\\label{fig:fig1} Temporal turnover has showed no directional relationship with human population density across the 5787 time-series surveyed (slope = -0.22, CI = -0.49 to 0.05, see Table 1 for full model outputs) using a mixed model. Grey points represent raw data.",out.width = '90%',fig.show='hold',fig.pos="H", fig.align='center'}
 knitr::include_graphics("outputs/graph_hpd_den.png")
 ```
-
-Figure 2. Jaccard turnover has increased for higher levels of accessibility across 5788 time-series globally (slope = 0.05, CI = 0.03 to 0.07, Figure 1, see Table 1 for more model outputs). Grey points represent raw data. Lines and error bands represent model predictions and 95% credible intervals, respectively. Colour coding of lines represent differing duration of monitoring. See trace plots and model Rhat values in appendix confirming model convergence.
-
 
 
 ## Temporal turnover and taxa (Research Question 3 modified)
 
-Looking at the relationship between temporal turnover and each taxa, I found that temporal turnover showed positive relationships across the four taxa surveyed (across the 5787 time-series surveyed) (slope = -1.05, CI = -1.59 to -0.51, Figure 1, see Table 1 for more model outputs). mammals and invertebrates have higher amounts of turnover relative to birds and plants and that invertebrates have the highest turnover. Also plants made up 73% of time-series that showed no turnover (turnover = 0). Raw data shows high variability for mammals, low for birds and plants. But also unequal sampling: 60% of data set is made up of plants, followed by 20% mammals, followed by 14% birds and only 6% invertebrates. Also interesting to see is different distribution of coincidence with PA: Plants and mammals show high coincidence; 39% and 45% respectively and below 5 for both invertebrates and birds.
+Looking at the relationship between temporal turnover and taxa (not considering the relationship across levels of accessibility as that model did not converge), I found that all taxa experienced temporal turnover (see Figure 5, Table 1 for full model outputs). Terrestrial invertebrates (slope = 0.99, CI = 0.31 – 1.7, n = 314) and mammals (slope = 0.71, CI = 0.01 – 1.42, n = 1145) experienced higher amounts of turnover relative to birds (slope = 0.11, CI = -0.87 – 1.14, n = 841) and plants (slope = 0, CI = -0.56 – 0.55, n = 3487). Terrestrial invertebrates experienced highest amount of turnover (0.54 times more than plants). The raw data demonstrates high variability of turnover experienced within mammals and lowest variability within birds. The number of time-series sampled for each taxon differed: of all time-series analysed 60% are made up of plants, followed by 20% mammals, followed by 14% birds and only 6% invertebrates. Out of the 37% time-series that showed no turnover at all, plants accounted for 73%.
 
-```{r RQ3, echo=F, out.width = '90%'}
-knitr::include_graphics("outputs/panel_taxa.png")
+```{r RQ3, echo=F, fig.cap="\\label{fig:fig1} Temporal turnover is apparent across all taxa surveyed with variation among and within taxa using a mixed model. *A* Raw data visualisation of turnover across taxa. Split violins represent data distribution, boxplots with mean values and points are raw data. Numbers are sample sizes per taxon. *B* Model visualisation ",out.width = '90%',fig.show='hold',fig.pos="H", fig.align='center'}
+knitr::include_graphics("outputs/taxa_panel_pp.png")
 ```
-

@@ -499,14 +499,12 @@ den2 <- bio_meta %>%
 # loop with AB = B ----
 bio$sum.allrawdata.ABUNDANCE[bio$sum.allrawdata.ABUNDANCE < 1] <- 1
 
-beta_Jaccard$Jtu <- as.numeric(beta_Jaccard$Jtu)
-hist(beta_Jaccard$Jtu)
+beta_Jacca
 
-
-# testing distribution of fake lat/long ----
+# acc testing distribution of fake lat/long ----
 library(generator)
-fake_lat <- r_latitudes(1023)
-fake_long <- r_longitudes(1023)
+fake_lat <- r_latitudes(5800)
+fake_long <- r_longitudes(5800)
 
 fake_ll <- SP %>% 
   mutate(fake_lat = c(fake_lat),
@@ -524,8 +522,46 @@ f_e <- extract(aa, f_tp)
 f_bio_aa <- cbind(fake_ll, f_e)
 f_bio_aa_short <- na.omit(f_bio_aa)
 
-f_bio_aa_scale <- f_bio_aa_short %>%
-  mutate(f_scaleacc=(f_e-min(f_e))/(max(f_e)-min(f_e)))
+#f_bio_aa_scale <- f_bio_aa_short %>%
+#  mutate(f_scaleacc=(f_e-min(f_e))/(max(f_e)-min(f_e)))
 
-hist(f_bio_aa_scale$f_scaleacc) # more normal distributed?
+hist(f_bio_aa_short$f_e) # more normal distributed?
 hist(log(f_bio_aa_scale$f_scaleacc))
+
+# hpd testing distribution of fake lat/long ----
+library(generator)
+#fake_lat <- r_latitudes(1023)
+#fake_long <- r_longitudes(1023)
+
+#fake_ll <- SP %>% 
+ # mutate(fake_lat = c(fake_lat),
+  #       fake_long = c(fake_long)) %>% 
+  #dplyr::select(- LATITUDE, -LONGITUDE)
+
+#f_points <- cbind(fake_ll$fake_long, fake_ll$fake_lat)
+
+
+#f_sppoints <- SpatialPoints(f_points, proj4string=CRS('+proj=longlat +datum=WGS84'))
+f_tp_hpd <- spTransform(f_sppoints, crs(hpd))
+
+f_e_hpd <- extract(hpd, f_tp_hpd)
+
+f_bio_hpd <- cbind(fake_ll, f_e_hpd)
+f_bio_hpd_short <- na.omit(f_bio_hpd)
+
+#f_bio_aa_scale <- f_bio_aa_short %>%
+#  mutate(f_scaleacc=(f_e-min(f_e))/(max(f_e)-min(f_e)))
+
+hist(f_bio_hpd_short$f_e_hpd) # more normal distributed?
+hist(log(f_bio_aa_scale$f_scaleacc))
+
+taxa_st <- data1 %>% 
+  group_by(TAXA) %>% 
+  summarise(length(unique(STUDY_ID_PLOT)))
+
+check <- data1 %>% 
+  filter(scaleacc_25 > 0.5)
+rd$Jtu <- as.numeric(beta_Jaccard$Jtu)
+hist(beta_Jaccard$Jtu)
+
+
