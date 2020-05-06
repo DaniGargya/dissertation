@@ -3,6 +3,7 @@ title: " "
 output:
   pdf_document:
     number_sections: TRUE
+    latex_engine: xelatex
 geometry: "left = 2.5cm, right = 2cm, top = 2cm, bottom = 2cm"
 fontsize: 11pt
 header-includes:
@@ -14,6 +15,8 @@ header-includes:
   - \usepackage{lastpage}
   - \usepackage{dcolumn}
   - \usepackage[font={small}]{caption}
+  - \usepackage{fontspec}
+  - \usepackage[document]{ragged2e}
 ---
 
 
@@ -26,12 +29,13 @@ library(units)
 ```
 
 \allsectionsfont{\raggedright}
-\subsectionfont{\raggedright}
-\subsubsectionfont{\raggedright}
+
+\setmainfont{Arial}
+
 
 \pagenumbering{gobble} 
 
-\begin{centering}
+\centering
 
 \vspace{3 cm}
 
@@ -42,19 +46,25 @@ knitr::include_graphics("images/logo1.png")
 
 \Large
 
-{\bf The University of Edinburgh}
+**The University of Edinburgh**
 
 
 \Large
 
-{\bf School of Geosciences}
+**School of Geosciences**
 
 
 \vspace{1 cm}
 
 \Large
 \doublespacing
-{\bf GLOBAL ASSESSMENT OF LOCAL BIODIVERSTIY \\ CHANGES REVEAL COMPLEX RESPONSES TO \\ LARGE-SCALE HUMAN ACTIVITY}
+**GLOBAL ASSESSMENT OF LOCAL BIODIVERSTIY**
+
+
+**CHANGES REVEALS COMPLEX RESPONSES TO**
+
+
+**LARGE-SCALE HUMAN ACTIVITY**
 
 \vspace{1 cm}
 
@@ -66,13 +76,17 @@ By
 
 \Large
 
-{\bf DANIELA GARGYA}
+**DANIELA GARGYA**
 
 \vspace{1.5 cm}
 
 \normalsize
 
-in partial fulfilment of the requirement \\for the degree of BSc with Honours \\in Ecological and Environmental Sciences with Management
+in partial fulfilment of the requirement 
+
+for the degree of BSc with Honours 
+
+in Ecological and Environmental Sciences with Management
 
 \vspace{1.5 cm}
 
@@ -80,7 +94,7 @@ in partial fulfilment of the requirement \\for the degree of BSc with Honours \\
 May 2020
 
 
-\end{centering}
+\justify
 
 \newpage
 
@@ -88,13 +102,12 @@ May 2020
 
 
 
-\textbf{Abstract}
+\textbf{Summary}
 
 
 \spacing{1.5}
 
 Globally, biodiversity is changing in complex ways in a time of accelerating human impact. We lack real-world data how cumulative large-scale anthropogenic activity, as a prominent contemporary global change driver, is influencing the re-shuffling of ecological communities over time. Despite calls for more encompassing tests, research has mostly focussed on individual types of environmental change. Here, I quantify the influence of multiple types of human impacts captured with the proxy accessibility to cities on ecological assemblages worldwide by analysing change in 5787 time-series across birds, mammals, plants and invertebrates. Surprisingly, I found that for every 10% increase in accessibility, species replacement (turnover) decreased by 1.6 %. I further highlight the need to account for both direct and indirect effects of human activities. Turnover was highest for invertebrates and mammals and lowest for birds and plants. My findings demonstrate the complexity of real-world biodiversity change and challenge the assumption that current conservation focus on protecting wilderness areas might not be sufficient to achieve biodiversity composition conservation goals.
-
 
 \pagenumbering{roman} 
 
@@ -105,6 +118,7 @@ Globally, biodiversity is changing in complex ways in a time of accelerating hum
 \centering
 \raggedright
 \tableofcontents
+\justify
 
 \newpage
 
@@ -112,7 +126,9 @@ Globally, biodiversity is changing in complex ways in a time of accelerating hum
 
 I would like to thank my supervisors, Dr Isla Myers-Smith and Gergana Daskalova for their constant support, shared knowledge and encouragement throughout the process of this dissertation and beyond. From finding a research question, to help with statistical analysis, coding, and writing tips, I always found open ears and patient explanations.  Also, I am very grateful for the opportunity to have become part of Team Shrub, where I learned a lot during the weekly lab meetings while also having fun. The feedback Team Shrub provided me on one of my paragraphs was very useful.
 
-I also want to acknowledge and thank my great support network. Starting with my wonderful flatmates, Anna, Larisa and Giada, for always supporting and keeping the spirits high, but also giving valuable feedback and proofreading drafts. Next, I want to thank my parents, for always 
+I also want to acknowledge and thank my great support network. Starting with my wonderful flatmates, Anna, Larisa and Giada, for always keeping the spirits high, but also giving valuable feedback and proofreading drafts. Also, I want to thank my parents and Max, for constant support and proofreading the draft.
+
+
 
 
 \newpage

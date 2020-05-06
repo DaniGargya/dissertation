@@ -4,5 +4,121 @@ output: pdf_document
 ---
 
 # References
+Andersen, A. N. et al. (2004) ‘Use of terrestrial invertebrates for biodiversity monitoring in Australian rangelands, with particular reference to ants’, Austral Ecology, 29(1), pp. 87–92. doi: 10.1111/j.1442-9993.2004.01362.x.
 
-fnjkfnkdsgn
+Barnes, Richard (2017). dggridR: Discrete Global Grids for R. R package version 2.0.4. "https://github.com/r-barnes/dggridR/" doi:10.5281/zenodo.1322866
+
+Barnosky, A. D. et al. (2011) ‘Has the Earth’s sixth mass extinction already arrived?’, Nature. Nature Publishing Group, 471(7336), pp. 51–57. doi: 10.1038/nature09678.
+
+Baselga A. et al.(2018). betapart: Partitioning Beta Diversity into Turnover and Nestedness Components. R package version 1.5.1. https://CRAN.R-project.org/package=betapart
+
+Blowes, S. A. et al. (2019) ‘The geography of biodiversity change in marine and terrestrial assemblages’, Science, 366(6463), pp. 339–345. doi: 10.1126/science.aaw1620.
+
+Bowler, D. E. et al. (2020) ‘Mapping human pressures on biodiversity across the planet uncovers anthropogenic threat complexes’, People and Nature, n/a(n/a). doi: 10.1002/pan3.10071.
+
+Bürkner, P. (2018). Advanced Bayesian Multilevel Modeling with the R Package brms. The R Journal, 10(1), 395-411. doi:10.32614/RJ-2018-017
+
+Butchart, S. H. M. et al. (2010) ‘Global Biodiversity: Indicators of Recent Declines’, Science, 328(5982), pp. 1164–1168. doi: 10.1126/science.1187512.
+
+Chase, J. M. et al. (2019) ‘Species richness change across spatial scales’, Oikos, 128(8), pp. 1079–1091. doi: 10.1111/oik.05968.
+
+Chazal, J. and Rounsevell, M. (2009) ‘Land-Use and Climate Change within Assessments of Biodiversity Change: A Review’, Global Environmental Change, 19, pp. 306–315. doi: 10.1016/j.gloenvcha.2008.09.007.
+
+CIESIN (2018) ‘Gridded Population of the World, Version 4 (GPWv4): Population Density, Revision 11’. NASA Socioeconomic Data and Applications Center (SEDAC). Available at: https://doi.org/10.7927/H49C6VHW.
+
+Concepción, E. D. et al. (2015) ‘Impacts of urbanisation on biodiversity: the role of species mobility, degree of specialisation and spatial scale’, Oikos, 124(12), pp. 1571–1582. doi: 10.1111/oik.02166.
+
+Côté, I. M., Darling, E. S. and Brown, C. J. (2016) ‘Interactions among ecosystem stressors and their importance in conservation’, Proceedings of the Royal Society B: Biological Sciences. Royal Society, 283(1824), p. 20152592. doi: 10.1098/rspb.2015.2592.
+
+Damschen, E. I. et al. (2019) ‘Ongoing accumulation of plant diversity through habitat connectivity in an 18-year experiment’, Science. American Association for the Advancement of Science, 365(6460), pp. 1478–1480. doi: 10.1126/science.aax8992.
+
+Daskalova, G. N. et al. (2019) ‘Landscape-scale forest loss as a catalyst of population and biodiversity change’, bioRxiv, p. 473645. doi: 10.1101/473645.
+
+Daskalova, G. N., Myers-Smith, I. H. and Godlee, J. L. (2019) ‘All is not decline across global vertebrate populations’, bioRxiv, p. 272898. doi: 10.1101/272898.
+
+De Palma, A. et al. (2018) ‘Challenges with inferring how land-use affects terrestrial biodiversity: Study design, time, space and synthesis’, Advances in Ecological Research. doi: De Palma, Adriana, Sanchez Ortiz, Katia, Martin, Phillip A., Chadwick, Amy, Gilbert, Guillermo, Bates, Amanda E., Börger, Luca, Contu, Sara, Hill, Samantha L.L. and Purvis, Andy       (2018)     Challenges with inferring how land-use affects terrestrial biodiversity: Study design, time, space and synthesis.       Advances in Ecological Research.   (doi:10.1016/bs.aecr.2017.12.004 <http://dx.doi.org/10.1016/bs.aecr.2017.12.004>).
+
+Di Marco, M. et al. (2019) ‘Wilderness areas halve the extinction risk of terrestrial biodiversity’, Nature. Nature Publishing Group, 573(7775), pp. 582–585. doi: 10.1038/s41586-019-1567-7.
+
+Dornelas, M. et al. (2014) ‘Assemblage Time Series Reveal Biodiversity Change but Not Systematic Loss’, Science, 344(6181), pp. 296–299. doi: 10.1126/science.1248484.
+
+Dornelas, M. et al. (2018) ‘BioTIME: A database of biodiversity time series for the Anthropocene’, Global Ecology and Biogeography, 27(7), pp. 760–786. doi: 10.1111/geb.12729.
+
+Dunic, J. C. et al. (2017) ‘Attributing the variability in direction and magnitude of local-scale marine biodiversity change to human activities’, bioRxiv. Cold Spring Harbor Laboratory, p. 162362. doi: 10.1101/162362.
+
+Ehrlén, J. and Morris, W. F. (2015) ‘Predicting changes in the distribution and abundance of species under environmental change’, Ecology Letters, 18(3), pp. 303–314. doi: 10.1111/ele.12410.
+
+Eriksson, B. K. and Hillebrand, H. (2019) ‘Rapid reorganization of global biodiversity’, Science, 366(6463), pp. 308–309. doi: 10.1126/science.aaz4520.
+Fahrig, L. (2017) ‘Ecological Responses to Habitat Fragmentation Per Se’, Annual Review of Ecology, Evolution, and Systematics, 48(1), pp. 1–23. doi: 10.1146/annurev-ecolsys-110316-022612.
+
+Foden, W. B. et al. (2019) ‘Climate change vulnerability assessment of species’, WIREs Climate Change, 10(1), p. e551. doi: 10.1002/wcc.551.
+
+Gaston, K. J. and Fuller, R. A. (2008) ‘Commonness, population depletion and conservation biology’, Trends in Ecology & Evolution, 23(1), pp. 14–19. doi: 10.1016/j.tree.2007.11.001.
+
+Geary, W. L. et al. (2019) ‘Threat webs: Reframing the co-occurrence and interactions of threats to biodiversity’, Journal of Applied Ecology, 56(8), pp. 1992–1997. doi: 10.1111/1365-2664.13427.
+
+Gonzalez, A. et al. (2016) ‘Estimating local biodiversity change: a critique of papers claiming no net loss of local diversity’, Ecology, 97(8), pp. 1949–1960. doi: 10.1890/15-1759.1.
+
+Gotelli, N. J. et al. (2017) ‘Community-level regulation of temporal trends in biodiversity’, Science Advances, 3(7), p. e1700315. doi: 10.1126/sciadv.1700315.
+
+Haddad, N. M. et al. (2015) ‘Habitat fragmentation and its lasting impact on Earth’s ecosystems’, Science Advances. American Association for the Advancement of Science, 1(2), p. e1500052. doi: 10.1126/sciadv.1500052.
+
+Hijmans, Robert J. (2020). raster: Geographic Data Analysis and Modeling. R package version 3.1-5. https://CRAN.R-project.org/package=raster
+
+Hillebrand, H. et al. (2018) ‘Biodiversity change is uncoupled from species richness trends: Consequences for conservation and monitoring’, Journal of Applied Ecology, 55(1), pp. 169–184. doi: 10.1111/1365-2664.12959.
+
+Hulme, P. E. (2009) ‘Trade, transport and trouble: managing invasive species pathways in an era of globalization’, Journal of Applied Ecology, 46(1), pp. 10–18. doi: 10.1111/j.1365-2664.2008.01600.x.
+
+Ibisch, P. L. et al. (2016) ‘A global map of roadless areas and their conservation status’, Science. American Association for the Advancement of Science, 354(6318), pp. 1423–1427. doi: 10.1126/science.aaf7166.
+
+IPBES (2019) ‘Summary for policymakers of the global assessment report on biodiversity and ecosystem services of the Intergovernmental Science-Policy Platform on Biodiversity and Ecosystem Services’. Available at: https://uwe-repository.worktribe.com/output/1493508/summary-for-policymakers-of-the-global-assessment-report-on-biodiversity-and-ecosystem-services-of-the-intergovernmental-science-policy-platform-on-biodiversity-and-ecosystem-services (Accessed: 24 January 2020).
+
+Isaac, N. J. B. and Cowlishaw, G. (2004) ‘How species respond to multiple extinction threats’, Proceedings of the Royal Society of London. Series B: Biological Sciences. Royal Society, 271(1544), pp. 1135–1141. doi: 10.1098/rspb.2004.2724.
+
+Jetz, W. and Pyron, R. A. (2018) ‘The interplay of past diversification and evolutionary isolation with present imperilment across the amphibian tree of life’, Nature Ecology & Evolution. Nature Publishing Group, 2(5), pp. 850–858. doi: 10.1038/s41559-018-0515-5.
+
+Kareiva, P. et al. (1990) ‘Population dynamics in spatially complex environments: theory and data’, Philosophical Transactions of the Royal Society of London. Series B: Biological Sciences. Royal Society, 330(1257), pp. 175–190. doi: 10.1098/rstb.1990.0191.
+
+Kilpatrick, A. M. and Ives, A. R. (2003) ‘Species interactions can explain Taylor’s power law for ecological time series’, Nature. Nature Publishing Group, 422(6927), pp. 65–68. doi: 10.1038/nature01471.
+
+Lande, R. (1993) ‘Risks of Population Extinction from Demographic and Environmental Stochasticity and Random Catastrophes’, The American Naturalist. The University of Chicago Press, 142(6), pp. 911–927. doi: 10.1086/285580.
+
+Longton, R. and Hedderson, T. (2000) ‘What Are Rare Species and Why Conserve Them?’, Lindbergia, 25, pp. 53–61. doi: 10.2307/20150038.
+
+Lüdecke D (2018). “ggeffects: Tidy Data Frames of Marginal Effects from Regression Models.”(26), 772. doi:10.21105/joss.00772 
+
+Magurran, A. et al. (2018) ‘Divergent biodiversity change within ecosystems’, Proceedings of the National Academy of Sciences, 115, p. 201712594. doi: 10.1073/pnas.1712594115.
+
+malariaatlas.org (2020) Accessibility to Cities, MAP. Available at: https://malariaatlas.org/research-project/accessibility_to_cities/ (Accessed: 5 May 2020).
+
+Mazor, T. et al. (2018) ‘Global mismatch of policy and research on drivers of biodiversity loss’, Nature Ecology & Evolution. Nature Publishing Group, 2(7), pp. 1071–1074. doi: 10.1038/s41559-018-0563-x.
+
+McGill, B. J. et al. (2015) ‘Fifteen forms of biodiversity trend in the Anthropocene’, Trends in Ecology & Evolution, 30(2), pp. 104–113. doi: 10.1016/j.tree.2014.11.006.
+
+Myers‐Smith, I. H. et al. (2019) ‘Eighteen years of ecological monitoring reveals multiple lines of evidence for tundra vegetation change’, Ecological Monographs, 89(2), p. e01351. doi: 10.1002/ecm.1351.
+
+Newbold, T. et al. (2014) ‘A global model of the response of tropical and sub-tropical forest biodiversity to anthropogenic pressures’, Proceedings of the Royal Society B: Biological Sciences. Royal Society, 281(1792), p. 20141371. doi: 10.1098/rspb.2014.1371.
+
+Newbold, T. et al. (2015) ‘Global effects of land use on local terrestrial biodiversity’, Nature, 520(7545), pp. 45–50. doi: 10.1038/nature14324.
+
+Oksanen, F. et al. (2019) vegan: Community Ecology Package. R package version 2.5-6.https://CRAN.R-project.org/package=vegan
+
+Pereira, H. M., Navarro, L. M. and Martins, I. S. (2012) ‘Global Biodiversity Change: The Bad, the Good, and the Unknown’, Annual Review of Environment and Resources, 37(1), pp. 25–50. doi: 10.1146/annurev-environ-042911-093511.
+
+Purvis, A. et al. (2000) ‘Predicting extinction risk in declining species’, Proceedings of the Royal Society of London. Series B: Biological Sciences. Royal Society, 267(1456), pp. 1947–1952. doi: 10.1098/rspb.2000.1234.
+
+R Core Team. (2019). R: A language and enviroment for statistical computing. Vienna, Austria: R Foundation for Statistical Computing. Retrieved from https://www.R-project.org/
+
+Seebens, H. et al. (2018) ‘Global rise in emerging alien species results from increased accessibility of new source pools’, Proceedings of the National Academy of Sciences of the United States of America, 115(10), pp. E2264–E2273. doi: 10.1073/pnas.1719429115.
+
+Sirami, C. et al. (2017) ‘Impacts of global change on species distributions: obstacles and solutions to integrate climate and land use’, Global Ecology and Biogeography, 26(4), pp. 385–394. doi: 10.1111/geb.12555.
+
+Spooner, F. E. B., Pearson, R. G. and Freeman, R. (2018) ‘Rapid warming is associated with population decline among terrestrial birds and mammals globally’, Global Change Biology. John Wiley & Sons, Ltd, 24(10), pp. 4521–4531. doi: 10.1111/gcb.14361.
+
+UN (2015) Transforming our world: the 2030 Agenda for Sustainable Development, DISD. Available at: https://www.un.org/development/desa/dspd/2015/08/transforming-our-world-the-2030-agenda-for-sustainable-development/ (Accessed: 26 January 2020).
+
+Vellend, M., Dornelas, M., et al. (2017) ‘Estimates of local biodiversity change over time stand up to scrutiny’, Ecology, 98(2), pp. 583–590. doi: 10.1002/ecy.1660.
+
+Vellend, M., Baeten, L., et al. (2017) ‘Plant Biodiversity Change Across Scales During the Anthropocene’, Annual Review of Plant Biology, 68(1), pp. 563–586. doi: 10.1146/annurev-arplant-042916-040949.
+
+Weiss, D. J. et al. (2018) ‘A global map of travel time to cities to assess inequalities in accessibility in 2015’, Nature, 553(7688), pp. 333–336. doi: 10.1038/nature25181.
