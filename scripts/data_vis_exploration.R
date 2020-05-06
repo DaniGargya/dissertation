@@ -873,3 +873,64 @@ pred_short <- ggpredict(mo_tu_simp_tf, terms = c("scaleacc_25"))
                                                      x = x), alpha = 0.1, fill = "green") +
     theme_clean() +
     labs(x = "\nAccessibility", y = "Turnover\n"))
+
+
+table_m <- parameters::model_parameters(mo_tu_simp6, type = "all", digits = 2)
+table_plants <- parameters::model_parameters(mo_tu_simp_plants, ci = 0.95, diagnostic = c("Rhat"), digits = 2)
+
+as.data.frame(table_plants)
+standardize_names(table_plants, style = "broom")
+
+table_p <- tidy_stan(mo_tu_simp_plants, effect = c("all"), component = c("all"), digits = 2)
+#table_plants <- parameters::model_parameters(mo_tu_simp_plants, ci = 0.95, diagnostic = c("Rhat"), digits = 2)
+
+library(parameters)
+
+table_1 <- parameters::model_parameters(mo_tu_simp8, type = "all", digits = 2)
+table_50 <- parameters::model_parameters(mo_tu_simp7, type = "all", digits = 2)
+table_100 <- parameters::model_parameters(mo_tu_scale100, type = "all", digits = 2)
+
+check <- data1 %>% 
+  group_by(PROTECTED_AREA) %>% 
+  summarise(unique(length(STUDY_ID_PLOT)))
+
+#model trace plots in case i need them later ----
+```{r model convergence simp6, echo = FALSE, fig.cap="\\label{fig:fig1} put figure caption",out.width = '60%',fig.show='hold',fig.pos="H", fig.align='center'}
+load("outputs/mo_tu_simp6.RData")
+plot(mo_tu_simp6)
+```
+
+```{r model convergence plants, echo = FALSE, fig.cap="\\label{fig:fig1} put figure caption",out.width = '60%',fig.show='hold',fig.pos="H", fig.align='center'}
+load("outputs/mo_tu_simp_plants.RData")
+plot(mo_tu_simp_plants)
+```
+
+```{r model convergence 1km, echo = FALSE, fig.cap="\\label{fig:fig1} put figure caption",out.width = '60%',fig.show='hold',fig.pos="H", fig.align='center'}
+load("outputs/mo_tu_simp8.RData")
+plot(mo_tu_simp8)
+```
+
+```{r model convergence 50km, echo = FALSE, fig.cap="\\label{fig:fig1} put figure caption",out.width = '60%',fig.show='hold',fig.pos="H", fig.align='center'}
+load("outputs/mo_tu_simp7.RData")
+plot(mo_tu_simp7)
+```
+
+```{r model convergence 100km, echo = FALSE, fig.cap="\\label{fig:fig1} put figure caption",out.width = '60%',fig.show='hold',fig.pos="H", fig.align='center'}
+load("outputs/mo_tu_scale100.RData")
+plot(mo_tu_scale100)
+```
+
+Barnes, Richard (2017). dggridR: Discrete Global Grids for R. R package version 2.0.4. "https://github.com/r-barnes/dggridR/" doi:10.5281/zenodo.1322866
+
+Baselga A. et al.(2018). betapart: Partitioning Beta Diversity into Turnover and Nestedness Components. R package version 1.5.1. https://CRAN.R-project.org/package=betapart
+
+Bürkner, P. (2018). Advanced Bayesian Multilevel Modeling with the R Package brms. The R Journal, 10(1), 395-411. doi:10.32614/RJ-2018-017
+
+Lüdecke D (2018). “ggeffects: Tidy Data Frames of Marginal Effects from Regression Models.”(26), 772. doi:10.21105/joss.00772 (URL:https://doi.org/10.21105/joss.00772)
+
+R Core Team. (2019). R: A language and enviroment for statistical computing. Vienna, Austria: R Foundation for Statistical Computing. Retrieved from https://www.R-project.org/
+  
+  Oksanen, F. et al. (2019) vegan: Community Ecology Package. R package version 2.5-6.https://CRAN.R-project.org/package=vegan
+
+
+Hijmans, Robert J. (2020). raster: Geographic Data Analysis and Modeling. R package version 3.1-5. https://CRAN.R-project.org/package=raster
